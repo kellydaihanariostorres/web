@@ -1,18 +1,47 @@
 import React from 'react';
-import './App.scss'; 
-import { BrowserRouter as Router, Route } from 'react-router-dom';
+import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
+import './App.scss';
 import SideBar from './Components/SideBar';
 import Navb from './Components/Nav';
+import Home from './Views/Home/Home';
+import Bodega from './Views/Bodega/Index';
+import CreateBodega from './Views/Bodega/Create';
+import Empleado from './Views/Empleados/Index';
+import CreateEmpleado from './Views/Empleados/Create';
+import EditEmpleado from './Views/Empleados/Edit';
+import Clientes from './Views/Clientes/index';
+import Productos from './Views/Productos/index';
+import Caja from './Views/Caja/Index';
+import Inventario from './Views/Inventario/Index';
+import Pago from './Views/Pagos/Index';
+import Proveedor from './Views/Proveedor/Index';
+import Login from './Views/Login';
+import Registro from './Views/Registro';
 
 function App() {
   return (
     <Router>
-      <Navb/>
-      <div className='flex'>
-      <SideBar/>
-      <div className='content'>
-        
-      </div>
+      <div>
+        <Navb />
+        <div className='flex'>
+          <SideBar />
+          <div className='content'>
+            <Routes>
+              <Route path="/home" element={<Home />} />
+              <Route path="/bodega" element={<Bodega />}/>
+              <Route path="/createbodega" element={<CreateBodega/>}/>
+              <Route path="/empleado" element={<Empleado/>}/>
+              <Route path="/createempleado" element={<CreateEmpleado/>}/>
+              <Route path="/editempleado" element={<EditEmpleado/>}/>
+              <Route path="/clientes" element={<Clientes/>}/>
+              <Route path="/productos" element={<Productos/>}/>
+              <Route path="/pago" element={<Pago/>}/>
+              <Route path="/inventario" element={<Inventario/>}/>
+              <Route path="/caja" element={<Caja/>}/>
+              <Route path="/proveedor" element={<Proveedor/>}/>
+            </Routes>
+          </div>
+        </div>
       </div>
     </Router>
   );

@@ -41,10 +41,20 @@ $gray: #383838;
   }
 }
 .circu-container {
-  text-align: center; /* Centra el círculo horizontalmente */
+  text-align: center; 
   margin-top: 1px;
-  margin-bottom: 20px; /* Espacio entre el círculo y la lista de enlaces */
+  margin-bottom: 20px; 
 }
+
+.Titehome {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  margin-top: 1px;
+  margin-bottom: 20px;
+}
+
 
 .circu{
   margin-bottom: 10px; 

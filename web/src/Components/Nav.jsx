@@ -28,7 +28,7 @@ const Navb = () => {
           <DropdownToggle nav caret>
             Luna Mahecha
           </DropdownToggle>
-          <DropdownMenu right>
+          <DropdownMenu end>
             <DropdownItem>Mi perfil</DropdownItem>
             <DropdownItem>Cerrar</DropdownItem>
             <DropdownItem divider />

@@ -38,7 +38,7 @@ const SideBar = () => {
                
               <ul className='navbar-nav flex-column mb-2'>
                 <li className='nav-item'>
-                  <NavLink to='/inicio' className='text-white rounded py-2 w-100 d-inline-block px-2' activeClassName="active"><FaIcons.FaHome className='me-3'/>
+                  <NavLink to='/home' className='text-white rounded py-2 w-100 d-inline-block px-2' activeclassname="activa"><FaIcons.FaHome className='me-3'/>
                     INICIO
                   </NavLink>
                 </li>
@@ -58,6 +58,11 @@ const SideBar = () => {
                   </NavLink>
                 </li>
                 <li className='nav-item'>
+                  <NavLink to='/proveedor' className='text-white rounded py-2 w-100 d-inline-block px-2'><FaIcons.FaRegHandLizard className='me-2'/>
+                    PROVEEDOR
+                  </NavLink>
+                </li>
+                <li className='nav-item'>
                   <NavLink to='/pago' className='text-white rounded py-2 w-100 d-inline-block px-2'><FaIcons.FaRegCreditCard className='me-3'/>
                     PAGOS
                   </NavLink>
@@ -68,7 +73,7 @@ const SideBar = () => {
                   </NavLink>
                 </li>
                 <li className='nav-item'>
-                  <NavLink to='/bodegas' className='text-white rounded py-2 w-100 d-inline-block px-2'><FaIcons.FaArchway className='me-2'/>
+                  <NavLink to='/bodega' className='text-white rounded py-2 w-100 d-inline-block px-2'><FaIcons.FaArchway className='me-2'/>
                     BODEGAS
                   </NavLink>
                 </li>

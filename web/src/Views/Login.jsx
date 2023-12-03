@@ -56,9 +56,11 @@ const Login = () => {
                   handleChange={(e) => setPassword(e.target.value)}
                 />
                 <div className="d-grid col-10 mx-auto">
-                  <button className="btn btn-dark">
-                    <i className="fa-solid fa-door-open"></i>Login
-                  </button>
+                <Link to="/home">
+                    <button className="btn btn-dark">
+                      <i className="fa-solid fa-door-open"></i>Login
+                    </button>
+                  </Link>
                 </div>
               </form>
               <Link to="/registro">
