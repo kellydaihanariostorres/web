@@ -30,7 +30,10 @@ const Navb = () => {
           </DropdownToggle>
           <DropdownMenu end>
             <DropdownItem>Mi perfil</DropdownItem>
-            <DropdownItem>Cerrar</DropdownItem>
+            
+            <DropdownItem>
+              Cerrar
+            </DropdownItem>
             <DropdownItem divider />
           </DropdownMenu>
         </UncontrolledDropdown>

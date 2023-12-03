@@ -15,6 +15,18 @@ $gray: #383838;
 .flex{
   display: flex;
 }
+
+
+.Titehome {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  margin-top: 1px;
+  margin-bottom: 20px;
+}
+
+
 .sideBarMenu{
   background-color: $light;
   padding:  1rem 2rem;
