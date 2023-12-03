@@ -4,6 +4,7 @@ import * as FaIcons from 'react-icons/fa';
 import axios from 'axios';
 import storage from '../Storage/storage';
 
+
 const SideBar = () => {
   const go = useNavigate();
 
@@ -13,6 +14,7 @@ const SideBar = () => {
     await axios.get('/api/auth/logout', storage.get('authToken'));
     go('/login');
   };
+  //const userImageUrl = storage.get('authUser')?.image || userImage;
 
   return (
     <div className="sideBar">
@@ -32,7 +34,8 @@ const SideBar = () => {
           </button>
 
           {!storage.get('authUser') ? (
-            <div className='collapse navbar-collapse navbar-dark bg-dark' id='nav'>
+            <div className='collapse navbar-collapse navbar-dark bg-dark' id='nav'>  
+               
               <ul className='navbar-nav flex-column mb-2'>
                 <li className='nav-item'>
                   <NavLink to='/inicio' className='text-white rounded py-2 w-100 d-inline-block px-2' activeClassName="active"><FaIcons.FaHome className='me-3'/>

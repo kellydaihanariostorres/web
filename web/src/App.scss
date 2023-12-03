@@ -22,10 +22,10 @@ $gray: #383838;
 }
 
 .sideBar {
-  background-color: rgb(33, 33, 39);
+  background-color:#212429;
   width: 14rem;
   height: calc(100vh - 52px); 
-  border-right: 1px solid #383838;
+  border-right: 1px solid #302f2f;
   ul{
     list-style: none;
     padding: 1rem 2rem;
@@ -39,4 +39,14 @@ $gray: #383838;
       }
     }
   }
+}
+.circu-container {
+  text-align: center; /* Centra el círculo horizontalmente */
+  margin-top: 1px;
+  margin-bottom: 20px; /* Espacio entre el círculo y la lista de enlaces */
+}
+
+.circu{
+  margin-bottom: 10px; 
+  
 }
