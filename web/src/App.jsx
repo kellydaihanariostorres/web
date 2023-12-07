@@ -5,7 +5,7 @@ import SideBar from './Components/SideBar';
 import Navb from './Components/Nav';
 import Home from './Views/Home/Home';
 import Bodega from './Views/Bodega/Index';
-import CreateBodega from './Views/Bodega/Create';
+import CreateBodega from './Views/Bodega/Create'
 import Empleado from './Views/Empleados/Index';
 import CreateEmpleado from './Views/Empleados/Create';
 import EditEmpleado from './Views/Empleados/Edit';

@@ -1,8 +1,6 @@
 import React, { forwardRef, useEffect, useRef } from 'react';
 
-const DivInput = forwardRef(
-  (
-    {
+export default forwardRef (({
       type = 'text',
       icon = 'user',
       placeholder = '',
@@ -45,4 +43,4 @@ const DivInput = forwardRef(
   }
 );
 
-export default DivInput;
+

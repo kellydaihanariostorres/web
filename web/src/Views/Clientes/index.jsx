@@ -31,11 +31,11 @@ const Cliente = () => {
     <div className='container-fluid'>
       <div className='row justify-content-center'>
         <DivAdd>
-          <Link to='create-cliente' className='btn btn-dark mx-auto col-6'>
+          <Link to='create-empleado' className='btn btn-dark mx-auto col-3'>
             <i className='fa-solid fa-circle-plus'></i> add
           </Link>
         </DivAdd>
-        <DivTable col='6' off='3' classLoad={classLoad}>
+        <DivTable col='6' off='3' classLoad={classLoad} style={{ border: '1px solid red' }}>
           <table className='table table-bordered'>
             <thead>
               <tr>

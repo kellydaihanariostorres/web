@@ -28,43 +28,45 @@ const Login = () => {
   };
 
   return (
-    <div className="container-fluid">
+    <div className="container-fluid" style={{ backgroundColor: 'red' }}>
       <div className="row mt-5">
         <div className="col-md-4 offset-md-4">
-          <div className="card border border-dark">
-            <div className="card-header bg-dark border border-dark text-white">
-              LOGIN
+          <div className="card border border-dark" style={{ backgroundColor: 'black' }}>
+            <div className="card-header bg-dark border border-dark text-white d-flex justify-content-center">
+              BIENVENIDO
             </div>
             <div className="card-body">
               <form onSubmit={login}>
+                <h6 style={{ color: 'white' }}>Usuario</h6>
                 <DivInput
                   type="email"
-                  icon="fa-at"
                   value={email}
                   className="form-control"
                   placeholder="Email"
                   required="required"
                   handleChange={(e) => setEmail(e.target.value)}
+                  style={{ backgroundColor: 'white', color: 'black' }}
                 />
+                <h6 style={{ color: 'white', marginTop: '10px' }}>Contraseña</h6>
                 <DivInput
                   type="password"
-                  icon="fa-key"
                   value={password}
                   className="form-control"
                   placeholder="Password"
                   required="required"
                   handleChange={(e) => setPassword(e.target.value)}
+                  style={{ backgroundColor: 'white', color: 'black' }}
                 />
                 <div className="d-grid col-10 mx-auto">
-                <Link to="/home">
-                    <button className="btn btn-dark">
+                  <Link to="/home">
+                    <button className="btn btn-danger">
                       <i className="fa-solid fa-door-open"></i>Login
                     </button>
                   </Link>
                 </div>
               </form>
-              <Link to="/registro">
-                <i className="fa-solid fa-user-plus"></i> Registro
+              <Link to="/registro" style={{ color: 'white', marginTop: '10px', display: 'block' }}>
+                <i className="fa-solid fa-user-plus"></i> Recuperar contraseña 
               </Link>
             </div>
           </div>

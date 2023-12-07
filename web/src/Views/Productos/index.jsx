@@ -42,7 +42,7 @@ const Productos = () => {
     <div className='container-fluid'>
       <div className='row justify-content-center'>
         <DivAdd>
-          <Link to='create-producto' className='btn btn-dark mx-auto col-6'>
+          <Link to='create-producto' className='btn btn-dark mx-auto col-3'>
             <i className='fa-solid fa-circle-plus'></i> add
           </Link>
         </DivAdd>

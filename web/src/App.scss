@@ -14,6 +14,18 @@ $gray: #383838;
 
 .flex{
   display: flex;
+  background-color:#999999;
+}
+
+.content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 100%;
+  max-width: 1200px; 
+  padding: 20px;
+  margin: 0 auto;
+  background-color:#999999;
 }
 
 

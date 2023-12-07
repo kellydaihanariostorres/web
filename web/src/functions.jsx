@@ -14,7 +14,7 @@ export const sendRequest = async (method, params, url, redir = '', token = true)
 
   let res;
   await axios({ method: method, url: url, data: params })
-    .then((response) => {
+    .then(response => {
       res = response.data;
       if (method !== 'GET') show_alerta(response.data.message, 'success');
       setTimeout(() => (redir !== '') ? (window.location.href = redir) : '', 200);
@@ -22,7 +22,7 @@ export const sendRequest = async (method, params, url, redir = '', token = true)
     .catch((errors) => {
       let desc = '';
       res = errors.response.data;
-      errors.response.data.errors.forEach((e) => {
+      errors.response.data.errors.map((e) => {
         desc = desc + ' ' + e;
       });
       show_alerta(desc, 'error');
@@ -35,11 +35,11 @@ export const confirmation = async (name, url, redir) => {
   const alert = Swal.mixin({ buttonsStyling: true });
   alert
     .fire({
-      title: 'Are you sure to delete ' + name + '?',
+      title: 'Esta seguro de eliminar ' + name + '?',
       icon: 'question',
       showCancelButton: true,
-      confirmButtonText: '<i class="fa-solid fa-check"></i> yes, delete',
-      cancelButtonText: '<i class="fa-solid fa-ban"></i> cancel',
+      confirmButtonText: '<i class="fa-solid fa-check"></i> si, eliminar',
+      cancelButtonText: '<i class="fa-solid fa-ban"></i> cancelar',
     })
     .then((result) => {
       if (result.isConfirmed) {
