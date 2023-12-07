@@ -27,7 +27,10 @@ const Navb = () => {
 
   return (
     <Navbar color="dark" dark expand="md">
-      <NavbarBrand href="/"> DIABLO AMARGO </NavbarBrand>
+       <NavbarBrand href="/">
+        <img src="logo.jpg" alt="Logo" style={{ width: '80px', marginRight: '6px' }} />
+        DIABLO AMARGO
+      </NavbarBrand>
       <Nav className="ml-auto" navbar>
         <UncontrolledDropdown nav inNavbar>
           <DropdownToggle nav caret>
