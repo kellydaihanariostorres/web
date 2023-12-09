@@ -27,7 +27,7 @@ const Navb = () => {
 
   return (
     <Navbar color="dark" dark expand="md">
-       <NavbarBrand href="/">
+       <NavbarBrand href="/home">
         <img src="logo.jpg" alt="Logo" style={{ width: '80px', marginRight: '6px' }} />
         DIABLO AMARGO
       </NavbarBrand>
@@ -37,11 +37,11 @@ const Navb = () => {
             Luna Mahecha
           </DropdownToggle>
           <DropdownMenu end>
+            <Link to='/perfil'>
             <DropdownItem>Mi perfil</DropdownItem>
+            </Link>
             <Link to='/login'>
-            <DropdownItem>
-              Cerrar
-            </DropdownItem>
+            <DropdownItem>Cerrar</DropdownItem>
             </Link>
             <DropdownItem divider />
           </DropdownMenu>

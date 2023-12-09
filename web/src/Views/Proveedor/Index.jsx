@@ -32,7 +32,7 @@ const Proveedor = () => {
       <div className='row justify-content-center'>
         <DivAdd>
           <Link to='create-proveedor' className='btn btn-dark mx-auto col-3'>
-            <i className='fa-solid fa-circle-plus'></i> add
+            <i className='fa-solid fa-circle-plus'></i> AGREGAR
           </Link>
         </DivAdd>
         <DivTable col='6' off='3' classLoad={classLoad}>
@@ -41,9 +41,12 @@ const Proveedor = () => {
               <tr>
                 <th>#</th>
                 <th>NOMBRE</th>
-                <th>DIRECCIÓN</th>
-                <th>TELÉFONO</th>
-                <th>ACCIONES</th>
+                <th>NUEMERO DE DOCUMENTO</th>
+                <th>EDAD</th>
+                <th>TELEFONO</th>
+                <th>CORREO</th>
+                <th>ENTODAD BANCARIA</th>
+                <th>CUENTA BANCARIA</th>
               </tr>
             </thead>
             <tbody>
@@ -51,8 +54,11 @@ const Proveedor = () => {
                 <tr key={row.id}>
                   <td>{i + 1}</td>
                   <td>{row.nombre}</td>
-                  <td>{row.direccion}</td>
+                  <td>{row.numDocumento}</td>
                   <td>{row.telefono}</td>
+                  <td>{row.correo}</td>
+                  <td>{row.nombreEntidadBancaria}</td>
+                  <td>{row.numeroCuentaBancaria}</td>
                   <td>
                     <Link to={`/edit-proveedor/${row.id}`} className='btn btn-warning'>
                       <i className='fa-solid fa-edit'></i>

@@ -43,7 +43,7 @@ const Productos = () => {
       <div className='row justify-content-center'>
         <DivAdd>
           <Link to='create-producto' className='btn btn-dark mx-auto col-3'>
-            <i className='fa-solid fa-circle-plus'></i> add
+            <i className='fa-solid fa-circle-plus'></i> AGREGAR
           </Link>
         </DivAdd>
         <DivTable col='6' off='3' classLoad={classLoad}>
@@ -52,18 +52,19 @@ const Productos = () => {
               <tr>
                 <th>#</th>
                 <th>PRODUCTO</th>
-                <th>CATEGORÍA</th>
                 <th>PRECIO</th>
-                <th>ACCIONES</th>
+                <th>MARCA</th>
+                <th>CLASIFICACION</th>
               </tr>
             </thead>
             <tbody>
               {productos.map((row, i) => (
                 <tr key={row.id}>
                   <td>{i + 1}</td>
-                  <td>{row.nombre}</td>
-                  <td>{row.categoria}</td>
-                  <td>{row.precio}</td>
+                  <td>{row.nombreProducto}</td>
+                  <td>{row.precioProducto}</td>
+                  <td>{row.marcaProducto}</td>
+                  <td>{row.clasificacionProducto}</td>
                   <td>
                     <Link to={`/edit-producto/${row.id}`} className='btn btn-warning'>
                       <i className='fa-solid fa-edit'></i>
