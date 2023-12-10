@@ -30,7 +30,7 @@ const Factura = () => {
 
   return (
     <div className="col-11 col-xl-11 col-xxl-11" style={{ paddingTop: '94px', background: '#eaeaeb', borderColor: 'var(--acent-color)', marginTop: '0px', marginRight: '108px', paddingRight: '39px', paddingLeft: '75px', marginLeft: '48px', marginBottom: '-96px', paddingBottom: '80px' }}>
-      <a className="btn btn-primary" role="button" style={{ background: 'var(--primary-color)', borderColor: 'var(--acent-color)', borderRadius: '45px', marginBottom: '0px', marginTop: '-92px' }} href="/RegistrarClientee.html">
+      <a className="btn btn-primary" role="button" style={{ background: 'var(--primary-color)', borderColor: 'var(--acent-color)', borderRadius: '45px', marginBottom: '0px', marginTop: '-92px' }} href="/">
         Registro
       </a>
       <div style={{ marginLeft: '152px', marginRight: '126px' }}>
@@ -67,7 +67,7 @@ const Factura = () => {
                   <tr>
                     <th style={{ borderColor: 'var(--color-text)', background: 'var(--color-text)', color: 'var(--bs-light)' }}>Producto</th>
                     <th style={{ background: 'var(--color-text)', color: 'var(--bs-light)' }}>Precio Unitario</th>
-                    {/* Agrega más encabezados de tabla según sea necesario */}
+                    
                   </tr>
                 </thead>
                 <tbody id="productTableBody" style={{ background: 'var(--color-text)' }}></tbody>
@@ -75,7 +75,7 @@ const Factura = () => {
                   <tr style={{ background: 'var(--color-text)' }}>
                     <td style={{ background: 'var(--color-text)', borderColor: 'var(--color-text)', color: 'var(--bs-light)' }}>Total:</td>
                     <td id="totalAmount" style={{ background: 'var(--color-text)', borderColor: 'var(--color-text)', color: 'var(--bs-light)' }}>0</td>
-                    {/* Agrega más celdas de pie de página según sea necesario */}
+                    
                   </tr>
                 </tfoot>
               </table>

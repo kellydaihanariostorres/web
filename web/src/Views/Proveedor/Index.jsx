@@ -15,7 +15,7 @@ const Proveedor = () => {
   const getProveedores = async () => {
     try {
       setClassLoad('');
-      const res = await sendRequest('GET', '', '/api/proveedor', '');
+      const res = await sendRequest('GET', '', '/api/proveedores', '');
       setProveedores(res);
       setClassLoad('d-none');
     } catch (error) {
@@ -24,7 +24,7 @@ const Proveedor = () => {
   };
 
   const deleteProveedor = (id, name) => {
-    confirmation(name, `/api/proveedor/${id}`, '/');
+    confirmation(name, `/api/proveedores/${id}`, '/');
   };
 
   return (

@@ -17,7 +17,7 @@ const Productos = () => {
   const getProductos = async () => {
     try {
       setClassLoad('');
-      const res = await sendRequest('GET', '', '/api/producto', '');
+      const res = await sendRequest('GET', '', '/api/productos', '');
       setProductos(res);
       setClassLoad('d-none');
     } catch (error) {
@@ -35,12 +35,18 @@ const Productos = () => {
   };
 
   const deleteProducto = (id, name) => {
-    confirmation(name, `/api/producto/${id}`, '/');
+    confirmation(name, `/api/productos/${id}`, '/');
   };
 
   return (
     <div className='container-fluid'>
       <div className='row justify-content-center'>
+        <DivAdd>
+          <Link to='/categorias' className='btn btn-dark mx-auto col-3'>
+            <i className='fa-solid fa-circle-plus'></i> CATEGORIAS
+          </Link>
+        </DivAdd>
+        
         <DivAdd>
           <Link to='create-producto' className='btn btn-dark mx-auto col-3'>
             <i className='fa-solid fa-circle-plus'></i> AGREGAR
@@ -55,6 +61,7 @@ const Productos = () => {
                 <th>PRECIO</th>
                 <th>MARCA</th>
                 <th>CLASIFICACION</th>
+                <th></th>
               </tr>
             </thead>
             <tbody>

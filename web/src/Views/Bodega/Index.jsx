@@ -13,6 +13,7 @@ const Bodegas = () => {
     getBodegas();
   }, []);
 
+  
   const getBodegas = async () => {   
       const res = await sendRequest('GET', '', 'api/bodegas', '');
       setBodegas(res);
@@ -41,6 +42,7 @@ const Bodegas = () => {
                 <th>ESTADO</th>
                 <th>DIRECCION</th>
                 <th>CIUDAD</th>
+                <th></th>
               </tr>
             </thead>
             <tbody className='table-group-divider'>

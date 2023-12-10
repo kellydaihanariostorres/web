@@ -16,6 +16,7 @@ export const sendRequest = async (method, params, url, redir = '', token = true)
   await axios({ method: method, url: url, data: params })
     .then(response => {
       res = response.data;
+      console.log(res);
       if (method !== 'GET') show_alerta(response.data.message, 'success');
       setTimeout(() => (redir !== '') ? (window.location.href = redir) : '', 200);
     })

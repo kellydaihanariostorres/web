@@ -14,10 +14,11 @@ window.axios.defaults.baseURL = 'https://localhost:7284/'
 window.axios.defaults.headers.common['Accept']='application/json'
 window.axios.defaults.headers.common['Content-Type']='application/json'
 window.axios.defaults.headers.common['X-Requested-With']='XMLHttpReaquest'
-window.axios.defaults.withCredentials = true
+
+//window.axios.defaults.withCredentials = true
 
 ReactDOM.createRoot(document.getElementById('root')).render(
   <React.StrictMode>
     <App />
-  </React.StrictMode>,
+  </React.StrictMode>
 )

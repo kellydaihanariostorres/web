@@ -15,7 +15,7 @@ const Empleado = () => {
   const getEmpleados = async () => {
     try {
       setClassLoad('');
-      const res = await sendRequest('GET', '', '/api/empleado', '');
+      const res = await sendRequest('GET', '', '/api/empleados', '');
       setEmpleados(res);
       setClassLoad('d-none');
     } catch (error) {
@@ -24,7 +24,7 @@ const Empleado = () => {
   };
 
   const deleteEmpleado = (id, name) => {
-    confirmation(name, `/api/empleado/${id}`, '/');
+    confirmation(name, `/api/empleados/${id}`, '/');
   };
 
   return (
@@ -48,6 +48,7 @@ const Empleado = () => {
                 <th>FECHA FIN</th>
                 <th>SUELDO</th>
                 <th>BODEGA ID</th>
+                <th></th>
               </tr>
             </thead>
             <tbody>

@@ -18,6 +18,7 @@ import Proveedor from './Views/Proveedor/Index';
 import Login from './Views/Login';
 import Registro from './Views/Registro';
 import Perfil from './Views/Perfil/index';
+import Categorias from './Views/Categorias/index';
 
 function App() {
   return (
@@ -41,6 +42,7 @@ function App() {
               <Route path="/caja" element={<Caja/>}/>
               <Route path="/proveedor" element={<Proveedor/>}/>
               <Route path="/perfil" element={<Perfil/>}/>
+              <Route path="/categorias" element={<Categorias/>}/>
             </Routes>
           </div>
         </div>
