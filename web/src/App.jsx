@@ -19,6 +19,7 @@ import Login from './Views/Login';
 import Registro from './Views/Registro';
 import Perfil from './Views/Perfil/index';
 import Categorias from './Views/Categorias/index';
+import ProtecdRoutes from './Components/ProtectedRoutes';
 
 function App() {
   return (

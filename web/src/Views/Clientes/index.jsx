@@ -38,7 +38,7 @@ const Cliente = () => {
         <DivTable col='6' off='3' classLoad={classLoad} style={{ border: '1px solid red' }}>
           <table className='table table-bordered'>
             <thead>
-              <tr>
+              <tr style={{ background: 'red', color: 'white' }}>
                 <th>#</th>
                 <th>NOMBRE</th>
                 <th>APELLIDO</th>
@@ -46,7 +46,7 @@ const Cliente = () => {
                 <th>TIPO DE DOCUMENTO</th>
                 <th>NUMERO DE DOCUMENTO</th>
                 <th>CORREO</th>
-                <th>ACCIONES</th>
+                <th></th>
               </tr>
             </thead>
             <tbody>
@@ -54,7 +54,7 @@ const Cliente = () => {
                 <tr key={row.id}>
                   <td>{i + 1}</td>
                   <td>{row.nombre}</td>
-                  <td>{row.apellidos}</td>
+                  <td>{row.apellido}</td>
                   <td>{row.edad}</td>
                   <td>{row.tipoDocumento}</td>
                   <td>{row.numDocumento}</td>

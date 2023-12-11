@@ -35,13 +35,24 @@ const Navb = () => {
         <UncontrolledDropdown nav inNavbar>
           <DropdownToggle nav caret>
             Luna Mahecha
+            <img
+              src="gat.jpg"
+              style={{
+                width: '40px',
+                height: '40px',
+                marginRight: '6px',
+                borderRadius: '50%',
+              }}
+            />
           </DropdownToggle>
-          <DropdownMenu end>
-            <Link to='/perfil'>
-            <DropdownItem>Mi perfil</DropdownItem>
+          <DropdownMenu end style={{ background: '#212429', border: 'none' }}>
+            <Link to='/perfil'  style={{ textDecoration: 'none' }}>
+            <DropdownItem  style={{ color: 'white', '&:hover': { background: 'red' } }}>
+              Mi perfil</DropdownItem>
             </Link>
-            <Link to='/login'>
-            <DropdownItem>Cerrar</DropdownItem>
+            <Link to='/login'  style={{ textDecoration: 'none' }}>
+            <DropdownItem  style={{ color: 'white', '&:hover': { background: 'red' } }}>
+              Cerrar</DropdownItem>
             </Link>
             <DropdownItem divider />
           </DropdownMenu>

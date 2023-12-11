@@ -22,6 +22,12 @@ export default forwardRef (({
       }
     }, [isFocused]);
 
+    const inputStyles = {
+      backgroundColor: 'black !important',
+      color: 'white !important',
+      
+    };
+
     return (
       <div className='input-group mb-3'>
         <span className='input-group-text'>
@@ -33,10 +39,11 @@ export default forwardRef (({
           name={name}
           id={id}
           value={value}
-          className={className}
+          className={`${className} custom-input`} 
           ref={input}
           required={required}
           onChange={(e) => handleChange(e)}
+          
         />
       </div>
     );
