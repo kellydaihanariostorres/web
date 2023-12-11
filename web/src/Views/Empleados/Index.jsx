@@ -31,7 +31,7 @@ const Empleado = () => {
     <div className='container-fluid'>
       <div className='row justify-content-center'>
         <DivAdd>
-          <Link to='create-empleado' className='btn btn-dark mx-auto col-3'>
+          <Link to='/createempleado' className='btn btn-dark mx-auto col-3'>
             <i className='fa-solid fa-circle-plus'></i> AGREGAR
           </Link>
         </DivAdd>
@@ -64,7 +64,7 @@ const Empleado = () => {
                   <td>{row.sueldo}</td>
                   <td>{row.bodegaId}</td>
                   <td>
-                    <Link to={`/edit-empleado/${row.empleadoId}`} className='btn btn-warning'>
+                    <Link to={`/editempleado/${row.empleadoId}`} className='btn btn-warning'>
                       <i className='fa-solid fa-edit'></i>
                     </Link>
                     <button

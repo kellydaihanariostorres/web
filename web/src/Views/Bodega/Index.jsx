@@ -54,7 +54,7 @@ const Bodegas = () => {
                   <td>{row.direccion}</td>
                   <td>{row.ciudad}</td>
                   <td>
-                    <Link to={`edit/${row.bodegaId}`} className='btn btn-warning'>
+                    <Link to={`/editbodega/${row.bodegaId}`} className='btn btn-warning'>
                       <i className='fa-solid fa-edit'></i>
                     </Link>
                     <button

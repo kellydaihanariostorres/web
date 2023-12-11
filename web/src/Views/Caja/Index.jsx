@@ -37,7 +37,7 @@ const Factura = () => {
 
   return (
     <div className="col-11 col-xl-11 col-xxl-11" style={{ paddingTop: '94px', background: '#eaeaeb', borderColor: 'var(--acent-color)', marginTop: '0px', marginRight: '108px', paddingRight: '39px', paddingLeft: '75px', marginLeft: '48px', marginBottom: '-96px', paddingBottom: '80px', overflow: 'hidden' }}>
-      <a className="btn btn-primary" role="button" style={{ background: '#440000', borderColor: '#440000', borderRadius: '45px', marginBottom: '0px', marginTop: '-92px' }} href="/">
+      <a className="btn btn-primary" role="button" style={{ background: '#440000', borderColor: '#440000', borderRadius: '45px', marginBottom: '0px', marginTop: '-92px' }} href="/crearclientes">
         Registro
       </a>
       <div style={{ marginLeft: '152px', marginRight: '126px', maxHeight: 'calc(100vh - 290px)', overflow: 'auto' }}>

@@ -31,7 +31,7 @@ const Cliente = () => {
     <div className='container-fluid'>
       <div className='row justify-content-center'>
         <DivAdd>
-          <Link to='create-empleado' className='btn btn-dark mx-auto col-3'>
+          <Link to='/crearclientes' className='btn btn-dark mx-auto col-3'>
             <i className='fas fa-circle-plus'></i> AGREGAR
           </Link>
         </DivAdd>
@@ -60,7 +60,7 @@ const Cliente = () => {
                   <td>{row.numDocumento}</td>
                   <td>{row.correo}</td>
                   <td>
-                    <Link to={`/edit-cliente/${row.id}`} className='btn btn-warning'>
+                    <Link to={`/editclientes/${row.id}`} className='btn btn-warning'>
                       <i className='fas fa-edit'></i>
                     </Link>
                     <button

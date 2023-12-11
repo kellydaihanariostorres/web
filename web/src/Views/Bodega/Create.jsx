@@ -1,7 +1,8 @@
 import React from 'react';
-import FormDep from '../../Components/FormDep';
+import FormDep from '../../Components/Crear/FormDep';
 
 const Create = () => {
+  
   return (
     <div className='container-fluid'>
       <div className='row justify-content-center'>

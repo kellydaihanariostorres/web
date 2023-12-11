@@ -1,6 +1,6 @@
 import React from 'react'
 import { useParams } from 'react-router-dom';
-import FormCli from '../../Components/Crear/FormEmp';
+import FormCli from '../../Components/Crear/FormPro';
 const Edit = () => {
     const {id} = useParams();
   return (

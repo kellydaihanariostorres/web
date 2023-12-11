@@ -1,5 +1,5 @@
 import React from 'react';
-import FormDep from '../../Components/Crear/FormEmp';
+import FormDep from '../../Components/Crear/FormProv';
 
 const Create = () => {
   
@@ -7,9 +7,9 @@ const Create = () => {
     <div className='container-fluid'>
       <div className='row justify-content-center'>
         <div className='col-md-12'>
-          <h2 className='text-center mt-4'>Crear emplado</h2>
+          <h2 className='text-center mt-4'>Crear Proveedores</h2>
           
-          <FormDep id={null} title='Crear Bodegas' />
+          <FormDep id={null} title='Crear proveedor' />
         </div>
       </div>
     </div>
@@ -17,3 +17,4 @@ const Create = () => {
 }
 
 export default Create;
+

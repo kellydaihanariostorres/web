@@ -31,7 +31,7 @@ const Proveedor = () => {
     <div className='container-fluid'>
       <div className='row justify-content-center'>
         <DivAdd>
-          <Link to='create-proveedor' className='btn btn-dark mx-auto col-3'>
+          <Link to='/createproveedor' className='btn btn-dark mx-auto col-3'>
             <i className='fa-solid fa-circle-plus'></i> AGREGAR
           </Link>
         </DivAdd>
@@ -60,7 +60,7 @@ const Proveedor = () => {
                   <td>{row.nombreEntidadBancaria}</td>
                   <td>{row.numeroCuentaBancaria}</td>
                   <td>
-                    <Link to={`/edit-proveedor/${row.id}`} className='btn btn-warning'>
+                    <Link to={`/editproveedor/${row.id}`} className='btn btn-warning'>
                       <i className='fa-solid fa-edit'></i>
                     </Link>
                     <button

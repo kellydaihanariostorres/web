@@ -41,17 +41,20 @@ const Productos = () => {
   return (
     <div className='container-fluid'>
       <div className='row justify-content-center'>
-        <DivAdd>
-          <Link to='/categorias' className='btn btn-dark mx-auto col-3'>
-            <i className='fa-solid fa-circle-plus'></i> CATEGORIAS
-          </Link>
-        </DivAdd>
-        
-        <DivAdd>
-          <Link to='create-producto' className='btn btn-dark mx-auto col-3'>
-            <i className='fa-solid fa-circle-plus'></i> AGREGAR
-          </Link>
-        </DivAdd>
+      <div className='d-flex mt-3'>
+          <DivAdd>
+            <Link to='/categorias' className='btn btn-dark mx-2'>
+              <i className='fa-solid fa-circle-plus'></i> CATEGORIAS
+            </Link>
+          </DivAdd>
+
+          <DivAdd>
+            <Link to='/crearproductos' className='btn btn-dark mx-5 ml-auto'>
+              <i className='fa-solid fa-circle-plus'></i> AGREGAR
+            </Link>
+          </DivAdd>
+        </div>
+
         <DivTable col='6' off='3' classLoad={classLoad}>
           <table className='table table-bordered'>
             <thead>
@@ -73,7 +76,7 @@ const Productos = () => {
                   <td>{row.marcaProducto}</td>
                   <td>{row.clasificacionProducto}</td>
                   <td>
-                    <Link to={`/edit-producto/${row.id}`} className='btn btn-warning'>
+                    <Link to={`/editproductos/${row.id}`} className='btn btn-warning'>
                       <i className='fa-solid fa-edit'></i>
                     </Link>
                     <button
