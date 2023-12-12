@@ -76,8 +76,8 @@ const FormEmpleado = ({ empleadoId }) => {
     <div className='container-fluid'>
       <div className='row mt-5'>
         <div className='col-md-4 offset-md-4'>
-          <div className='card border border-info' style={{ borderColor: '#af0004' }}>
-            <div className='card-header bg-danger' style={{ backgroundColor: '#440000' }}>
+          <div className='card border '  style={{ border: '1px solid #af0004', padding: '15px' }}>
+            <div className='card-header ' style={{ backgroundColor: '#440000 !important'}}>
               {empleadoId ? 'Editar Empleado' : 'Crear Empleado'}
             </div>
             <div className='card-body'>
@@ -156,11 +156,11 @@ const FormEmpleado = ({ empleadoId }) => {
                   handleChange={(e) => setBodegaId(e.target.value)}
                 />
                 <div className='d-flex justify-content-between mt-3'>
-                  <button className='btn btn-sm btn-dark' type='submit' style={{ backgroundColor: '#af0004' }}>
+                  <button className='btn btn-sm btn-dark' type='submit' style={{ backgroundColor: '#440000 ' }}>
                     <i className='fa-solid fa-save'></i> Guardar
                   </button>
                   <Link to='/empleado' style={{ textDecoration: 'none' }}>
-                    <button className='btn btn-sm btn-secondary' type='submit' style={{ backgroundColor: '#af0004' }}>
+                    <button className='btn btn-sm btn-secondary' type='submit' style={{ backgroundColor: '#440000 ' }}>
                       <i className='fa-solid fa-times'></i> Cancelar
                     </button>
                   </Link>

@@ -37,13 +37,13 @@ const Inventario = () => {
           <table className='table table-bordered'>
             <thead>
               <tr>
-                <th>#</th>
-                <th>NOMBRE PRODUCTO</th>
-                <th>CANTIDAD PRODUCTO</th>
-                <th>PRECIO UNITARIO</th>
-                <th>MARCA PRODUCTO</th>
-                <th>CLASIFICACION PRODUCTO</th>
-                <th></th>
+                <th style={{ background: '#440000', color: 'white' }}>#</th>
+                <th style={{ background: '#440000', color: 'white' }}>NOMBRE PRODUCTO</th>
+                <th style={{ background: '#440000', color: 'white' }}>CANTIDAD PRODUCTO</th>
+                <th style={{ background: '#440000', color: 'white' }}>PRECIO UNITARIO</th>
+                <th style={{ background: '#440000', color: 'white' }}>MARCA PRODUCTO</th>
+                <th style={{ background: '#440000', color: 'white' }}>CLASIFICACION PRODUCTO</th>
+                <th style={{ background: '#440000', color: 'white' }}></th>
               </tr>
             </thead>
             <tbody>

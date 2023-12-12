@@ -29,7 +29,7 @@ const Bodegas = () => {
     <div className='container-fluid'>
       <div className='row justify-content-center'>
         <DivAdd>
-        <Link to='/createbodega' className='btn btn-dark mx-auto col-3'>
+        <Link to='/createbodega' className='btn btn-dark mx-auto col-3'  style={{ background: '#440000', borderColor: '#440000', borderRadius: '45px', transform: 'translate(36px)', color: 'white' }}>
           <i className='fa-solid fa-circle-plus'></i> Agregar
         </Link>
         </DivAdd>
@@ -37,12 +37,12 @@ const Bodegas = () => {
           <table className='table table-bordered'>
             <thead>
               <tr>
-                <th>#</th>
-                <th>BODEGA</th>
-                <th>ESTADO</th>
-                <th>DIRECCION</th>
-                <th>CIUDAD</th>
-                <th></th>
+                <th style={{ background: '#440000', color: 'white' }}>#</th>
+                <th style={{ background: '#440000', color: 'white' }}>BODEGA</th>
+                <th style={{ background: '#440000', color: 'white' }}>ESTADO</th>
+                <th style={{ background: '#440000', color: 'white' }}>DIRECCION</th>
+                <th style={{ background: '#440000', color: 'white' }}>CIUDAD</th>
+                <th style={{ background: '#440000', color: 'white' }}></th>
               </tr>
             </thead>
             <tbody className='table-group-divider'>

@@ -4,27 +4,27 @@ import DivAdd from '../../Components/DivAdd';
 import DivTable from '../../Components/DivTable';
 import { confirmation, sendRequest } from '../../functions';
 
-const Pago = () => {
-  const [pagos, setPagos] = useState([]);
+const Factura = () => {
+  const [facturas, setFacturas] = useState([]);
   const [classLoad, setClassLoad] = useState('');
 
   useEffect(() => {
-    getPagos();
+    getFacturas();
   }, []);
 
-  const getPagos = async () => {
+  const getFacturas = async () => {
     try {
       setClassLoad('');
-      const res = await sendRequest('GET', '', '/api/nominas', '');
-      setPagos(res);
+      const res = await sendRequest('GET', '', '/api/facturas', '');
+      setFacturas(res);
       setClassLoad('d-none');
     } catch (error) {
       console.error(error);
     }
   };
 
-  const deletePago = (id, nombre) => {
-    confirmation(nombre, `/api/nominas/${id}`, '/');
+  const deleteFactura = (id, fechaCompra) => {
+    confirmation(fechaCompra, `/api/facturas/${id}`, '/');
   };
 
   return (
@@ -37,32 +37,29 @@ const Pago = () => {
           <table className='table table-bordered'>
             <thead>
               <tr>
-                <th style={{ background: '#440000', color: 'white' }}>#</th> 
-                <th style={{ background: '#440000', color: 'white' }}>CUENTA BANCARIA</th>
-                <th style={{ background: '#440000', color: 'white' }}>EMAIL</th>
-                <th style={{ background: '#440000', color: 'white' }}>TELEFONO</th>
-                <th style={{ background: '#440000', color: 'white' }}>DIRECCION</th>
-                <th style={{ background: '#440000', color: 'white' }}>FECHA CREACION</th>
+                <th style={{ background: '#440000', color: 'white' }}>#</th>
+                <th style={{ background: '#440000', color: 'white' }}>FECHA DE COMPRA</th>
+                <th style={{ background: '#440000', color: 'white' }}>IVA</th>
+                <th style={{ background: '#440000', color: 'white' }}>SUBTOTAL</th>
+                <th style={{ background: '#440000', color: 'white' }}>TOTAL</th>
                 <th style={{ background: '#440000', color: 'white' }}></th>
               </tr>
             </thead>
             <tbody>
-              {pagos.map((row, i) => (
-                <tr key={row.nominaId}>
+              {facturas.map((row, i) => (
+                <tr key={row.id}>
                   <td>{i + 1}</td>
-                  
-                  <td>{row.cuentaBancaria}</td>
-                  <td>{row.email}</td>
-                  <td>{row.telefono}</td>
-                  <td>{row.direccion}</td>
-                  <td>{row.fechaCreacion}</td>
+                  <td>{row.fechaCompra}</td>
+                  <td>{row.ivaCompra}</td>
+                  <td>{row.subtotal}</td>
+                  <td>{row.total}</td>
                   <td>
-                    <Link to={`/edit-pago/${row.nominaId}`} className='btn btn-warning'>
+                    <Link to={`/editfactura/${row.id}`} className='btn btn-warning'>
                       <i className='fa-solid fa-edit'></i>
                     </Link>
                     <button
                       className='btn btn-danger ms-2'
-                      onClick={() => deletePago(row.nominaId, row.nombre)}
+                      onClick={() => deleteFactura(row.id, row.fechaCompra)}
                     >
                       <i className='fa-solid fa-trash'></i>
                     </button>
@@ -77,4 +74,4 @@ const Pago = () => {
   );
 };
 
-export default Pago;
+export default Factura;

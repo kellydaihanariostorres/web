@@ -25,7 +25,7 @@ import EditProveedor from './Views/Proveedor/Edit';
 import Login from './Views/Login';
 import Registro from './Views/Registro';
 import Perfil from './Views/Perfil/index';
-import Categorias from './Views/Categorias/index';
+import Factura from './Views/Caja/Factura';
 import ProtecdRoutes from './Components/ProtectedRoutes';
 
 function App() {
@@ -57,7 +57,7 @@ function App() {
               <Route path="/createproveedor" element={<CrearProveedor/>}/>
               <Route path="/editproveedor/:id" element={<EditProveedor/>}/>
               <Route path="/perfil" element={<Perfil/>}/>
-              <Route path="/categorias" element={<Categorias/>}/>
+              <Route path="/facturas" element={<Factura/>}/>
             </Routes>
           </div>
         </div>

@@ -1,43 +1,79 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
+import { sendRequest } from '../../functions';
 import 'bootstrap/dist/css/bootstrap.min.css';
-import $ from 'jquery';
-import 'popper.js';
-import 'bootstrap/dist/js/bootstrap.bundle.min';
 
-const Factura = () => {
+const Caja = ({ id }) => {
+  const [fechaCompra, setFechaCompra] = useState('');
+  const [ivaCompra, setIvaCompra] = useState(0.18);
+  const [subtotal, setSubtotal] = useState(0);
+  const [total, setTotal] = useState(0);
+  const [productName, setProductName] = useState('');
+  const [productPrice, setProductPrice] = useState(0);
+  const [productQuantity, setProductQuantity] = useState(0);
+
+  const NombreInput = useRef();
+
+  let method = 'POST';
+  let url = 'api/facturas';
+  let redirect = '';
+
   useEffect(() => {
-    $(document).ready(function () {
-      var total = 0;
+    
+    if (id) {
+      getBodega();
+    }
+  }, [id]);
 
-      $('#addProductBtn').click(function () {
-        var productName = $('#productName').val();
-        var productPrice = parseFloat($('#productPrice').val());
-        var productQuantity = parseInt($('#productQuantity').val());
+  const getBodega = async () => {
+    const res = await sendRequest('GET', '', `api/facturas/${id}`);
+    const bodega = res.data;
 
-        if (productName !== '' && !isNaN(productPrice) && !isNaN(productQuantity) && productQuantity > 0) {
-          var newRow = `<tr><td>${productName}</td><td>${productPrice}</td><td>${calculateIVA(productPrice)}</td><td>${productQuantity}</td></tr>`;
-          $('#productTableBody').append(newRow);
+    setFechaCompra(bodega.fechaCompra || getCurrentDate());
+    setIvaCompra(bodega.ivaCompra || 0.18);
+    setSubtotal(bodega.subtotal || 0);
+    setTotal(bodega.total || 0);
+  };
 
-          total += productPrice * productQuantity;
-          $('#totalAmount').text(total.toFixed(2));
+  const getCurrentDate = () => {
+    const today = new Date();
+    const dd = String(today.getDate()).padStart(2, '0');
+    const mm = String(today.getMonth() + 1).padStart(2, '0');
+    const yyyy = today.getFullYear();
 
-          $('#productName').val('');
-          $('#productPrice').val('');
-          $('#productQuantity').val('');
-        }
-      });
+    return `${yyyy}-${mm}-${dd}`;
+  };
 
-      function calculateIVA(price) {
-        // Aquí puedes agregar tu lógica para calcular el IVA
-        // Por ejemplo, supongamos que el IVA es el 10% del precio
-        return (price * 0.1).toFixed(2);
-      }
-    });
-  }, []);
+  const handleAddProduct = () => {
+    // Add logic to handle adding a product to the table
+    // Use productName, productPrice, and productQuantity states
+  };
+
+  const handleConfirm = () => {
+    // Add logic for confirmation
+  };
+
+  const save = async (e) => {
+    e.preventDefault();
+
+    if (id) {
+      method = 'PUT';
+      url = `api/bodegas/${id}`;
+      redirect = '/';
+    }
+
+    const res = await sendRequest(method, { fechaCompra, ivaCompra, subtotal, total }, url, redirect);
+
+    if (method === 'POST' && res.status === true) {
+      setFechaCompra('');
+      setIvaCompra(0.18);
+      setSubtotal(0);
+      setTotal(0);
+    }
+  };
 
   return (
-    <div className="col-11 col-xl-11 col-xxl-11" style={{ paddingTop: '94px', background: '#eaeaeb', borderColor: 'var(--acent-color)', marginTop: '0px', marginRight: '108px', paddingRight: '39px', paddingLeft: '75px', marginLeft: '48px', marginBottom: '-96px', paddingBottom: '80px', overflow: 'hidden' }}>
-      <a className="btn btn-primary" role="button" style={{ background: '#440000', borderColor: '#440000', borderRadius: '45px', marginBottom: '0px', marginTop: '-92px' }} href="/crearclientes">
+    <div className="col-11 col-xl-11 col-xxl-11">
+      <a className="btn btn-primary" role="button" href="/crearclientes"   style={{ background: '#440000', borderColor: '#440000', borderRadius: '45px', transform: 'translate(36px)', color: 'white' }}>
         Registro
       </a>
       <div style={{ marginLeft: '152px', marginRight: '126px', maxHeight: 'calc(100vh - 290px)', overflow: 'auto' }}>
@@ -48,20 +84,49 @@ const Factura = () => {
               <label htmlFor="productName" className="form-label" style={{ color: 'black' }}>
                 Nombre del producto:
               </label>
-              <input type="text" className="form-control" id="productName" placeholder="Ingrese el nombre del producto" />
+              <input
+                type="text"
+                className="form-control"
+                id="productName"
+                placeholder="Ingrese el nombre del producto"
+                value={productName}
+                onChange={(e) => setProductName(e.target.value)}
+              />
             </div>
             <div className="form-group">
               <label htmlFor="productPrice" className="form-label" style={{ color: 'black' }}>
                 Precio del producto:
               </label>
-              <input type="number" className="form-control" id="productPrice" placeholder="0" min="0" />
+              <input
+                type="number"
+                className="form-control"
+                id="productPrice"
+                placeholder="0"
+                min="0"
+                value={productPrice}
+                onChange={(e) => setProductPrice(e.target.value)}
+              />
             </div>
             <div className="form-group">
               <label htmlFor="productQuantity" className="form-label" style={{ color: 'black' }}>
                 Cantidad de productos:
               </label>
-              <input type="number" className="form-control" id="productQuantity" placeholder="0" min="0" />
-              <button className="btn btn-primary" id="addProductBtn" type="button" style={{ borderRadius: '45px', borderColor: '#440000', background: '#440000', marginTop: '16px' }}>
+              <input
+                type="number"
+                className="form-control"
+                id="productQuantity"
+                placeholder="0"
+                min="0"
+                value={productQuantity}
+                onChange={(e) => setProductQuantity(e.target.value)}
+              />
+              <button
+                className="btn btn-primary"
+                id="addProductBtn"
+                type="button"
+                style={{ borderRadius: '45px', borderColor: '#440000', background: '#440000', marginTop: '16px' }}
+                onClick={handleAddProduct}
+              >
                 Agregar producto
               </button>
             </div>
@@ -83,23 +148,27 @@ const Factura = () => {
             </div>
           </div>
         </div>
-        
       </div>
-      <a className="btn btn-secondary" role="button" id="cancelBtn" style={{ borderColor: '#440000', borderRadius: '45px', background: '#440000', paddingRight: '12px', color: 'white' }} href="/home">
-          Cancelar
-        </a>
-        <a className="btn btn-primary" role="button" id="confirmBtn" style={{ background: '#440000', borderColor: '#440000', borderRadius: '45px', transform: 'translate(36px)', color: 'white' }} href="/Factura">
-          Confirmar
-        </a>
-
-        <tfoot style={{ background: 'var(--color-text)', marginTop: '10px', display: 'flex', justifyContent: 'flex-end'}}>
-                  <tr style={{ background: 'var(--color-text)' }}>
-                    <td style={{ background: 'var(--color-text)', borderColor: 'var(--color-text)', color: 'black' }}>Total:</td>
-                    <td id="totalAmount" style={{ background: 'var(--color-text)', borderColor: 'var(--color-text)', color: 'black' }}>0</td>
-                  </tr>
-        </tfoot>
+      <a className="btn btn-secondary" role="button" id="cancelBtn" href="/home"  style={{ background: '#440000', borderColor: '#440000', borderRadius: '45px', transform: 'translate(36px)', color: 'white' }}>
+        Cancelar
+      </a>
+      <button
+        className="btn btn-primary"
+        id="confirmBtn"
+        type="button"
+        style={{ background: '#440000', borderColor: '#440000', borderRadius: '45px', transform: 'translate(36px)', color: 'white' }}
+        onClick={handleConfirm}
+      >
+        Confirmar
+      </button>
+      <tfoot style={{ background: 'var(--color-text)', marginTop: '10px', display: 'flex', justifyContent: 'flex-end' }}>
+        <tr style={{ background: 'var(--color-text)' }}>
+          <td style={{ background: 'var(--color-text)', borderColor: 'var(--color-text)', color: 'black' }}>Total:</td>
+          <td id="totalAmount" style={{ background: 'var(--color-text)', borderColor: 'var(--color-text)', color: 'black' }}>{total}</td>
+        </tr>
+      </tfoot>
     </div>
   );
 };
 
-export default Factura;
+export default Caja;

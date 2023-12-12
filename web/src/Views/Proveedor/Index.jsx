@@ -31,7 +31,8 @@ const Proveedor = () => {
     <div className='container-fluid'>
       <div className='row justify-content-center'>
         <DivAdd>
-          <Link to='/createproveedor' className='btn btn-dark mx-auto col-3'>
+          <Link to='/createproveedor' className='btn btn-dark mx-auto col-3'  style={{ background: '#440000', borderColor: '#440000', borderRadius: '45px', transform: 'translate(36px)', color: 'white' }}
+>
             <i className='fa-solid fa-circle-plus'></i> AGREGAR
           </Link>
         </DivAdd>
@@ -39,15 +40,18 @@ const Proveedor = () => {
           <table className='table table-bordered'>
             <thead>
               <tr>
-                <th>#</th>
-                <th>NOMBRE</th>
-                <th>NUEMERO DE DOCUMENTO</th>
-                <th>EDAD</th>
-                <th>TELEFONO</th>
-                <th>CORREO</th>
-                <th>ENTODAD BANCARIA</th>
-                <th>CUENTA BANCARIA</th>
+                <th style={{ background: '#440000', color: 'white' }}>#</th>
+                <th style={{ background: '#440000', color: 'white' }}>NOMBRE</th>
+                <th style={{ background: '#440000', color: 'white' }}>NUEMERO DE DOCUMENTO</th>
+                <th style={{ background: '#440000', color: 'white' }}>EDAD</th>
+                <th style={{ background: '#440000', color: 'white' }}>TELEFONO</th>
+                <th style={{ background: '#440000', color: 'white' }}>CORREO</th>
+                <th style={{ background: '#440000', color: 'white' }}>ENTODAD BANCARIA</th>
+                <th style={{ background: '#440000', color: 'white' }}>CUENTA BANCARIA</th>
+                <th style={{ background: '#440000', color: 'white' }}></th>
+                
               </tr>
+              
             </thead>
             <tbody>
               {proveedores.map((row, i) => (
@@ -55,10 +59,12 @@ const Proveedor = () => {
                   <td>{i + 1}</td>
                   <td>{row.nombre}</td>
                   <td>{row.numDocumento}</td>
+                  <td>{row.edad}</td>
                   <td>{row.telefono}</td>
                   <td>{row.correo}</td>
                   <td>{row.nombreEntidadBancaria}</td>
                   <td>{row.numeroCuentaBancaria}</td>
+
                   <td>
                     <Link to={`/editproveedor/${row.id}`} className='btn btn-warning'>
                       <i className='fa-solid fa-edit'></i>

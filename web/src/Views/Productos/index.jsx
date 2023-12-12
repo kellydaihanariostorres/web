@@ -41,30 +41,24 @@ const Productos = () => {
   return (
     <div className='container-fluid'>
       <div className='row justify-content-center'>
-      <div className='d-flex mt-3'>
+      
           <DivAdd>
-            <Link to='/categorias' className='btn btn-dark mx-2'>
-              <i className='fa-solid fa-circle-plus'></i> CATEGORIAS
-            </Link>
-          </DivAdd>
-
-          <DivAdd>
-            <Link to='/crearproductos' className='btn btn-dark mx-5 ml-auto'>
+            <Link to='/crearproductos' className='btn btn-dark mx-auto col-3'  style={{ background: '#440000', borderColor: '#440000', borderRadius: '45px', transform: 'translate(36px)', color: 'white' }}
+>
               <i className='fa-solid fa-circle-plus'></i> AGREGAR
             </Link>
           </DivAdd>
-        </div>
-
+        
         <DivTable col='6' off='3' classLoad={classLoad}>
           <table className='table table-bordered'>
             <thead>
               <tr>
-                <th>#</th>
-                <th>PRODUCTO</th>
-                <th>PRECIO</th>
-                <th>MARCA</th>
-                <th>CLASIFICACION</th>
-                <th></th>
+                <th style={{ background: '#440000', color: 'white' }}>#</th>
+                <th style={{ background: '#440000', color: 'white' }}>PRODUCTO</th>
+                <th style={{ background: '#440000', color: 'white' }}>PRECIO</th>
+                <th style={{ background: '#440000', color: 'white' }}>MARCA</th>
+                <th style={{ background: '#440000', color: 'white' }}>CLASIFICACION</th>
+                <th style={{ background: '#440000', color: 'white' }}></th>
               </tr>
             </thead>
             <tbody>

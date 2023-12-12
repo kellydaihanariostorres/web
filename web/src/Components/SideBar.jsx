@@ -82,6 +82,11 @@ const SideBar = () => {
                     INVENTARIO
                   </NavLink>
                 </li>
+                <li className='nav-item'>
+                  <NavLink to='/facturas' className='text-white rounded py-2 w-100 d-inline-block px-2'><FaIcons.FaClipboard className='me-2'/>
+                    FACTURAS
+                  </NavLink>
+                </li>
               </ul>
             </div>
           ) : (

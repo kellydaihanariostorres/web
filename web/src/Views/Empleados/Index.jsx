@@ -31,7 +31,8 @@ const Empleado = () => {
     <div className='container-fluid'>
       <div className='row justify-content-center'>
         <DivAdd>
-          <Link to='/createempleado' className='btn btn-dark mx-auto col-3'>
+          <Link to='/createempleado' className='btn btn-dark mx-auto col-3'  style={{ background: '#440000', borderColor: '#440000', borderRadius: '45px', transform: 'translate(36px)', color: 'white' }}
+ >
             <i className='fa-solid fa-circle-plus'></i> AGREGAR
           </Link>
         </DivAdd>
@@ -39,16 +40,15 @@ const Empleado = () => {
           <table className='table table-bordered'>
             <thead>
               <tr>
-                <th>#</th>
-                <th>NOMBRE</th>
-                <th>APELLIDO</th>
-                <th>DOCUMENTO</th>
-                <th>CARGO</th>
-                <th>FECHA INICIO</th>
-                <th>FECHA FIN</th>
-                <th>SUELDO</th>
-                <th>BODEGA ID</th>
-                <th></th>
+                <th style={{ background: '#440000', color: 'white' }}>#</th>
+                <th style={{ background: '#440000', color: 'white' }}>NOMBRE</th>
+                <th style={{ background: '#440000', color: 'white' }}> APELLIDO</th>
+                <th style={{ background: '#440000', color: 'white' }}>DOCUMENTO</th>
+                <th style={{ background: '#440000', color: 'white' }}>CARGO</th>
+                <th style={{ background: '#440000', color: 'white' }}>FECHA INICIO</th>
+                <th style={{ background: '#440000', color: 'white' }}>FECHA FIN</th>
+                <th style={{ background: '#440000', color: 'white' }}>SUELDO</th>
+                <th style={{ background: '#440000', color: 'white' }}></th>
               </tr>
             </thead>
             <tbody>
@@ -62,7 +62,7 @@ const Empleado = () => {
                   <td>{row.fechaInicio}</td>
                   <td>{row.fechaFin}</td>
                   <td>{row.sueldo}</td>
-                  <td>{row.bodegaId}</td>
+                  
                   <td>
                     <Link to={`/editempleado/${row.empleadoId}`} className='btn btn-warning'>
                       <i className='fa-solid fa-edit'></i>

@@ -33,8 +33,8 @@ const Navb = () => {
       </NavbarBrand>
       <Nav className="ml-auto" navbar>
         <UncontrolledDropdown nav inNavbar>
-          <DropdownToggle nav caret>
-            Luna Mahecha
+          <DropdownToggle nav caret style={{ display: 'flex', alignItems: 'center' }}>
+          <span style={{ marginRight: '10px' }}>Luna Mahecha</span>
             <img
               src="gat.jpg"
               style={{

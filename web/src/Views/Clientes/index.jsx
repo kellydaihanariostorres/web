@@ -31,22 +31,22 @@ const Cliente = () => {
     <div className='container-fluid'>
       <div className='row justify-content-center'>
         <DivAdd>
-          <Link to='/crearclientes' className='btn btn-dark mx-auto col-3'>
+          <Link to='/crearclientes' className='btn btn-dark mx-auto col-3'  style={{ background: '#440000', borderColor: '#440000', borderRadius: '45px', transform: 'translate(36px)', color: 'white' }}>
             <i className='fas fa-circle-plus'></i> AGREGAR
           </Link>
         </DivAdd>
         <DivTable col='6' off='3' classLoad={classLoad} style={{ border: '1px solid red' }}>
-          <table className='table table-bordered'>
+          <table className='table table-bordered' >
             <thead>
-              <tr style={{ background: 'red', color: 'white' }}>
-                <th>#</th>
-                <th>NOMBRE</th>
-                <th>APELLIDO</th>
-                <th>EDAD</th>
-                <th>TIPO DE DOCUMENTO</th>
-                <th>NUMERO DE DOCUMENTO</th>
-                <th>CORREO</th>
-                <th></th>
+              <tr>
+                <th style={{ background: '#440000', color: 'white' }}>#</th>
+                <th style={{ background: '#440000', color: 'white' }}>NOMBRE</th>
+                <th style={{ background: '#440000', color: 'white' }}>APELLIDO</th>
+                <th style={{ background: '#440000', color: 'white' }}> EDAD</th>
+                <th style={{ background: '#440000', color: 'white' }}>TIPO DE DOCUMENTO</th>
+                <th style={{ background: '#440000', color: 'white' }}>NUMERO DE DOCUMENTO</th>
+                <th style={{ background: '#440000', color: 'white' }}>CORREO</th>
+                <th style={{ background: '#440000', color: 'white' }}></th>
               </tr>
             </thead>
             <tbody>
