@@ -56,21 +56,22 @@ const Proveedor = () => {
             <tbody>
               {proveedores.map((row, i) => (
                 <tr key={row.id}>
-                  <td>{i + 1}</td>
-                  <td>{row.nombre}</td>
-                  <td>{row.numDocumento}</td>
-                  <td>{row.edad}</td>
-                  <td>{row.telefono}</td>
-                  <td>{row.correo}</td>
-                  <td>{row.nombreEntidadBancaria}</td>
-                  <td>{row.numeroCuentaBancaria}</td>
+                  <td style={{ background: '#dadada' }}>{i + 1}</td>
+                  <td style={{ background: '#dadada' }}>{row.nombre}</td>
+                  <td style={{ background: '#dadada' }}>{row.numDocumento}</td>
+                  <td style={{ background: '#dadada' }}>{row.edad}</td>
+                  <td style={{ background: '#dadada' }}>{row.telefono}</td>
+                  <td style={{ background: '#dadada' }}>{row.correo}</td>
+                  <td style={{ background: '#dadada' }}>{row.nombreEntidadBancaria}</td>
+                  <td style={{ background: '#dadada' }}>{row.numeroCuentaBancaria}</td>
 
-                  <td>
-                    <Link to={`/editproveedor/${row.id}`} className='btn btn-warning'>
+                  <td style={{ background: '#dadada' }}> 
+                    <Link to={`/editproveedor/${row.id}`} className='btn btn-warning' style={{ background: '#440000' , color: 'white' }}>
                       <i className='fa-solid fa-edit'></i>
                     </Link>
                     <button
                       className='btn btn-danger ms-2'
+                      style={{ background: '#440000' , color: 'white' }}
                       onClick={() => deleteProveedor(row.id, row.nombre)}
                     >
                       <i className='fa-solid fa-trash'></i>

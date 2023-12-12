@@ -24,7 +24,7 @@ const Empleado = () => {
   };
 
   const deleteEmpleado = (id, name) => {
-    confirmation(name, `/api/empleados/${id}`, '/');
+    confirmation(name, `/api/empleados/${id}`, '/empleado');
   };
 
   return (
@@ -54,21 +54,22 @@ const Empleado = () => {
             <tbody>
               {empleados.map((row, i) => (
                 <tr key={row.empleadoId}>
-                  <td>{i + 1}</td>
-                  <td>{row.nombre}</td>
-                  <td>{row.apellido}</td>
-                  <td>{row.documento}</td>
-                  <td>{row.cargo}</td>
-                  <td>{row.fechaInicio}</td>
-                  <td>{row.fechaFin}</td>
-                  <td>{row.sueldo}</td>
+                  <td style={{ background: '#dadada' }}>{i + 1}</td>
+                  <td style={{ background: '#dadada' }}>{row.nombre}</td>
+                  <td style={{ background: '#dadada' }}>{row.apellido}</td>
+                  <td style={{ background: '#dadada' }}>{row.documento}</td>
+                  <td style={{ background: '#dadada' }}>{row.cargo}</td>
+                  <td style={{ background: '#dadada' }}>{row.fechaInicio}</td>
+                  <td style={{ background: '#dadada' }}>{row.fechaFin}</td>
+                  <td style={{ background: '#dadada' }}>{row.sueldo}</td>
                   
-                  <td>
-                    <Link to={`/editempleado/${row.empleadoId}`} className='btn btn-warning'>
+                  <td style={{ background: '#dadada' }}>
+                    <Link to={`/editempleado/${row.empleadoId}`} className='btn btn-warning'  style={{ background: '#440000' , color: 'white' }}>
                       <i className='fa-solid fa-edit'></i>
                     </Link>
                     <button
                       className='btn btn-danger ms-2'
+                      style={{ background: '#440000' , color: 'white' }}
                       onClick={() => deleteEmpleado(row.empleadoId, `${row.nombre} ${row.apellido}`)}
                     >
                       <i className='fa-solid fa-trash'></i>

@@ -12,13 +12,13 @@ const Caja = ({ id }) => {
   const [productQuantity, setProductQuantity] = useState(0);
 
   const NombreInput = useRef();
+  const [productList, setProductList] = useState([]);
 
   let method = 'POST';
   let url = 'api/facturas';
   let redirect = '';
 
   useEffect(() => {
-    
     if (id) {
       getBodega();
     }
@@ -43,13 +43,37 @@ const Caja = ({ id }) => {
     return `${yyyy}-${mm}-${dd}`;
   };
 
+  const calculateTotal = () => {
+    let calculatedTotal = 0;
+    productList.forEach((product) => {
+      calculatedTotal += product.productPrice * product.productQuantity;
+    });
+    return calculatedTotal;
+  };
+
+  useEffect(() => {
+    setTotal(calculateTotal());
+  }, [productList]);
+
   const handleAddProduct = () => {
-    // Add logic to handle adding a product to the table
-    // Use productName, productPrice, and productQuantity states
+    if (productName && productPrice && productQuantity) {
+      const product = {
+        productName,
+        productPrice,
+        productQuantity,
+      };
+
+      setProductList((prevList) => [...prevList, product]);
+
+      
+      setProductName('');
+      setProductPrice(0);
+      setProductQuantity(0);
+    }
   };
 
   const handleConfirm = () => {
-    // Add logic for confirmation
+    
   };
 
   const save = async (e) => {
@@ -61,22 +85,46 @@ const Caja = ({ id }) => {
       redirect = '/';
     }
 
-    const res = await sendRequest(method, { fechaCompra, ivaCompra, subtotal, total }, url, redirect);
+    const res = await sendRequest(
+      method,
+      { fechaCompra, ivaCompra, subtotal, total: calculateTotal(), productList },
+      url,
+      redirect
+    );
 
     if (method === 'POST' && res.status === true) {
       setFechaCompra('');
       setIvaCompra(0.18);
       setSubtotal(0);
       setTotal(0);
+      setProductList([]);
     }
   };
 
   return (
     <div className="col-11 col-xl-11 col-xxl-11">
-      <a className="btn btn-primary" role="button" href="/crearclientes"   style={{ background: '#440000', borderColor: '#440000', borderRadius: '45px', transform: 'translate(36px)', color: 'white' }}>
+      <a
+        className="btn btn-primary"
+        role="button"
+        href="/crearclientes"
+        style={{
+          background: '#440000',
+          borderColor: '#440000',
+          borderRadius: '45px',
+          transform: 'translate(36px)',
+          color: 'white',
+        }}
+      >
         Registro
       </a>
-      <div style={{ marginLeft: '152px', marginRight: '126px', maxHeight: 'calc(100vh - 290px)', overflow: 'auto' }}>
+      <div
+        style={{
+          marginLeft: '152px',
+          marginRight: '126px',
+          maxHeight: 'calc(100vh - 290px)',
+          overflow: 'auto',
+        }}
+      >
         <div className="container mt-5">
           <h2 style={{ color: 'black' }}>Detalle de Factura</h2>
           <form id="invoiceForm">
@@ -137,34 +185,65 @@ const Caja = ({ id }) => {
               <table className="table">
                 <thead style={{ background: 'var(--color-text)' }}>
                   <tr>
-                    <th style={{ borderColor: 'var(--color-text)', background: 'var(--color-text)', color: 'black' }}>Producto</th>
+                    <th style={{ borderColor: 'var(--color-text)', background: 'var(--color-text)', color: 'black' }}>
+                      Producto
+                    </th>
                     <th style={{ background: 'var(--color-text)', color: 'black' }}>Precio Unitario</th>
-                    <th style={{ background: 'var(--color-text)', color: 'black' }}>IVA</th>
                     <th style={{ background: 'var(--color-text)', color: 'black' }}>Cantidad</th>
                   </tr>
                 </thead>
-                <tbody id="productTableBody" style={{ background: 'var(--color-text)' }}></tbody>
+                <tbody id="productTableBody" style={{ background: 'var(--color-text)' }}>
+                  {productList.map((product, index) => (
+                    <tr key={index}>
+                      <td>{product.productName}</td>
+                      <td>{product.productPrice}</td>
+                      <td>{product.productQuantity}</td>
+                    </tr>
+                  ))}
+                </tbody>
               </table>
             </div>
           </div>
         </div>
       </div>
-      <a className="btn btn-secondary" role="button" id="cancelBtn" href="/home"  style={{ background: '#440000', borderColor: '#440000', borderRadius: '45px', transform: 'translate(36px)', color: 'white' }}>
+      <a
+        className="btn btn-secondary"
+        role="button"
+        id="cancelBtn"
+        href="/home"
+        style={{
+          background: '#440000',
+          borderColor: '#440000',
+          borderRadius: '45px',
+          transform: 'translate(36px)',
+          color: 'white',
+        }}
+      >
         Cancelar
       </a>
       <button
         className="btn btn-primary"
         id="confirmBtn"
         type="button"
-        style={{ background: '#440000', borderColor: '#440000', borderRadius: '45px', transform: 'translate(36px)', color: 'white' }}
+        style={{
+          background: '#440000',
+          borderColor: '#440000',
+          borderRadius: '45px',
+          transform: 'translate(36px)',
+          color: 'white',
+        }}
         onClick={handleConfirm}
       >
         Confirmar
       </button>
-      <tfoot style={{ background: 'var(--color-text)', marginTop: '10px', display: 'flex', justifyContent: 'flex-end' }}>
+      <tfoot
+        style={{ background: 'var(--color-text)', marginTop: '10px', display: 'flex', justifyContent: 'flex-end' }}
+      >
         <tr style={{ background: 'var(--color-text)' }}>
           <td style={{ background: 'var(--color-text)', borderColor: 'var(--color-text)', color: 'black' }}>Total:</td>
-          <td id="totalAmount" style={{ background: 'var(--color-text)', borderColor: 'var(--color-text)', color: 'black' }}>{total}</td>
+          <td id="totalAmount" style={{ background: 'var(--color-text)', borderColor: 'var(--color-text)', color: 'black' }}>
+            {total}
+          </td>
         </tr>
       </tfoot>
     </div>

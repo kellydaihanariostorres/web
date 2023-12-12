@@ -22,7 +22,7 @@ const Bodegas = () => {
   };
 
   const deleteBodegas = (id, name) => {
-    confirmation(name, `api/bodegas/${id}`, '/');
+    confirmation(name, `api/bodegas/${id}`, '/bodega');
   };
 
   return (
@@ -48,17 +48,18 @@ const Bodegas = () => {
             <tbody className='table-group-divider'>
               {bodegas.map((row, i) => (
                 <tr key={row.bodegaId}>
-                  <td>{i + 1}</td>
-                  <td>{row.nombre}</td>
-                  <td>{row.estado}</td>
-                  <td>{row.direccion}</td>
-                  <td>{row.ciudad}</td>
-                  <td>
-                    <Link to={`/editbodega/${row.bodegaId}`} className='btn btn-warning'>
+                  <td style={{ background: '#dadada' }}>{i + 1}</td>
+                  <td style={{ background: '#dadada' }}>{row.nombre}</td>
+                  <td style={{ background: '#dadada' }}>{row.estado}</td>
+                  <td style={{ background: '#dadada' }}>{row.direccion}</td>
+                  <td style={{ background: '#dadada' }}>{row.ciudad}</td>
+                  <td style={{ background: '#dadada' }}>
+                    <Link to={`/editbodega/${row.bodegaId}`} className='btn btn-warning' style={{ background: '#440000' , color: 'white' }}>
                       <i className='fa-solid fa-edit'></i>
                     </Link>
                     <button
                       className='btn btn-danger ms-2'
+                      style={{ background: '#440000' , color: 'white' }}
                       onClick={() => deleteBodegas(row.bodegaId, row.nombre)}
                     >
                       <i className='fa-solid fa-trash'></i>

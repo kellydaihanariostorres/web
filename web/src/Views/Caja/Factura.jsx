@@ -48,17 +48,18 @@ const Factura = () => {
             <tbody>
               {facturas.map((row, i) => (
                 <tr key={row.id}>
-                  <td>{i + 1}</td>
-                  <td>{row.fechaCompra}</td>
-                  <td>{row.ivaCompra}</td>
-                  <td>{row.subtotal}</td>
-                  <td>{row.total}</td>
-                  <td>
-                    <Link to={`/editfactura/${row.id}`} className='btn btn-warning'>
+                  <td style={{ background: '#dadada' }} >{i + 1}</td>
+                  <td style={{ background: '#dadada' }}>{row.fechaCompra}</td>
+                  <td style={{ background: '#dadada' }}>{row.ivaCompra}</td>
+                  <td style={{ background: '#dadada' }}>{row.subtotal}</td>
+                  <td style={{ background: '#dadada' }}>{row.total}</td>
+                  <td style={{ background: '#dadada' }}>
+                    <Link to={`/editfactura/${row.id}`} className='btn btn-warning' style={{ background: '#440000' , color: 'white' }}>
                       <i className='fa-solid fa-edit'></i>
                     </Link>
                     <button
                       className='btn btn-danger ms-2'
+                      style={{ background: '#440000' , color: 'white' }}
                       onClick={() => deleteFactura(row.id, row.fechaCompra)}
                     >
                       <i className='fa-solid fa-trash'></i>

@@ -58,6 +58,7 @@ function App() {
               <Route path="/editproveedor/:id" element={<EditProveedor/>}/>
               <Route path="/perfil" element={<Perfil/>}/>
               <Route path="/facturas" element={<Factura/>}/>
+              <Route path="/login" element={<Login/>}/>
             </Routes>
           </div>
         </div>

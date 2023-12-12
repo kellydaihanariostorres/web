@@ -37,7 +37,7 @@ const FormProducto = ({ id }) => {
     if (id) {
       method = 'PUT';
       url = `api/productos/${id}`;
-      redirect = '/';
+      redirect = '/productos';
     }
 
     const res = await sendRequest(method, {
@@ -54,7 +54,11 @@ const FormProducto = ({ id }) => {
       setMarcaProducto('');
       setClasificacionProducto('');
     }
+
+    
   };
+
+  
 
   return (
     <div className='container-fluid'>

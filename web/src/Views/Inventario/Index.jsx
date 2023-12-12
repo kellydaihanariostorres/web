@@ -24,7 +24,7 @@ const Inventario = () => {
   };
 
   const deleteInventario = (id, nombre) => {
-    confirmation(nombre, `/api/inventarios/${id}`, '/');
+    confirmation(nombre, `/api/inventarios/${id}`, '/inventario');
   };
 
   return (
@@ -49,18 +49,19 @@ const Inventario = () => {
             <tbody>
               {inventario.map((row, i) => (
                 <tr key={row.id}>
-                  <td>{i + 1}</td>
-                  <td>{row.nombreProducto}</td>
-                  <td>{row.cantidadProducto}</td>
-                  <td>{row.precioProducto}</td>
-                  <td>{row.marcaProducto}</td>
-                  <td>{row.clasificacionProducto}</td>
-                  <td>
-                    <Link to={`/edit-inventario/${row.id}`} className='btn btn-warning'>
+                  <td style={{ background: '#dadada' }}>{i + 1}</td>
+                  <td style={{ background: '#dadada' }}>{row.nombreProducto}</td>
+                  <td style={{ background: '#dadada' }}>{row.cantidadProducto}</td>
+                  <td style={{ background: '#dadada' }}>{row.precioProducto}</td>
+                  <td style={{ background: '#dadada' }}>{row.marcaProducto}</td>
+                  <td style={{ background: '#dadada' }}>{row.clasificacionProducto}</td>
+                  <td style={{ background: '#dadada' }}>
+                    <Link to={`/edit-inventario/${row.id}`} className='btn btn-warning' style={{ background: '#440000' , color: 'white' }}>
                       <i className='fa-solid fa-edit'></i>
                     </Link>
                     <button
                       className='btn btn-danger ms-2'
+                      style={{ background: '#440000' , color: 'white' }}
                       onClick={() => deleteInventario(row.id, row.nombreProducto)}
                     >
                       <i className='fa-solid fa-trash'></i>

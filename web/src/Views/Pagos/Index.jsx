@@ -24,7 +24,7 @@ const Pago = () => {
   };
 
   const deletePago = (id, nombre) => {
-    confirmation(nombre, `/api/nominas/${id}`, '/');
+    confirmation(nombre, `/api/nominas/${id}`, '/pago');
   };
 
   return (
@@ -49,19 +49,20 @@ const Pago = () => {
             <tbody>
               {pagos.map((row, i) => (
                 <tr key={row.nominaId}>
-                  <td>{i + 1}</td>
+                  <td style={{ background: '#dadada' }}>{i + 1}</td>
                   
-                  <td>{row.cuentaBancaria}</td>
-                  <td>{row.email}</td>
-                  <td>{row.telefono}</td>
-                  <td>{row.direccion}</td>
-                  <td>{row.fechaCreacion}</td>
-                  <td>
-                    <Link to={`/edit-pago/${row.nominaId}`} className='btn btn-warning'>
+                  <td style={{ background: '#dadada' }}>{row.cuentaBancaria}</td>
+                  <td style={{ background: '#dadada' }}>{row.email}</td>
+                  <td style={{ background: '#dadada' }}>{row.telefono}</td>
+                  <td style={{ background: '#dadada' }}>{row.direccion}</td>
+                  <td style={{ background: '#dadada' }}>{row.fechaCreacion}</td>
+                  <td style={{ background: '#dadada' }}>
+                    <Link to={`/edit-pago/${row.nominaId}`} className='btn btn-warning'  style={{ background: '#440000' , color: 'white' }}>
                       <i className='fa-solid fa-edit'></i>
                     </Link>
                     <button
                       className='btn btn-danger ms-2'
+                      style={{ background: '#440000' , color: 'white' }}
                       onClick={() => deletePago(row.nominaId, row.nombre)}
                     >
                       <i className='fa-solid fa-trash'></i>
