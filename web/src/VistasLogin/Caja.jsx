@@ -38,25 +38,22 @@ const SideBar = () => {
                
               <ul className='navbar-nav flex-column mb-2'>
                 <li className='nav-item'>
-                  <NavLink to='/administradorv' className='text-white rounded py-2 w-100 d-inline-block px-2' activeclassname="activa">
-                    ADMINISTRADOR
+                  <NavLink to='/cajav' className='text-white rounded py-2 w-100 d-inline-block px-2' activeclassname="activa"><FaIcons.FaHome className='me-3'/>
+                    INICIO
                   </NavLink>
                 </li>
                 <li className='nav-item'>
-                  <NavLink to='/cajav' className='text-white rounded py-2 w-100 d-inline-block px-2'>
+                  <NavLink to='/cajav/clientes' className='text-white rounded py-2 w-100 d-inline-block px-2'>
+                    <FaIcons.FaQq className='me-3'/>
+                    CLIENTES
+                  </NavLink>
+                </li>
+                <li className='nav-item'>
+                  <NavLink to='/cajav/caja' className='text-white rounded py-2 w-100 d-inline-block px-2'><FaIcons.FaBarcode className='me-2'/>
                     CAJA
                   </NavLink>
                 </li>
-                <li className='nav-item'>
-                  <NavLink to='/contadorv' className='text-white rounded py-2 w-100 d-inline-block px-2'>
-                    CONTADOR
-                  </NavLink>
-                </li>
-                <li className='nav-item'>
-                  <NavLink to='/gerentev' className='text-white rounded py-2 w-100 d-inline-block px-2'>
-                    GERENTE
-                  </NavLink>
-                </li>
+               
               </ul>
             </div>
           ) : (

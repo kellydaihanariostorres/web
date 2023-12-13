@@ -38,23 +38,28 @@ const SideBar = () => {
                
               <ul className='navbar-nav flex-column mb-2'>
                 <li className='nav-item'>
-                  <NavLink to='/administradorv' className='text-white rounded py-2 w-100 d-inline-block px-2' activeclassname="activa">
-                    ADMINISTRADOR
+                  <NavLink to='/bodegav' className='text-white rounded py-2 w-100 d-inline-block px-2' activeclassname="activa"><FaIcons.FaHome className='me-3'/>
+                    INICIO
                   </NavLink>
                 </li>
                 <li className='nav-item'>
-                  <NavLink to='/cajav' className='text-white rounded py-2 w-100 d-inline-block px-2'>
-                    CAJA
+                  <NavLink to='/bodegav/productos' className='text-white rounded py-2 w-100 d-inline-block px-2'><FaIcons.FaArchive className='me-2'/>
+                    PRODUCTOS
                   </NavLink>
                 </li>
                 <li className='nav-item'>
-                  <NavLink to='/contadorv' className='text-white rounded py-2 w-100 d-inline-block px-2'>
-                    CONTADOR
+                  <NavLink to='/bodegav/proveedor' className='text-white rounded py-2 w-100 d-inline-block px-2'><FaIcons.FaRegHandLizard className='me-2'/>
+                    PROVEEDOR
                   </NavLink>
                 </li>
                 <li className='nav-item'>
-                  <NavLink to='/gerentev' className='text-white rounded py-2 w-100 d-inline-block px-2'>
-                    GERENTE
+                  <NavLink to='/bodegav/bodega' className='text-white rounded py-2 w-100 d-inline-block px-2'><FaIcons.FaArchway className='me-2'/>
+                    BODEGAS
+                  </NavLink>
+                </li>
+                <li className='nav-item'>
+                  <NavLink to='/bodegav/inventario' className='text-white rounded py-2 w-100 d-inline-block px-2'><FaIcons.FaClipboard className='me-2'/>
+                    INVENTARIO
                   </NavLink>
                 </li>
               </ul>
