@@ -54,7 +54,7 @@ function VistaAdministrador({ cargo }) {
           <Route path="empleado/*" element={<Empleado />} />
           <Route path="createempleado/*" element={<CreateEmpleado />} />
           <Route path="editempleado/:id/*" element={<EditEmpleado />} />
-          <Route path="clientes/*" element={<Clientes />} />
+          <Route path="clientes/*" element={<Clientes rutaBase="/administradorv/clientes" />} />
           <Route path="crearclientes/*" element={<CrearClientes />} />
           <Route path="editclientes/:id/*" element={<EditClientes />} />
           <Route path="productos/*" element={<Productos />} />

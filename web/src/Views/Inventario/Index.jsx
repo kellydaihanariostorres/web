@@ -56,9 +56,7 @@ const Inventario = () => {
                   <td style={{ background: '#dadada' }}>{row.marcaProducto}</td>
                   <td style={{ background: '#dadada' }}>{row.clasificacionProducto}</td>
                   <td style={{ background: '#dadada' }}>
-                    <Link to={`/edit-inventario/${row.id}`} className='btn btn-warning' style={{ background: '#440000' , color: 'white' }}>
-                      <i className='fa-solid fa-edit'></i>
-                    </Link>
+                    
                     <button
                       className='btn btn-danger ms-2'
                       style={{ background: '#440000' , color: 'white' }}

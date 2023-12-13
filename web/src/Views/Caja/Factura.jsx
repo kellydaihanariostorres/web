@@ -15,7 +15,7 @@ const Factura = () => {
   const getFacturas = async () => {
     try {
       setClassLoad('');
-      const res = await sendRequest('GET', '', '/api/facturas', '');
+      const res = await sendRequest('GET', '', '/api/factura', '');
       setFacturas(res);
       setClassLoad('d-none');
     } catch (error) {
@@ -24,7 +24,7 @@ const Factura = () => {
   };
 
   const deleteFactura = (id, fechaCompra) => {
-    confirmation(fechaCompra, `/api/facturas/${id}`, '/');
+    confirmation(fechaCompra, `/api/factura/${id}`, '/');
   };
 
   return (
@@ -54,9 +54,7 @@ const Factura = () => {
                   <td style={{ background: '#dadada' }}>{row.subtotal}</td>
                   <td style={{ background: '#dadada' }}>{row.total}</td>
                   <td style={{ background: '#dadada' }}>
-                    <Link to={`/editfactura/${row.id}`} className='btn btn-warning' style={{ background: '#440000' , color: 'white' }}>
-                      <i className='fa-solid fa-edit'></i>
-                    </Link>
+                    
                     <button
                       className='btn btn-danger ms-2'
                       style={{ background: '#440000' , color: 'white' }}
