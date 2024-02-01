@@ -50,7 +50,7 @@ const Navb = () => {
             <DropdownItem  style={{ color: 'white', '&:hover': { background: 'red' } }}>
               Mi perfil</DropdownItem>
             </Link>
-            <Link to='/login'  style={{ textDecoration: 'none' }}>
+            <Link to='/'  style={{ textDecoration: 'none' }}>
             <DropdownItem  style={{ color: 'white', '&:hover': { background: 'red' } }}>
               Cerrar</DropdownItem>
             </Link>

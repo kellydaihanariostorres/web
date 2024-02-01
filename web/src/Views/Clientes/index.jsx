@@ -52,9 +52,10 @@ const ManageBodegas = () => {
       setCorreo(correo);
     }
 
-    window.setTimeout(function () {
-      document.getElementById('nombre').focus();
-    }, 500);
+     // Usar el evento 'shown.bs.modal' para esperar a que el modal esté completamente visible
+      $(this.modal).on('shown.bs.modal', function () {
+        document.getElementById('nombre').focus();
+      });
   };
 
   const validar = () => {

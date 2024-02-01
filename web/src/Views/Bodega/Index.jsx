@@ -50,9 +50,10 @@ const ManageBodegas = () => {
       setCiudad(ciudad);
     }
 
-    window.setTimeout(function () {
+     // Usar el evento 'shown.bs.modal' para esperar a que el modal esté completamente visible
+    $(this.modal).on('shown.bs.modal', function () {
       document.getElementById('nombre').focus();
-    }, 500);
+    });
   };
 
   const validar = () => {

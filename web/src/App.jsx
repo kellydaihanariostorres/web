@@ -7,17 +7,20 @@ import VistaAdministrador from './redi/admi';
 import VistaCaja from './redi/caj';
 import VistaContador from './redi/cont';
 import VistaGerente from './redi/bod';
+import Login from '../src/Views/Login';
 
 
 
 
 function App() {
-  const cargo = sessionStorage.getItem("cargo");
+  const cargo = sessionStorage.getItem('cargo');
+
   return (
     <Router>
-      <Navb/>
+      <Navb />
       <Routes>
-      <Route path="/administradorv/*" element={<VistaAdministrador cargo={cargo} />} />
+        <Route path="/" element={<Login />} />
+        <Route path="/administradorv/*" element={<VistaAdministrador cargo={cargo} />} />
         <Route path="/cajav/*" element={<VistaCaja cargo={cargo} />} />
         <Route path="/contadorv/*" element={<VistaContador cargo={cargo} />} />
         <Route path="/bodegav/*" element={<VistaGerente />} />
@@ -25,6 +28,5 @@ function App() {
     </Router>
   );
 }
-
 
 export default App;
