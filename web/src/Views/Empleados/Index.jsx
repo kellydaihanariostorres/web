@@ -1,5 +1,4 @@
 import React, { useEffect, useState } from 'react';
-import { Link } from 'react-router-dom';
 import DivAdd from '../../Components/DivAdd';
 import DivTable from '../../Components/DivTable';
 import { show_alerta } from '../../functions';
@@ -61,10 +60,9 @@ const ManageEmpleados = () => {
       setBodegaId(bodegaId);
     }
 
-     // Usar el evento 'shown.bs.modal' para esperar a que el modal esté completamente visible
-      $(this.modal).on('shown.bs.modal', function () {
-        document.getElementById('nombre').focus();
-      });
+    document.getElementById('modalEmpleados').addEventListener('shown.bs.modal', function () {
+      document.getElementById('nombre').focus();
+    });
   };
 
   const validar = () => {
@@ -96,10 +94,18 @@ const ManageEmpleados = () => {
       const tipo = response.data[0];
       const msj = response.data[1];
       show_alerta(msj, tipo);
-      if (tipo === 'success') {
-        document.getElementById('btnCerrar').click();
-        getEmpleados();
-      }
+      // Si la operación fue exitosa o no, actualizar el estado de 'empleados'
+      getEmpleados();
+      // Restablecer estados para preparar el formulario para una nueva entrada
+      setEmpleadoId('');
+      setNombre('');
+      setApellido('');
+      setDocumento('');
+      setCargo('');
+      setFechaInicio('');
+      setFechaFin('');
+      setSueldo('');
+      setBodegaId('');
     } catch (error) {
       show_alerta('Error de solicitud', 'error');
       console.error(error);
@@ -120,10 +126,22 @@ const ManageEmpleados = () => {
         try {
           await axios.delete(`${apiUrl}/${empleadoId}`);
           show_alerta('Empleado eliminado exitosamente', 'success');
-          getEmpleados();
         } catch (error) {
           show_alerta('Error al eliminar al empleado', 'error');
           console.error(error);
+        } finally {
+          // Después de eliminar, actualizar el estado de 'empleados'
+          getEmpleados();
+          // Restablecer estados para preparar el formulario para una nueva entrada
+          setEmpleadoId('');
+          setNombre('');
+          setApellido('');
+          setDocumento('');
+          setCargo('');
+          setFechaInicio('');
+          setFechaFin('');
+          setSueldo('');
+          setBodegaId('');
         }
       } else {
         show_alerta('El empleado no fue eliminado', 'info');
@@ -178,7 +196,6 @@ const ManageEmpleados = () => {
                   <th className='table-header' style={{ background: '#440000', color: 'white' }}>
                     Sueldo
                   </th>
-                  
                   <th className='table-header' style={{ background: '#440000', color: 'white' }}></th>
                 </tr>
               </thead>
@@ -193,7 +210,6 @@ const ManageEmpleados = () => {
                     <td style={{ background: '#dadada' }}>{empleado.fechaInicio}</td>
                     <td style={{ background: '#dadada' }}>{empleado.fechaFin}</td>
                     <td style={{ background: '#dadada' }}>{empleado.sueldo}</td>
-                    
                     <td style={{ background: '#dadada' }}>
                       <button
                         onClick={() =>
