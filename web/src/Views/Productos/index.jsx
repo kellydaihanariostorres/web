@@ -49,10 +49,10 @@ const ManageBodegas = () => {
       setClasificacionProducto(clasificacionProducto);
     }
 
-     // Usar el evento 'shown.bs.modal' para esperar a que el modal esté completamente visible
-      $(this.modal).on('shown.bs.modal', function () {
-        document.getElementById('nombre').focus();
-      });
+    // Usar el evento 'shown.bs.modal' para esperar a que el modal esté completamente visible
+    $(this.modal).on('shown.bs.modal', function () {
+      document.getElementById('nombreProducto').focus();
+    });
   };
 
   const validar = () => {
@@ -73,17 +73,10 @@ const ManageBodegas = () => {
   const enviarSolicitud = async (metodo, parametros) => {
     const idParam = id || '';
     try {
-      const response = await axios[metodo.toLowerCase()](
-        idParam ? `${apiUrl}/${idParam}` : apiUrl,
-        parametros
-      );
-      const tipo = response.data[0];
-      const msj = response.data[1];
-      show_alerta(msj, tipo);
-      if (tipo === 'success') {
-        document.getElementById('btnCerrar').click();
-        getProductos();
-      }
+      await axios[metodo.toLowerCase()](idParam ? `${apiUrl}/${idParam}` : apiUrl, parametros);
+      show_alerta(`${title.toLowerCase()} exitosamente`, 'success');
+      document.getElementById('btnCerrar').click();
+      getProductos();
     } catch (error) {
       show_alerta('Error de solicitud', 'error');
       console.error(error);
