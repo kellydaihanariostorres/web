@@ -7,7 +7,7 @@ import withReactContent from 'sweetalert2-react-content';
 const ManageBodegas = () => {
   const apiUrl = 'https://localhost:7284/api/clientes';
   const [clientes, setClientes] = useState([]);
-  const [clienteId, setClienteId] = useState('');
+  const [clienteId, setClienteId] = useState(null);
   const [nombre, setNombre] = useState('');
   const [apellido, setApellido] = useState('');
   const [edad, setEdad] = useState('');
@@ -46,26 +46,28 @@ const ManageBodegas = () => {
       setTitle('Editar cliente');
       setNombre(nombre);
       setApellido(apellido);
-      setEdad(edad);
+      setEdad(edad.toString()); // Convertir la edad a cadena
       setTipoDocumento(tipoDocumento);
-      setNumDocumento(numDocumento);
+      setNumDocumento(numDocumento.toString()); // Convertir numDocumento a cadena
       setCorreo(correo);
     }
 
-     // Usar el evento 'shown.bs.modal' para esperar a que el modal esté completamente visible
-      $(this.modal).on('shown.bs.modal', function () {
-        document.getElementById('nombre').focus();
-      });
+    // Usar el evento 'shown.bs.modal' para esperar a que el modal esté completamente visible
+    document.getElementById('modalClientes').addEventListener('shown.bs.modal', function () {
+      document.getElementById('nombre').focus();
+    });
   };
 
   const validar = () => {
     if (
-      nombre.trim() === '' ||
-      apellido.trim() === '' ||
-      edad.trim() === '' ||
-      tipoDocumento.trim() === '' ||
-      numDocumento.trim() === '' ||
-      correo.trim() === ''
+      !nombre.trim() ||
+      !apellido.trim() ||
+      (typeof edad !== 'string') ||
+      !edad.trim() ||
+      !tipoDocumento.trim() ||
+      (typeof numDocumento !== 'string') ||
+      !numDocumento.trim() ||
+      !correo.trim()
     ) {
       show_alerta('Completa todos los campos', 'warning');
     } else {
@@ -82,21 +84,27 @@ const ManageBodegas = () => {
         clienteIdParam ? `${apiUrl}/${clienteIdParam}` : apiUrl,
         parametros
       );
-      console.log('Response:', response); 
+      console.log('Response:', response);
       const tipo = response.data[0];
       const msj = response.data[1];
       show_alerta(msj, tipo);
-      if (tipo === 'success') {
-        document.getElementById('btnCerrar').click();
-        getClientes();
-      }
+      // Si la operación fue exitosa o no, actualizar el estado de 'clientes'
+      getClientes();
+      // Restablecer estados para preparar el formulario para una nueva entrada
+      setClienteId(null);
+      setNombre('');
+      setApellido('');
+      setEdad('');
+      setTipoDocumento('');
+      setNumDocumento('');
+      setCorreo('');
     } catch (error) {
       show_alerta('Error de solicitud', 'error');
       console.error(error);
     }
   };
-
-  const deleteCliente = (clienteId, nombre) => {
+  
+  const deleteCliente = async (clienteId, nombre) => {
     const MySwal = withReactContent(Swal);
     MySwal.fire({
       title: `¿Seguro quieres eliminar al cliente ${nombre}?`,
@@ -110,16 +118,27 @@ const ManageBodegas = () => {
         try {
           await axios.delete(`${apiUrl}/${clienteId}`);
           show_alerta('Cliente eliminado exitosamente', 'success');
-          getClientes();
         } catch (error) {
           show_alerta('Error al eliminar al cliente', 'error');
           console.error(error);
+        } finally {
+          // Después de eliminar, actualizar el estado de 'clientes'
+          getClientes();
+          // Restablecer estados para preparar el formulario para una nueva entrada
+          setClienteId(null);
+          setNombre('');
+          setApellido('');
+          setEdad('');
+          setTipoDocumento('');
+          setNumDocumento('');
+          setCorreo('');
         }
       } else {
         show_alerta('El cliente no fue eliminado', 'info');
       }
     });
   };
+  
 
   return (
     <div className='container-fluid'>
@@ -128,10 +147,9 @@ const ManageBodegas = () => {
           <div>
             <button
               onClick={() => openModal(1)}
-              
               data-bs-toggle='modal'
               data-bs-target='#modalClientes'
-              className='btn btn-dark mx-auto col-3'  
+              className='btn btn-dark mx-auto col-3'
               style={{ background: '#440000', borderColor: '#440000', borderRadius: '45px', transform: 'translate(36px)', color: 'white' }}
             >
               <i className='fa-solid fa-circle-plus'></i> Añadir
@@ -145,28 +163,28 @@ const ManageBodegas = () => {
             <table className='table table-bordered'>
               <thead>
                 <tr>
-                  <th className='table-header' style={{  background: '#440000', color: 'white' }}>
+                  <th className='table-header' style={{ background: '#440000', color: 'white' }}>
                     #
                   </th>
                   <th className='table-header' style={{ background: '#440000', color: 'white' }}>
                     Nombre
                   </th>
-                  <th className='table-header' style={{  background: '#440000', color: 'white' }}>
+                  <th className='table-header' style={{ background: '#440000', color: 'white' }}>
                     Apellido
                   </th>
-                  <th className='table-header' style={{  background: '#440000', color: 'white' }}>
+                  <th className='table-header' style={{ background: '#440000', color: 'white' }}>
                     Edad
                   </th>
-                  <th className='table-header' style={{  background: '#440000', color: 'white' }}>
+                  <th className='table-header' style={{ background: '#440000', color: 'white' }}>
                     Tipo de Documento
                   </th>
-                  <th className='table-header' style={{  background: '#440000', color: 'white' }}>
+                  <th className='table-header' style={{ background: '#440000', color: 'white' }}>
                     Número de Documento
                   </th>
-                  <th className='table-header' style={{  background: '#440000', color: 'white' }}>
+                  <th className='table-header' style={{ background: '#440000', color: 'white' }}>
                     Correo
                   </th>
-                  <th className='table-header' style={{  background: '#440000', color: 'white' }}></th>
+                  <th className='table-header' style={{ background: '#440000', color: 'white' }}></th>
                 </tr>
               </thead>
               <tbody className='table-group-divider'>
