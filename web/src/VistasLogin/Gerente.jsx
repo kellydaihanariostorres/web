@@ -4,7 +4,7 @@ import * as FaIcons from 'react-icons/fa';
 import axios from 'axios';
 import storage from '../Storage/storage';
 
-
+// la creacion de los menus su estructura y como se visualizara  es por medio del nombre que le damos a cada uno.
 const SideBar = () => {
   const go = useNavigate();
 

@@ -23,9 +23,11 @@ export const sendRequest = async (method, params, url, redir = '', token = true)
     .catch((errors) => {
       let desc = '';
       res = errors.response.data;
-      errors.response.data.errors.map((e) => {
-        desc = desc + ' ' + e;
-      });
+      if (errors.response.data.errors) { // Verifica si errors.response.data.errors está definido
+        errors.response.data.errors.map((e) => {
+          desc = desc + ' ' + e;
+        });
+      }
       show_alerta(desc, 'error');
     });
 

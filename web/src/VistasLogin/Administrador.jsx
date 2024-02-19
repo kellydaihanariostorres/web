@@ -4,7 +4,7 @@ import * as FaIcons from 'react-icons/fa';
 import axios from 'axios';
 import storage from '../Storage/storage';
 
-
+// la creacion de los menus su estructura y como se visualizara  es por medio del nombre que le damos a cada uno y su rute .
 const SideBar = () => {
   const go = useNavigate();
 
@@ -85,6 +85,11 @@ const SideBar = () => {
                 <li className='nav-item'>
                   <NavLink to='/administradorv/facturas' className='text-white rounded py-2 w-100 d-inline-block px-2'><FaIcons.FaClipboard className='me-2'/>
                     FACTURAS
+                  </NavLink>
+                </li>
+                <li className='nav-item'>
+                  <NavLink to='/administradorv/registro' className='text-white rounded py-2 w-100 d-inline-block px-2'><FaIcons.FaClipboard className='me-2'/>
+                    REGISTRO
                   </NavLink>
                 </li>
               </ul>

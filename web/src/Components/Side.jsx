@@ -1,9 +1,11 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 
+
 function SideBar({ cargo }) {
   return (
     <div>
+     
       <h2>Menú Lateral</h2>
       <nav>
         {cargo === 'administrador' && (
@@ -42,12 +44,7 @@ function SideBar({ cargo }) {
         )}
         {cargo === 'caja' && (
           <>
-            <Link to='/' className='text-white rounded py-2 w-100 d-inline-block px-2' activeclassname="activa"><FaIcons.FaHome className='me-3'/>
-                INICIO
-            </Link>
-            <Link to='/clientes' className='text-white rounded py-2 w-100 d-inline-block px-2'><FaIcons.FaQq  className='me-3'/>
-                CLIENTES
-            </Link>
+            
             <Link to='/facturas' className='text-white rounded py-2 w-100 d-inline-block px-2'><FaIcons.FaClipboard className='me-2'/>
                 FACTURAS
             </Link>

@@ -1,27 +1,18 @@
 import React from 'react';
-import SideBar from '../VistasLogin/Caja';
+import SideBar from '../VistasLogin/Caja';//menu
 import { Routes, Route } from 'react-router-dom';
 import Home from '../Views/Home/Home';
 import Bodega from '../Views/Bodega/Index';
-import CreateBodega from '../Views/Bodega/Create';
-import EditBodega from '../Views/Bodega/Edit';
 import Empleado from '../Views/Empleados/Index';
-import CreateEmpleado from '../Views/Empleados/Create';
-import EditEmpleado from '../Views/Empleados/Edit';
 import Clientes from '../Views/Clientes/index';
-import CrearClientes from '../Views/Clientes/Create';
-import EditClientes from '../Views/Clientes/Edit';
 import Productos from '../Views/Productos/index';
-import CrearProductos from '../Views/Productos/Create';
-import EditProductos from '../Views/Productos/Edit';
 import Caja from '../Views/Caja/Index';
 import Inventario from '../Views/Inventario/Index';
 import Pago from '../Views/Pagos/Index';
 import Proveedor from '../Views/Proveedor/Index';
-import CrearProveedor from '../Views/Proveedor/Create';
-import EditProveedor from '../Views/Proveedor/Edit';
-import Perfil from '../Views/Perfil/index';
 import Factura from '../Views/Caja/Factura';
+import Navb from '../Components/Nav';
+import Venta from '../Views/Caja/Venta';
 
 const styles = {
   flex: {
@@ -40,22 +31,25 @@ const styles = {
   },
 };
 
+// En esta paina encontramos el ruteo para el caja el cual yiene la vistas de todos  los demas componentes.
+// solo es llamado de vistas a al menu
+
 function Vistacaja({ cargo }) {
   console.log("Renderizando VistaCaja");
   return (
+   <div>
+    <Navb/>
     <div style={styles.flex}>
       <SideBar cargo={cargo} />
       <div className="content">
       <Routes>
-        <Route index element={<Home />} />
-        <Route path="clientes/*" element={<Clientes />} />
-        <Route path="crearclientes/*" element={<CrearClientes />} />
-        <Route path="editclientes/:id/*" element={<EditClientes />} />
-        <Route path="caja/*" element={<Caja />} />
-        <Route path="perfil/*" element={<Perfil />} />
+        <Route index element={<Caja />} />
+        <Route path="clientes/*" element={<Clientes />} />    
+        <Route path="caja/*" element={<Venta />} />
       </Routes>
       </div>
     </div>
+    </div> 
   );
 }
 

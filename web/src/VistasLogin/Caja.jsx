@@ -4,7 +4,7 @@ import * as FaIcons from 'react-icons/fa';
 import axios from 'axios';
 import storage from '../Storage/storage';
 
-
+// la creacion de los menus su estructura y como se visualizara  es por medio del nombre que le damos a cada uno.
 const SideBar = () => {
   const go = useNavigate();
 
@@ -14,10 +14,10 @@ const SideBar = () => {
     await axios.get('/api/auth/logout', storage.get('authToken'));
     go('/login');
   };
-  //const userImageUrl = storage.get('authUser')?.image || userImage;
+  
 
   return (
-    <div className="sideBar">
+   
       <nav className='navbar navbar-expand-lg navbar-dark bg-dark'>
         <div className='container-fluid'>
           <button
@@ -38,20 +38,7 @@ const SideBar = () => {
                
               <ul className='navbar-nav flex-column mb-2'>
                 <li className='nav-item'>
-                  <NavLink to='/cajav' className='text-white rounded py-2 w-100 d-inline-block px-2' activeclassname="activa"><FaIcons.FaHome className='me-3'/>
-                    INICIO
-                  </NavLink>
-                </li>
-                <li className='nav-item'>
-                  <NavLink to='/cajav/clientes' className='text-white rounded py-2 w-100 d-inline-block px-2'>
-                    <FaIcons.FaQq className='me-3'/>
-                    CLIENTES
-                  </NavLink>
-                </li>
-                <li className='nav-item'>
-                  <NavLink to='/cajav/caja' className='text-white rounded py-2 w-100 d-inline-block px-2'><FaIcons.FaBarcode className='me-2'/>
-                    CAJA
-                  </NavLink>
+                  <NavLink to='/cajav/caja' className='text-white rounded py-2 w-100 d-inline-block px-2'></NavLink>
                 </li>
                
               </ul>
@@ -61,7 +48,7 @@ const SideBar = () => {
           )}
         </div>
       </nav>
-    </div>
+    
   );
 };
 

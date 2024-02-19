@@ -1,7 +1,6 @@
 import React from 'react';
 import { BrowserRouter as Router, Route, Routes, Outlet } from 'react-router-dom';
 import './App.scss';
-import Navb from './Components/Nav';
 import ProtecdRoutes from './Components/ProtectedRoutes';
 import VistaAdministrador from './redi/admi';
 import VistaCaja from './redi/caj';
@@ -10,19 +9,14 @@ import VistaGerente from './redi/bod';
 import Login from '../src/Views/Login';
 
 
-
-
 function App() {
-  const cargo = sessionStorage.getItem('cargo');
-
   return (
     <Router>
-      <Navb />
       <Routes>
         <Route path="/" element={<Login />} />
-        <Route path="/administradorv/*" element={<VistaAdministrador cargo={cargo} />} />
-        <Route path="/cajav/*" element={<VistaCaja cargo={cargo} />} />
-        <Route path="/contadorv/*" element={<VistaContador cargo={cargo} />} />
+        <Route path="/administradorv/*" element={<VistaAdministrador />} />
+        <Route path="/cajav/*" element={<VistaCaja />} />
+        <Route path="/contadorv/*" element={<VistaContador />} />
         <Route path="/bodegav/*" element={<VistaGerente />} />
       </Routes>
     </Router>
