@@ -5,9 +5,11 @@ import storage from '../Storage/storage'
 export const ProtectedRoutes = ({children }) => {
   const authUser = storage.get('authUser');
   if(!authUser){
-    return <Navigate to ='/login' />
+    return <Navigate to ='/' />
   }
   return <Outlet />
 }
 
 export default ProtectedRoutes
+
+/// protector de rutas si no se logea recrese al login 

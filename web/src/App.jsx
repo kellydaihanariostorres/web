@@ -14,10 +14,12 @@ function App() {
     <Router>
       <Routes>
         <Route path="/" element={<Login />} />
+        <Route element={<ProtecdRoutes/>}>
         <Route path="/administradorv/*" element={<VistaAdministrador />} />
         <Route path="/cajav/*" element={<VistaCaja />} />
         <Route path="/contadorv/*" element={<VistaContador />} />
         <Route path="/bodegav/*" element={<VistaGerente />} />
+        </Route>
       </Routes>
     </Router>
   );
