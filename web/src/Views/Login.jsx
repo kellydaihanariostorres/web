@@ -4,45 +4,46 @@ import axios from 'axios';
 import storage from '../Storage/storage';
 
 const Login = () => {
-  const apiUrl = 'https://localhost:7284/api/authentication/login';
-  const [username, setUsername] = useState('');
+  const [userName, setUserName] = useState('');
   const [password, setPassword] = useState('');
-  const [selectedRole, setSelectedRole] = useState('1');
-  const [error, setError] = useState('');
+  const [selectedRole, setSelectedRole] = useState('1'); // Valor por defecto
   const navigate = useNavigate();
 
   const login = async (e) => {
     e.preventDefault();
-
-    // Validar que se haya ingresado un usuario y una contraseña
-    if (!username || !password) {
-      setError('Por favor, ingresa tu usuario y contraseña.');
-      return;
-    }
-
+  
     try {
-      // Enviar la solicitud de inicio de sesión al servidor
-      const response = await axios.post(apiUrl, {
-        username,
+      const response = await axios.post('https://localhost:7284/api/authentication/login', {
+        userName,
         password,
-        selectedRole
       });
+  
+      if (response.data.token) {
+        // Almacenar el token en el almacenamiento local
+        storage.set('authToken', response.data.token);
 
-      // Verificar si el inicio de sesión fue exitoso
-      if (response.data.success) {
-        // Almacenar el nombre del cargo en el almacenamiento local
-        storage.set('selectedCargo', response.data.cargoNombre);
-
-        // Redirigir al usuario a la página correspondiente
-        navigate(`/${response.data.redirectTo}`);
+        // Redirigir según el cargo seleccionado
+        switch (selectedRole) {
+          case '1': // Administrador
+            navigate('/administradorv');
+            break;
+          case '2': // Bodega
+            navigate('/bodegav');
+            break;
+          case '3': // Contador
+            navigate('/contadorv');
+            break;
+          case '4': // Caja
+            navigate('/cajav');
+            break;
+          default:
+            navigate('/');
+        }
       } else {
-        // Mostrar mensaje de error en caso de inicio de sesión fallido
-        setError('Usuario o contraseña incorrectos');
+        console.error('Error en el inicio de sesión: No se recibió un token en la respuesta.');
       }
     } catch (error) {
-      // Manejar errores de conexión o del servidor
       console.error('Error al iniciar sesión:', error);
-      setError('Error al iniciar sesión. Por favor, intenta nuevamente.');
     }
   };
 
@@ -59,11 +60,11 @@ const Login = () => {
                 <h6 style={{ color: 'white' }}>Usuario</h6>
                 <input
                   type="text"
-                  value={username}
+                  value={userName}
                   className="form-control"
                   placeholder="Usuario"
                   style={{ backgroundColor: '#640000', color: 'white', border: '1px solid #4c0101', caretColor: 'white' }}
-                  onChange={(e) => setUsername(e.target.value)}
+                  onChange={(e) => setUserName(e.target.value)}
                 />
                 <h6 style={{ color: 'white', marginTop: '10px' }}>Contraseña</h6>
                 <input
@@ -74,7 +75,6 @@ const Login = () => {
                   style={{ backgroundColor: '#640000', color: 'white', border: '1px solid #4c0101' }}
                   onChange={(e) => setPassword(e.target.value)}
                 />
-                {error && <p style={{ color: 'red', marginTop: '10px' }}>{error}</p>}
                 <h6 style={{ color: 'white', marginTop: '10px' }}>Cargo</h6>
                 <select
                   className="form-select"

@@ -14,7 +14,7 @@ const SideBar = () => {
     await axios.get('/api/auth/logout', storage.get('authToken'));
     go('/login');
   };
-  //const userImageUrl = storage.get('authUser')?.image || userImage;
+  
 
   return (
     <div className="sideBar">

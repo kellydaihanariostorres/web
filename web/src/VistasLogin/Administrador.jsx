@@ -8,13 +8,12 @@ import storage from '../Storage/storage';
 const SideBar = () => {
   const go = useNavigate();
 
-  const logout = async () => {
+  const logout = async()=>{
     storage.remove('authToken');
-    storage.remove('authUser');
-    await axios.get('/api/auth/logout', storage.get('authToken'));
-    go('/login');
-  };
-  //const userImageUrl = storage.get('authUser')?.image || userImage;
+    await axios.get('https://localhost:7284/api/authentication/login',storage.get('authToken'));
+    go('/');
+  }
+ 
 
   return (
     <div className="sideBar">
@@ -33,7 +32,7 @@ const SideBar = () => {
             <span className='navbar-toggler-icon'></span>
           </button>
 
-          {!storage.get('authUser') ? (
+          {storage.get('authUser') ? (
             <div className='collapse navbar-collapse navbar-dark bg-dark' id='nav'>  
                
               <ul className='navbar-nav flex-column mb-2'>

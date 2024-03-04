@@ -6,7 +6,13 @@ import { Link } from 'react-router-dom';
 const Navb = () => {
   const [isOpen, setIsOpen] = useState(false);
   const toggle = () => setIsOpen(!isOpen);
-  const selectedCargo = storage.get('selectedCargo'); // Obtenemos el cargo del almacenamiento local
+  const selectedCargo = storage.get('selectedCargo');
+  const logout = async()=>{
+    storage.remove('authToken');
+    storage.remove('authUser');
+    await axios.get('https://localhost:7284/api/authentication/login',storage.get('authToken'));
+    go('/');
+  } // Obtenemos el cargo del almacenamiento local
 
   // Función para obtener el nombre de la imagen basada en el cargo
   const getImageName = () => {

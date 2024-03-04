@@ -23,11 +23,7 @@ export const sendRequest = async (method, params, url, redir = '', token = true)
     .catch((errors) => {
       let desc = '';
       res = errors.response.data;
-      if (errors.response.data.errors) { // Verifica si errors.response.data.errors está definido
-        errors.response.data.errors.map((e) => {
-          desc = desc + ' ' + e;
-        });
-      }
+      errors.response.data.errors.map((e) => {desc = desc + ' ' + e;});
       show_alerta(desc, 'error');
     });
 
@@ -40,7 +36,7 @@ export const confirmation = async (name, url, redir) => {
     .fire({
       title: 'Esta seguro de eliminar ' + name + '?',
       icon: 'question',
-      showCancelButton: true,
+      showCancelButton: true,showCloseButton:true,
       confirmButtonText: '<i class="fa-solid fa-check"></i> si, eliminar',
       cancelButtonText: '<i class="fa-solid fa-ban"></i> cancelar',
     })

@@ -8,12 +8,11 @@ import storage from '../Storage/storage';
 const SideBar = () => {
   const go = useNavigate();
 
-  const logout = async () => {
+  const logout = async()=>{
     storage.remove('authToken');
-    storage.remove('authUser');
-    await axios.get('/api/auth/logout', storage.get('authToken'));
-    go('/login');
-  };
+    await axios.get('https://localhost:7284/api/authentication/login',storage.get('authToken'));
+    go('/');
+  }
   //const userImageUrl = storage.get('authUser')?.image || userImage;
 
   return (
