@@ -13,6 +13,7 @@ import Factura from '../Views/Caja/Factura';
 import Navb from '../Components/Nav';
 import Registro from '../Views/Registro';
 import Venta from '../Views/Caja/Venta';
+import FacturaProveedor from '../Views/Proveedor/Factura';
 
 const styles = {
   flex: {
@@ -53,7 +54,9 @@ function VistaAdministrador({ cargo }) {
           <Route path="facturas/*" element={<Factura />} />
           <Route path="registro/*" element={<Registro />} />
           <Route path="venta/*" element={<Venta />} />
+          <Route path="facturaproveedor/*" element={<FacturaProveedor/>} />
         </Routes>
+
       </div>
     </div>
   </div>

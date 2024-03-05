@@ -7,7 +7,7 @@ import Swal from 'sweetalert2';
 import withReactContent from 'sweetalert2-react-content';
 
 const ManageFacturaProveedores = () => {
-  const apiUrl = 'https://localhost:7284/api/facturasproveedores';
+  const apiUrl = 'https://localhost:7284/api/facturaproveedor';
   const [facturas, setFacturas] = useState([]);
   const [idFactura, setIdFactura] = useState('');
   const [fechageneracion, setFechageneracion] = useState('');
