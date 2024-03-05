@@ -1,65 +1,78 @@
 import React, { useEffect, useState } from 'react';
+import DivAdd from '../../Components/DivAdd';
+import DivTable from '../../Components/DivTable';
 import { show_alerta } from '../../functions';
 import axios from 'axios';
 import Swal from 'sweetalert2';
 import withReactContent from 'sweetalert2-react-content';
 
-const ManageUsuarios = () => {
+const ManageProveedores = () => {
   const apiUrl = 'https://localhost:7284/api/proveedores';
-  const [usuarios, setUsuarios] = useState([]);
-  const [id, setId] = useState('');
+  const [proveedores, setProveedores] = useState([]);
+  const [idProveedor, setIdProveedor] = useState('');
   const [nombre, setNombre] = useState('');
+  const [numDocumento, setNumDocumento] = useState('');
   const [edad, setEdad] = useState('');
-  const [direccion, setDireccion] = useState('');
   const [telefono, setTelefono] = useState('');
   const [correo, setCorreo] = useState('');
   const [nombreEntidadBancaria, setNombreEntidadBancaria] = useState('');
-  const [numDocumento, setNumDocumento] = useState('');
   const [numeroCuentaBancaria, setNumeroCuentaBancaria] = useState('');
-
   const [title, setTitle] = useState('');
   const [operation, setOperation] = useState(1);
+  const [searchText, setSearchText] = useState('');
+  const [pageNumber, setPageNumber] = useState(1);
+  const [pageSize, setPageSize] = useState(8);
+  const [totalPages, setTotalPages] = useState(1); 
 
   useEffect(() => {
-    getUsuarios();
-  }, []);
+    getProveedores(pageNumber, pageSize);
+  }, [pageNumber, pageSize]);
 
-  const getUsuarios = async () => {
+  const getProveedores = async (pageNumber, pageSize) => {
     try {
-      const response = await axios.get(apiUrl);
-      setUsuarios(response.data);
+      const response = await axios.get(`${apiUrl}?page=${pageNumber}&size=${pageSize}`);
+      setProveedores(response.data);
+      setTotalPages(Math.ceil(response.data.length / pageSize));
     } catch (error) {
       console.error(error);
     }
   };
 
-  const openModal = (op, id, nombre, numDocumento, edad, direccion, telefono, correo, nombreEntidadBancaria, numeroCuentaBancaria) => {
+  const handleNextPage = () => {
+    setPageNumber((prevPageNumber) => Math.min(prevPageNumber + 1, totalPages));
+  };
+
+  const handlePreviousPage = () => {
+    setPageNumber((prevPageNumber) => Math.max(prevPageNumber - 1, 1));
+  };
+
+  const openModal = (op, id, nombre, numDocumento, edad, telefono, correo, nombreEntidadBancaria, numeroCuentaBancaria) => {
     setOperation(op);
-    setId(id);
+    setIdProveedor(id);
 
     if (op === 1) {
-      setTitle('Registrar usuario');
+      setTitle('Registrar proveedor');
       setNombre('');
       setNumDocumento('');
       setEdad('');
-      setDireccion('');
       setTelefono('');
       setCorreo('');
       setNombreEntidadBancaria('');
       setNumeroCuentaBancaria('');
     } else if (op === 2) {
-      setTitle('Editar usuario');
+      setTitle('Editar proveedor');
       setNombre(nombre);
       setNumDocumento(numDocumento);
       setEdad(edad);
-      setDireccion(direccion);
       setTelefono(telefono);
       setCorreo(correo);
       setNombreEntidadBancaria(nombreEntidadBancaria);
       setNumeroCuentaBancaria(numeroCuentaBancaria);
     }
 
-    document.getElementById('nombre').focus();
+    document.getElementById('modalProveedores').addEventListener('shown.bs.modal', function () {
+      document.getElementById('nombre').focus();
+    });
   };
 
   const validar = () => {
@@ -67,7 +80,6 @@ const ManageUsuarios = () => {
       nombre.trim() === '' ||
       numDocumento.trim() === '' ||
       edad.trim() === '' ||
-      direccion.trim() === '' ||
       telefono.trim() === '' ||
       correo.trim() === '' ||
       nombreEntidadBancaria.trim() === '' ||
@@ -75,53 +87,55 @@ const ManageUsuarios = () => {
     ) {
       show_alerta('Completa todos los campos', 'warning');
     } else {
-      const parametros = {
-        nombre,
-        numDocumento: parseInt(numDocumento),
-        edad: parseInt(edad),
-        direccion,
-        telefono,
-        correo,
-        nombreEntidadBancaria,
-        numeroCuentaBancaria: parseInt(numeroCuentaBancaria),
-      };
+      const parametros = { nombre, numDocumento, edad, telefono, correo, nombreEntidadBancaria, numeroCuentaBancaria };
       const metodo = operation === 1 ? 'POST' : 'PUT';
-      enviarSolicitud(metodo, parametros, id);
+      enviarSolicitud(metodo, parametros);
     }
   };
-  
-  
-  
 
-  const enviarSolicitud = async (metodo, parametros, id) => {
-    const idParam = id || '';
+  const enviarSolicitud = async (metodo, parametros) => {
+    const idProveedorParam = idProveedor || '';
     try {
       const response = await axios[metodo.toLowerCase()](
-        idParam ? `${apiUrl}/${idParam}` : apiUrl,
+        idProveedorParam ? `${apiUrl}/${idProveedorParam}` : apiUrl,
         parametros
       );
-      console.log('Response:', response);
       const tipo = response.data[0];
       const msj = response.data[1];
       show_alerta(msj, tipo);
-      if (tipo === 'success') {
-        document.getElementById('btnCerrar').click();
-        getUsuarios();
-      }
+      getProveedores();
+      setIdProveedor('');
+      setNombre('');
+      setNumDocumento('');
+      setEdad('');
+      setTelefono('');
+      setCorreo('');
+      setNombreEntidadBancaria('');
+      setNumeroCuentaBancaria('');
     } catch (error) {
-      if (error.response.status === 400) {
-        show_alerta('Error: Verifica los datos ingresados', 'error');
-      } else {
-        show_alerta('Error de solicitud', 'error');
-      }
+      show_alerta('Error de solicitud', 'error');
       console.error(error);
     }
   };
 
-  const deleteUsuario = (id, nombre) => {
+  const handleSearch = (e) => {
+    const text = e.target.value;
+    setSearchText(text);
+    if (text.trim() === '') {
+      setPageNumber(1);
+      getProveedores();
+    } else {
+      const filteredProveedores = proveedores.filter((proveedor) =>
+        proveedor.nombre.toLowerCase().includes(text.toLowerCase())
+      );
+      setProveedores(filteredProveedores);
+    }
+  };
+
+  const deleteProveedor = (idProveedor, nombre) => {
     const MySwal = withReactContent(Swal);
     MySwal.fire({
-      title: `¿Seguro quieres eliminar al usuario ${nombre}?`,
+      title: `¿Seguro quieres eliminar al proveedor ${nombre}?`,
       icon: 'question',
       text: 'No se podrá dar marcha atrás',
       showCancelButton: true,
@@ -130,15 +144,24 @@ const ManageUsuarios = () => {
     }).then(async (result) => {
       if (result.isConfirmed) {
         try {
-          await axios.delete(`${apiUrl}/${id}`);
-          show_alerta('Usuario eliminado exitosamente', 'success');
-          getUsuarios();
+          await axios.delete(`${apiUrl}/${idProveedor}`);
+          show_alerta('Proveedor eliminado exitosamente', 'success');
         } catch (error) {
-          show_alerta('Error al eliminar al usuario', 'error');
+          show_alerta('Error al eliminar al proveedor', 'error');
           console.error(error);
+        } finally {
+          getProveedores();
+          setIdProveedor('');
+          setNombre('');
+          setNumDocumento('');
+          setEdad('');
+          setTelefono('');
+          setCorreo('');
+          setNombreEntidadBancaria('');
+          setNumeroCuentaBancaria('');
         }
       } else {
-        show_alerta('El usuario no fue eliminado', 'info');
+        show_alerta('El proveedor no fue eliminado', 'info');
       }
     });
   };
@@ -147,103 +170,138 @@ const ManageUsuarios = () => {
     <div className='container-fluid'>
       <div className='row justify-content-center'>
         <div className='col-md-4 offset-md-4'>
-          <button
-            onClick={() => openModal(1)}
-            data-bs-toggle='modal'
-            data-bs-target='#modalUsuarios'
-            className='btn btn-dark mx-auto col-3'
-            style={{ background: '#440000', borderColor: '#440000', borderRadius: '45px', transform: 'translate(36px)', color: 'white' }}
-          >
-            <i className='fa-solid fa-circle-plus'></i> Añadir
-          </button>
+          <div style={{ display: 'flex', alignItems: 'center' }}>
+            <div className='input-group mb-3'>
+              <input
+                type='text'
+                className='form-control'
+                placeholder='Buscar proveedor'
+                aria-label='Buscar proveedor'
+                aria-describedby='button-addon2'
+                onChange={handleSearch}
+                value={searchText}
+                style={{
+                  height: '40px',
+                  borderRadius: '45px',
+                  marginRight: '100px',
+                  width: '500px',
+                  marginLeft: 'auto',
+                  position: 'absolute',
+                  right: 0,
+                }}
+              />
+            </div>
+            <DivAdd>
+              <button
+                type="button" class="btn btn-danger"
+                onClick={() => openModal(1)}
+                data-bs-toggle='modal'
+                data-bs-target='#modalProveedores'
+                className='btn btn-dark'
+                style={{ background: '#440000', borderColor: '#440000', color: 'white', width: '100%', marginLeft: '100px' }}
+              >
+                <i className='fa-solid fa-circle-plus'></i> Añadir
+              </button>
+            </DivAdd>
+          </div>
         </div>
       </div>
       <div className='row mt-3'>
         <div className='col-12 col-lg-8 offset-0 offset-lg-2 mx-auto text-center' style={{ width: '100%' }}>
-          <table className='table table-bordered'>
-            <thead>
-              <tr>
-                <th className='table-header' style={{ background: '#440000', color: 'white' }}>
-                  #
-                </th>
-                <th className='table-header' style={{ background: '#440000', color: 'white' }}>
-                  Nombre
-                </th>
-                <th className='table-header' style={{ background: '#440000', color: 'white' }}>
-                  NumDocumento
-                </th>
-                <th className='table-header' style={{ background: '#440000', color: 'white' }}>
-                  Edad
-                </th>
-                <th className='table-header' style={{ background: '#440000', color: 'white' }}>
-                  Dirección
-                </th>
-                <th className='table-header' style={{ background: '#440000', color: 'white' }}>
-                  Telefono
-                </th>
-                <th className='table-header' style={{ background: '#440000', color: 'white' }}>
-                  Correo
-                </th>
-                <th className='table-header' style={{ background: '#440000', color: 'white' }}>
-                  Nombre Entidad Bancaria
-                </th>
-                <th className='table-header' style={{ background: '#440000', color: 'white' }}>
-                  Numero Cuenta Bancaria
-                </th>
-                <th className='table-header' style={{ background: '#440000', color: 'white' }}></th>
-              </tr>
-            </thead>
-            <tbody className='table-group-divider'>
-              {usuarios.map((usuario, i) => (
-                <tr key={usuario.id}>
-                  <td style={{ background: '#dadada' }}>{i + 1}</td>
-                  <td style={{ background: '#dadada' }}>{usuario.nombre}</td>
-                  <td style={{ background: '#dadada' }}>{usuario.numDocumento}</td>
-                  <td style={{ background: '#dadada' }}>{usuario.edad}</td>
-                  <td style={{ background: '#dadada' }}>{usuario.direccion}</td>
-                  <td style={{ background: '#dadada' }}>{usuario.telefono}</td>
-                  <td style={{ background: '#dadada' }}>{usuario.correo}</td>
-                  <td style={{ background: '#dadada' }}>{usuario.nombreEntidadBancaria}</td>
-                  <td style={{ background: '#dadada' }}>{usuario.numeroCuentaBancaria}</td>
-                  <td style={{ background: '#dadada' }}>
-                    <button
-                      onClick={() =>
-                        openModal(
-                          2,
-                          usuario.id,
-                          usuario.nombre,
-                          usuario.numDocumento,
-                          usuario.edad,
-                          usuario.direccion,
-                          usuario.telefono,
-                          usuario.correo,
-                          usuario.nombreEntidadBancaria,
-                          usuario.numeroCuentaBancaria
-                        )
-                      }
-                      className='btn btn-warning'
-                      data-bs-toggle='modal'
-                      data-bs-target='#modalUsuarios'
-                      style={{ background: '#440000', color: 'white' }}
-                    >
-                      <i className='fa-solid fa-edit'></i>
-                    </button>
-                    &nbsp;
-                    <button
-                      onClick={() => deleteUsuario(usuario.id, usuario.nombre)}
-                      className='btn btn-danger'
-                      style={{ background: '#440000', color: 'white' }}
-                    >
-                      <i className='fa-solid fa-trash'></i>
-                    </button>
-                  </td>
+          <DivTable col='6' off='3'>
+            <table className='table table-bordered'>
+              <thead>
+                <tr>
+                  <th className='table-header' style={{ background: '#440000', color: 'white' }}>
+                    #
+                  </th>
+                  <th className='table-header' style={{ background: '#440000', color: 'white' }}>
+                    Nombre
+                  </th>
+                  <th className='table-header' style={{ background: '#440000', color: 'white' }}>
+                    Num. Documento
+                  </th>
+                  <th className='table-header' style={{ background: '#440000', color: 'white' }}>
+                    Edad
+                  </th>
+                  <th className='table-header' style={{ background: '#440000', color: 'white' }}>
+                    Teléfono
+                  </th>
+                  <th className='table-header' style={{ background: '#440000', color: 'white' }}>
+                    Correo
+                  </th>
+                  <th className='table-header' style={{ background: '#440000', color: 'white' }}>
+                    Entidad Bancaria
+                  </th>
+                  <th className='table-header' style={{ background: '#440000', color: 'white' }}>
+                    Número Cuenta
+                  </th>
+                  <th className='table-header' style={{ background: '#440000', color: 'white' }}></th>
                 </tr>
-              ))}
-            </tbody>
-          </table>
+              </thead>
+              <tbody className='table-group-divider'>
+                {proveedores
+                  .slice((pageNumber - 1) * pageSize, pageNumber * pageSize)
+                  .map((proveedor, i) => (
+                    <tr key={proveedor.idProveedor}>
+                      <td style={{ background: '#dadada' }}>{i + 1}</td>
+                      <td style={{ background: '#dadada' }}>{proveedor.nombre}</td>
+                      <td style={{ background: '#dadada' }}>{proveedor.numDocumento}</td>
+                      <td style={{ background: '#dadada' }}>{proveedor.edad}</td>
+                      <td style={{ background: '#dadada' }}>{proveedor.telefono}</td>
+                      <td style={{ background: '#dadada' }}>{proveedor.correo}</td>
+                      <td style={{ background: '#dadada' }}>{proveedor.nombreEntidadBancaria}</td>
+                      <td style={{ background: '#dadada' }}>{proveedor.numeroCuentaBancaria}</td>
+                      <td style={{ background: '#dadada' }}>
+                        <button
+                          onClick={() =>
+                            openModal(
+                              2,
+                              proveedor.idProveedor,
+                              proveedor.nombre,
+                              proveedor.numDocumento,
+                              proveedor.edad,
+                              proveedor.telefono,
+                              proveedor.correo,
+                              proveedor.nombreEntidadBancaria,
+                              proveedor.numeroCuentaBancaria
+                            )
+                          }
+                          className='btn btn-warning'
+                          data-bs-toggle='modal'
+                          data-bs-target='#modalProveedores'
+                          style={{ background: '#440000', color: 'white' }}
+                        >
+                          <i className='fa-solid fa-edit'></i>
+                        </button>
+                        &nbsp;
+                        <button
+                          onClick={() => deleteProveedor(proveedor.idProveedor, proveedor.nombre)}
+                          className='btn btn-danger'
+                          style={{ background: '#440000', color: 'white' }}
+                        >
+                          <i className='fa-solid fa-trash'></i>
+                        </button>
+                      </td>
+                    </tr>
+                  ))}
+              </tbody>
+            </table>
+            <div className='d-flex justify-content-between'>
+              <button onClick={handlePreviousPage} disabled={pageNumber === 1} style={{ background: '#440000', borderColor: '#440000', color: 'white' }}>
+                Anterior
+              </button>
+              <span>
+                Página {pageNumber} de {pageSize}
+              </span>
+              <button onClick={handleNextPage} disabled={pageNumber === totalPages} style={{ background: '#440000', borderColor: '#440000', color: 'white' }}>
+                Siguiente
+              </button>
+            </div>
+          </DivTable>
         </div>
       </div>
-      <div id='modalUsuarios' className='modal fade' aria-hidden='true'>
+      <div id='modalProveedores' className='modal fade' aria-hidden='true'>
         <div className='modal-dialog'>
           <div className='modal-content'>
             <div className='modal-header'>
@@ -273,7 +331,7 @@ const ManageUsuarios = () => {
                   type='text'
                   id='numDocumento'
                   className='form-control'
-                  placeholder='NumDocumento'
+                  placeholder='Número Documento'
                   value={numDocumento}
                   onChange={(e) => setNumDocumento(e.target.value)}
                 />
@@ -297,22 +355,9 @@ const ManageUsuarios = () => {
                 </span>
                 <input
                   type='text'
-                  id='direccion'
-                  className='form-control'
-                  placeholder='Dirección'
-                  value={direccion}
-                  onChange={(e) => setDireccion(e.target.value)}
-                />
-              </div>
-              <div className='input-group mb-3'>
-                <span className='input-group-text'>
-                  <i className='fa-solid fa-gift'></i>
-                </span>
-                <input
-                  type='text'
                   id='telefono'
                   className='form-control'
-                  placeholder='Telefono'
+                  placeholder='Teléfono'
                   value={telefono}
                   onChange={(e) => setTelefono(e.target.value)}
                 />
@@ -338,7 +383,7 @@ const ManageUsuarios = () => {
                   type='text'
                   id='nombreEntidadBancaria'
                   className='form-control'
-                  placeholder='Nombre Entidad Bancaria'
+                  placeholder='Entidad Bancaria'
                   value={nombreEntidadBancaria}
                   onChange={(e) => setNombreEntidadBancaria(e.target.value)}
                 />
@@ -351,13 +396,13 @@ const ManageUsuarios = () => {
                   type='text'
                   id='numeroCuentaBancaria'
                   className='form-control'
-                  placeholder='Numero Cuenta Bancaria'
+                  placeholder='Número Cuenta Bancaria'
                   value={numeroCuentaBancaria}
                   onChange={(e) => setNumeroCuentaBancaria(e.target.value)}
                 />
               </div>
               <div className='d-grid col-6 mx-auto'>
-                <button onClick={() => validar(id)} className='btn btn-success'>
+                <button onClick={() => validar(idProveedor)} className='btn btn-success'>
                   <i className='fa-solid fa-floppy-disk'></i> Guardar
                 </button>
               </div>
@@ -374,4 +419,4 @@ const ManageUsuarios = () => {
   );
 };
 
-export default ManageUsuarios;
+export default ManageProveedores;

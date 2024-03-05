@@ -1,12 +1,10 @@
 import React, { useEffect, useState } from 'react';
-import { Link } from 'react-router-dom';
 import DivAdd from '../../Components/DivAdd';
 import DivTable from '../../Components/DivTable';
 import { show_alerta } from '../../functions';
 import axios from 'axios';
 import Swal from 'sweetalert2';
 import withReactContent from 'sweetalert2-react-content';
-
 
 const ManageBodegas = () => {
   const apiUrl = 'https://localhost:7284/api/bodegas';
@@ -18,21 +16,34 @@ const ManageBodegas = () => {
   const [ciudad, setCiudad] = useState('');
   const [title, setTitle] = useState('');
   const [operation, setOperation] = useState(1);
+  const [searchText, setSearchText] = useState('');
+  const [pageNumber, setPageNumber] = useState(1);
+  const [pageSize, setPageSize] = useState(8);
+  const [totalPages, setTotalPages] = useState(1); 
 
   useEffect(() => {
-    getBodegas();
-  }, []);
+    getBodegas(pageNumber, pageSize);
+  }, [pageNumber, pageSize]);
 
   const getBodegas = async () => {
     try {
       const response = await axios.get(apiUrl);
       setBodegas(response.data);
+      setTotalPages(Math.ceil(response.data.length / pageSize));
     } catch (error) {
       console.error(error);
     }
   };
 
-  const openModal = (op, id, nombre, direccion, estado, ciudad) => {
+  const handleNextPage = () => {
+    setPageNumber((prevPageNumber) => Math.min(prevPageNumber + 1, totalPages));
+  };
+
+  const handlePreviousPage = () => {
+    setPageNumber((prevPageNumber) => Math.max(prevPageNumber - 1, 1));
+  };
+
+  const openModal = (op, id, nombre, estado, direccion, ciudad) => {
     setOperation(op);
     setBodegaId(id);
 
@@ -50,17 +61,21 @@ const ManageBodegas = () => {
       setCiudad(ciudad);
     }
 
-     // Usar el evento 'shown.bs.modal' para esperar a que el modal esté completamente visible
-    $(this.modal).on('shown.bs.modal', function () {
+    document.getElementById('modalBodegas').addEventListener('shown.bs.modal', function () {
       document.getElementById('nombre').focus();
     });
   };
 
   const validar = () => {
-    if (nombre.trim() === '' || direccion.trim() === '' || estado.trim() === '' || ciudad.trim() === '') {
+    if (
+      nombre.trim() === '' ||
+      estado.trim() === '' ||
+      direccion.trim() === '' ||
+      ciudad.trim() === ''
+    ) {
       show_alerta('Completa todos los campos', 'warning');
     } else {
-      const parametros = { nombre, direccion, estado, ciudad };
+      const parametros = { nombre, estado, direccion, ciudad };
       const metodo = operation === 1 ? 'POST' : 'PUT';
       enviarSolicitud(metodo, parametros);
     }
@@ -76,13 +91,29 @@ const ManageBodegas = () => {
       const tipo = response.data[0];
       const msj = response.data[1];
       show_alerta(msj, tipo);
-      if (tipo === 'success') {
-        document.getElementById('btnCerrar').click();
-        getBodegas();
-      }
+      getBodegas();
+      setBodegaId('');
+      setNombre('');
+      setEstado('');
+      setDireccion('');
+      setCiudad('');
     } catch (error) {
       show_alerta('Error de solicitud', 'error');
       console.error(error);
+    }
+  };
+
+  const handleSearch = (e) => {
+    const text = e.target.value;
+    setSearchText(text);
+    if (text.trim() === '') {
+      setPageNumber(1);
+      getBodegas();
+    } else {
+      const filteredBodegas = bodegas.filter((bodega) =>
+        bodega.nombre.toLowerCase().includes(text.toLowerCase())
+      );
+      setBodegas(filteredBodegas);
     }
   };
 
@@ -100,10 +131,16 @@ const ManageBodegas = () => {
         try {
           await axios.delete(`${apiUrl}/${bodegaId}`);
           show_alerta('Bodega eliminada exitosamente', 'success');
-          getBodegas();
         } catch (error) {
           show_alerta('Error al eliminar la bodega', 'error');
           console.error(error);
+        } finally {
+          getBodegas();
+          setBodegaId('');
+          setNombre('');
+          setEstado('');
+          setDireccion('');
+          setCiudad('');
         }
       } else {
         show_alerta('La bodega no fue eliminada', 'info');
@@ -115,64 +152,121 @@ const ManageBodegas = () => {
     <div className='container-fluid'>
       <div className='row justify-content-center'>
         <div className='col-md-4 offset-md-4'>
-          <DivAdd>
-            <button
-              onClick={() => openModal(1)}
-              
-              data-bs-toggle='modal'
-              data-bs-target='#modalBodegas'
-              className='btn btn-dark mx-auto col-3'  style={{ background: '#440000', borderColor: '#440000', borderRadius: '45px', transform: 'translate(36px)', color: 'white' }}
-            >
-              <i className='fa-solid fa-circle-plus'></i> Añadir
-            </button>
-          </DivAdd>
+          <div style={{ display: 'flex', alignItems: 'center' }}>
+            <div style={{ display: 'flex', alignItems: 'center' }}>
+              <div className='input-group mb-3'>
+                <input
+                  type='text'
+                  className='form-control'
+                  placeholder='Buscar bodega'
+                  aria-label='Buscar bodega'
+                  aria-describedby='button-addon2'
+                  onChange={handleSearch}
+                  value={searchText}
+                  style={{
+                    height: '40px',
+                    borderRadius: '45px',
+                    marginRight: '100px',
+                    width: '500px',
+                    marginLeft: 'auto',
+                    position: 'absolute',
+                    right: 0,
+                  }}
+                />
+              </div>
+              <DivAdd>
+                <button
+                  type="button" class="btn btn-danger"
+                  onClick={() => openModal(1)}
+                  data-bs-toggle='modal'
+                  data-bs-target='#modalBodegas'
+                  className='btn btn-dark'
+                  style={{ background: '#440000', borderColor: '#440000', color: 'white', width: '100%', marginLeft: '100px' }}
+                >
+                  <i className='fa-solid fa-circle-plus'></i> Añadir
+                </button>
+              </DivAdd>
+            </div>        
+          </div> 
         </div>
       </div>
       <div className='row mt-3'>
         <div className='col-12 col-lg-8 offset-0 offset-lg-2 mx-auto text-center' style={{ width: '100%' }}>
-          <DivTable col='6' off='3' >
-            <table  className='table table-bordered' >
+          <DivTable col='6' off='3'>
+            <table className='table table-bordered'>
               <thead>
                 <tr>
-                  <th className='table-header' style={{ background: '#440000', color: 'white'  }}>#</th>
-                  <th className='table-header' style={{ background: '#440000', color: 'white'  }}>BODEGA</th>
-                  <th className='table-header' style={{  background: '#440000', color: 'white'  }}>ESTADO</th>
-                  <th className='table-header' style={{  background: '#440000', color: 'white'  }}>DIRECCIÓN</th>
-                  <th className='table-header' style={{  background: '#440000', color: 'white'  }}>CIUDAD</th>
-                  <th className='table-header' style={{ background: '#440000', color: 'white'  }}></th>
+                  <th className='table-header' style={{ background: '#440000', color: 'white' }}>
+                    #
+                  </th>
+                  <th className='table-header' style={{ background: '#440000', color: 'white' }}>
+                    Nombre
+                  </th>
+                  <th className='table-header' style={{ background: '#440000', color: 'white' }}>
+                    Estado
+                  </th>
+                  <th className='table-header' style={{ background: '#440000', color: 'white' }}>
+                    Dirección
+                  </th>
+                  <th className='table-header' style={{ background: '#440000', color: 'white' }}>
+                    Ciudad
+                  </th>
+                  <th className='table-header' style={{ background: '#440000', color: 'white' }}></th>
                 </tr>
               </thead>
               <tbody className='table-group-divider'>
-                {bodegas.map((bodega, i) => (
-                  <tr key={bodega.bodegaId}>
-                    <td style={{ background: '#dadada' }}>{i + 1}</td>
-                    <td style={{ background: '#dadada' }}>{bodega.nombre}</td>
-                    <td style={{ background: '#dadada' }}>{bodega.estado}</td>
-                    <td style={{ background: '#dadada' }}>{bodega.direccion}</td>
-                    <td style={{ background: '#dadada' }}>{bodega.ciudad}</td>
-                    <td style={{ background: '#dadada' }}>
-                      <button
-                        onClick={() => openModal(2, bodega.bodegaId, bodega.nombre, bodega.direccion, bodega.estado, bodega.ciudad)}
-                        className='btn btn-warning'
-                        data-bs-toggle='modal'
-                        data-bs-target='#modalBodegas'
-                        style={{ background: '#440000' , color: 'white' }}
-                      >
-                        <i className='fa-solid fa-edit'></i>
-                      </button>
-                      &nbsp;
-                      <button
-                        onClick={() => deleteBodega(bodega.bodegaId, bodega.nombre)}
-                        className='btn btn-danger'
-                        style={{ background: '#440000' , color: 'white' }}
-                      >
-                        <i className='fa-solid fa-trash'></i>
-                      </button>
-                    </td>
-                  </tr>
-                ))}
+                {bodegas
+                  .slice((pageNumber - 1) * pageSize, pageNumber * pageSize)
+                  .map((bodega, i) => (
+                    <tr key={bodega.bodegaId}>
+                      <td style={{ background: '#dadada' }}>{i + 1}</td>
+                      <td style={{ background: '#dadada' }}>{bodega.nombre}</td>
+                      <td style={{ background: '#dadada' }}>{bodega.estado}</td>
+                      <td style={{ background: '#dadada' }}>{bodega.direccion}</td>
+                      <td style={{ background: '#dadada' }}>{bodega.ciudad}</td>
+                      <td style={{ background: '#dadada' }}>
+                        <button
+                          onClick={() =>
+                            openModal(
+                              2,
+                              bodega.bodegaId,
+                              bodega.nombre,
+                              bodega.estado,
+                              bodega.direccion,
+                              bodega.ciudad
+                            )
+                          }
+                          className='btn btn-warning'
+                          data-bs-toggle='modal'
+                          data-bs-target='#modalBodegas'
+                          style={{ background: '#440000', color: 'white' }}
+                        >
+                          <i className='fa-solid fa-edit'></i>
+                        </button>
+                        &nbsp;
+                        <button
+                          onClick={() => deleteBodega(bodega.bodegaId, bodega.nombre)}
+                          className='btn btn-danger'
+                          style={{ background: '#440000', color: 'white' }}
+                        >
+                          <i className='fa-solid fa-trash'></i>
+                        </button>
+                      </td>
+                    </tr>
+                  ))}
               </tbody>
             </table>
+            <div className='d-flex justify-content-between'>
+              <button onClick={handlePreviousPage} disabled={pageNumber === 1} style={{ background: '#440000', borderColor: '#440000', color: 'white' }}>
+                Anterior
+              </button>
+              <span>
+                Página {pageNumber} de {pageSize}
+              </span>
+              <button onClick={handleNextPage} disabled={pageNumber === totalPages} style={{ background: '#440000', borderColor: '#440000', color: 'white' }}>
+                Siguiente
+              </button>
+            </div>
           </DivTable>
         </div>
       </div>
@@ -186,7 +280,9 @@ const ManageBodegas = () => {
             <div className='modal-body'>
               <input type='hidden' id='id' />
               <div className='input-group mb-3'>
-                <span className='input-group-text'><i className='fa-solid fa-gift'></i></span>
+                <span className='input-group-text'>
+                  <i className='fa-solid fa-gift'></i>
+                </span>
                 <input
                   type='text'
                   id='nombre'
@@ -197,18 +293,9 @@ const ManageBodegas = () => {
                 />
               </div>
               <div className='input-group mb-3'>
-                <span className='input-group-text'><i className='fa-solid fa-gift'></i></span>
-                <input
-                  type='text'
-                  id='direccion'
-                  className='form-control'
-                  placeholder='Dirección'
-                  value={direccion}
-                  onChange={(e) => setDireccion(e.target.value)}
-                />
-              </div>
-              <div className='input-group mb-3'>
-                <span className='input-group-text'><i className='fa-solid fa-gift'></i></span>
+                <span className='input-group-text'>
+                  <i className='fa-solid fa-gift'></i>
+                </span>
                 <input
                   type='text'
                   id='estado'
@@ -219,7 +306,22 @@ const ManageBodegas = () => {
                 />
               </div>
               <div className='input-group mb-3'>
-                <span className='input-group-text'><i className='fa-solid fa-gift'></i></span>
+                <span className='input-group-text'>
+                  <i className='fa-solid fa-gift'></i>
+                </span>
+                <input
+                  type='text'
+                  id='direccion'
+                  className='form-control'
+                  placeholder='Dirección'
+                  value={direccion}
+                  onChange={(e) => setDireccion(e.target.value)}
+                />
+              </div>
+              <div className='input-group mb-3'>
+                <span className='input-group-text'>
+                  <i className='fa-solid fa-gift'></i>
+                </span>
                 <input
                   type='text'
                   id='ciudad'
@@ -229,15 +331,13 @@ const ManageBodegas = () => {
                   onChange={(e) => setCiudad(e.target.value)}
                 />
               </div>
-              <div className='d-grid col-6 mx-auto'>
-                <button onClick={() => validar(bodegaId)} className='btn btn-success'>
-                  <i className='fa-solid fa-floppy-disk'></i> Guardar
-                </button>
-              </div>
             </div>
             <div className='modal-footer'>
-              <button type='button' id='btnCerrar' className='btn btn-secondary' data-bs-dismiss='modal'>
+              <button type='button' className='btn btn-secondary' data-bs-dismiss='modal'>
                 Cerrar
+              </button>
+              <button type='button' className='btn btn-primary' onClick={validar}>
+                Guardar cambios
               </button>
             </div>
           </div>
@@ -245,8 +345,6 @@ const ManageBodegas = () => {
       </div>
     </div>
   );
-  
-
 };
 
 export default ManageBodegas;

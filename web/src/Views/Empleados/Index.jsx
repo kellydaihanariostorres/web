@@ -5,7 +5,7 @@ import { show_alerta } from '../../functions';
 import axios from 'axios';
 import Swal from 'sweetalert2';
 import withReactContent from 'sweetalert2-react-content';
-
+//CRUD completo mirar la parte de
 const ManageEmpleados = () => {
   const apiUrl = 'https://localhost:7284/api/empleados';
   const [empleados, setEmpleados] = useState([]);

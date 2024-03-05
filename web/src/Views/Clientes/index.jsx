@@ -1,13 +1,15 @@
 import React, { useEffect, useState } from 'react';
+import DivAdd from '../../Components/DivAdd';
+import DivTable from '../../Components/DivTable';
 import { show_alerta } from '../../functions';
 import axios from 'axios';
 import Swal from 'sweetalert2';
 import withReactContent from 'sweetalert2-react-content';
 
-const ManageBodegas = () => {
+const ManageClientes = () => {
   const apiUrl = 'https://localhost:7284/api/clientes';
   const [clientes, setClientes] = useState([]);
-  const [clienteId, setClienteId] = useState(null);
+  const [clienteId, setClienteId] = useState('');
   const [nombre, setNombre] = useState('');
   const [apellido, setApellido] = useState('');
   const [edad, setEdad] = useState('');
@@ -16,18 +18,31 @@ const ManageBodegas = () => {
   const [correo, setCorreo] = useState('');
   const [title, setTitle] = useState('');
   const [operation, setOperation] = useState(1);
+  const [searchText, setSearchText] = useState('');
+  const [pageNumber, setPageNumber] = useState(1);
+  const [pageSize, setPageSize] = useState(8);
+  const [totalPages, setTotalPages] = useState(1); 
 
   useEffect(() => {
-    getClientes();
-  }, []);
+    getClientes(pageNumber, pageSize);
+  }, [pageNumber, pageSize]);
 
-  const getClientes = async () => {
+  const getClientes = async (pageNumber, pageSize) => {
     try {
-      const response = await axios.get(apiUrl);
+      const response = await axios.get(`${apiUrl}?page=${pageNumber}&size=${pageSize}`);
       setClientes(response.data);
+      setTotalPages(Math.ceil(response.data.length / pageSize));
     } catch (error) {
       console.error(error);
     }
+  };
+
+  const handleNextPage = () => {
+    setPageNumber((prevPageNumber) => Math.min(prevPageNumber + 1, totalPages));
+  };
+
+  const handlePreviousPage = () => {
+    setPageNumber((prevPageNumber) => Math.max(prevPageNumber - 1, 1));
   };
 
   const openModal = (op, id, nombre, apellido, edad, tipoDocumento, numDocumento, correo) => {
@@ -46,13 +61,12 @@ const ManageBodegas = () => {
       setTitle('Editar cliente');
       setNombre(nombre);
       setApellido(apellido);
-      setEdad(edad.toString()); // Convertir la edad a cadena
+      setEdad(edad);
       setTipoDocumento(tipoDocumento);
-      setNumDocumento(numDocumento.toString()); // Convertir numDocumento a cadena
+      setNumDocumento(numDocumento);
       setCorreo(correo);
     }
 
-    // Usar el evento 'shown.bs.modal' para esperar a que el modal esté completamente visible
     document.getElementById('modalClientes').addEventListener('shown.bs.modal', function () {
       document.getElementById('nombre').focus();
     });
@@ -60,14 +74,12 @@ const ManageBodegas = () => {
 
   const validar = () => {
     if (
-      !nombre.trim() ||
-      !apellido.trim() ||
-      (typeof edad !== 'string') ||
-      !edad.trim() ||
-      !tipoDocumento.trim() ||
-      (typeof numDocumento !== 'string') ||
-      !numDocumento.trim() ||
-      !correo.trim()
+      nombre.trim() === '' ||
+      apellido.trim() === '' ||
+      edad.trim() === '' ||
+      tipoDocumento.trim() === '' ||
+      numDocumento.trim() === '' ||
+      correo.trim() === ''
     ) {
       show_alerta('Completa todos los campos', 'warning');
     } else {
@@ -84,14 +96,11 @@ const ManageBodegas = () => {
         clienteIdParam ? `${apiUrl}/${clienteIdParam}` : apiUrl,
         parametros
       );
-      console.log('Response:', response);
       const tipo = response.data[0];
       const msj = response.data[1];
       show_alerta(msj, tipo);
-      // Si la operación fue exitosa o no, actualizar el estado de 'clientes'
       getClientes();
-      // Restablecer estados para preparar el formulario para una nueva entrada
-      setClienteId(null);
+      setClienteId('');
       setNombre('');
       setApellido('');
       setEdad('');
@@ -103,8 +112,22 @@ const ManageBodegas = () => {
       console.error(error);
     }
   };
-  
-  const deleteCliente = async (clienteId, nombre) => {
+
+  const handleSearch = (e) => {
+    const text = e.target.value;
+    setSearchText(text);
+    if (text.trim() === '') {
+      setPageNumber(1);
+      getClientes();
+    } else {
+      const filteredClientes = clientes.filter((cliente) =>
+        cliente.nombre.toLowerCase().includes(text.toLowerCase())
+      );
+      setClientes(filteredClientes);
+    }
+  };
+
+  const deleteCliente = (clienteId, nombre) => {
     const MySwal = withReactContent(Swal);
     MySwal.fire({
       title: `¿Seguro quieres eliminar al cliente ${nombre}?`,
@@ -122,10 +145,8 @@ const ManageBodegas = () => {
           show_alerta('Error al eliminar al cliente', 'error');
           console.error(error);
         } finally {
-          // Después de eliminar, actualizar el estado de 'clientes'
           getClientes();
-          // Restablecer estados para preparar el formulario para una nueva entrada
-          setClienteId(null);
+          setClienteId('');
           setNombre('');
           setApellido('');
           setEdad('');
@@ -138,28 +159,50 @@ const ManageBodegas = () => {
       }
     });
   };
-  
 
   return (
     <div className='container-fluid'>
       <div className='row justify-content-center'>
         <div className='col-md-4 offset-md-4'>
-          <div>
-            <button
-              onClick={() => openModal(1)}
-              data-bs-toggle='modal'
-              data-bs-target='#modalClientes'
-              className='btn btn-dark mx-auto col-3'
-              style={{ background: '#440000', borderColor: '#440000', borderRadius: '45px', transform: 'translate(36px)', color: 'white' }}
-            >
-              <i className='fa-solid fa-circle-plus'></i> Añadir
-            </button>
+          <div style={{ display: 'flex', alignItems: 'center' }}>
+            <div className='input-group mb-3'>
+              <input
+                type='text'
+                className='form-control'
+                placeholder='Buscar cliente'
+                aria-label='Buscar cliente'
+                aria-describedby='button-addon2'
+                onChange={handleSearch}
+                value={searchText}
+                style={{
+                  height: '40px',
+                  borderRadius: '45px',
+                  marginRight: '100px',
+                  width: '500px',
+                  marginLeft: 'auto',
+                  position: 'absolute',
+                  right: 0,
+                }}
+              />
+            </div>
+            <DivAdd>
+              <button
+                type="button" class="btn btn-danger"
+                onClick={() => openModal(1)}
+                data-bs-toggle='modal'
+                data-bs-target='#modalClientes'
+                className='btn btn-dark'
+                style={{ background: '#440000', borderColor: '#440000', color: 'white', width: '100%',marginLeft: '100px' }}
+              >
+                <i className='fa-solid fa-circle-plus'></i> Añadir
+              </button>
+            </DivAdd>
           </div>
         </div>
       </div>
       <div className='row mt-3'>
         <div className='col-12 col-lg-8 offset-0 offset-lg-2 mx-auto text-center' style={{ width: '100%' }}>
-          <div>
+          <DivTable col='6' off='3'>
             <table className='table table-bordered'>
               <thead>
                 <tr>
@@ -188,7 +231,9 @@ const ManageBodegas = () => {
                 </tr>
               </thead>
               <tbody className='table-group-divider'>
-                {clientes.map((cliente, i) => (
+                {clientes
+                .slice((pageNumber - 1) * pageSize, pageNumber * pageSize)
+                .map((cliente, i) => (
                   <tr key={cliente.clienteId}>
                     <td style={{ background: '#dadada' }}>{i + 1}</td>
                     <td style={{ background: '#dadada' }}>{cliente.nombre}</td>
@@ -231,7 +276,20 @@ const ManageBodegas = () => {
                 ))}
               </tbody>
             </table>
-          </div>
+            <div className='d-flex justify-content-between'>
+              <button onClick={handlePreviousPage} disabled={pageNumber === 1}style={{ background: '#440000', borderColor: '#440000', color: 'white' }}>
+                Anterior
+              </button>
+              <span>
+                Página {pageNumber} de {pageSize}
+              </span>
+            <button onClick={handleNextPage} disabled={pageNumber === totalPages}style={{ background: '#440000', borderColor: '#440000', color: 'white' }}>
+              Siguiente
+            </button>
+            </div>
+
+          </DivTable>
+          
         </div>
       </div>
       <div id='modalClientes' className='modal fade' aria-hidden='true'>
@@ -339,4 +397,4 @@ const ManageBodegas = () => {
   );
 };
 
-export default ManageBodegas;
+export default ManageClientes;
