@@ -32,7 +32,7 @@ const SideBar = () => {
             <span className='navbar-toggler-icon'></span>
           </button>
 
-          {storage.get('authUser') ? (
+          {storage.get('authToken') ? (
             <div className='collapse navbar-collapse navbar-dark bg-dark' id='nav'>  
                
               <ul className='navbar-nav flex-column mb-2'>
@@ -59,11 +59,6 @@ const SideBar = () => {
                 <li className='nav-item'>
                   <NavLink to='/administradorv/proveedor' className='text-white rounded py-2 w-100 d-inline-block px-2'><FaIcons.FaRegHandLizard className='me-2'/>
                     PROVEEDOR
-                  </NavLink>
-                </li>
-                <li className='nav-item'>
-                  <NavLink to='/administradorv/pago' className='text-white rounded py-2 w-100 d-inline-block px-2'><FaIcons.FaRegCreditCard className='me-3'/>
-                    PAGOS
                   </NavLink>
                 </li>
                 <li className='nav-item'>

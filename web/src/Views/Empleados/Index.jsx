@@ -20,18 +20,31 @@ const ManageEmpleados = () => {
   const [bodegaId, setBodegaId] = useState('');
   const [title, setTitle] = useState('');
   const [operation, setOperation] = useState(1);
+  const [searchText, setSearchText] = useState('');
+  const [pageNumber, setPageNumber] = useState(1);
+  const [pageSize, setPageSize] = useState(8);
+  const [totalPages, setTotalPages] = useState(1); 
 
   useEffect(() => {
-    getEmpleados();
-  }, []);
+    getEmpleados(pageNumber, pageSize);
+  }, [pageNumber, pageSize]);
 
-  const getEmpleados = async () => {
+  const getEmpleados = async (pageNumber, pageSize) => {
     try {
-      const response = await axios.get(apiUrl);
+      const response = await axios.get(`${apiUrl}?page=${pageNumber}&size=${pageSize}`);
       setEmpleados(response.data);
+      setTotalPages(Math.ceil(response.data.length / pageSize));
     } catch (error) {
       console.error(error);
     }
+  };
+
+  const handleNextPage = () => {
+    setPageNumber((prevPageNumber) => Math.min(prevPageNumber + 1, totalPages));
+  };
+
+  const handlePreviousPage = () => {
+    setPageNumber((prevPageNumber) => Math.max(prevPageNumber - 1, 1));
   };
 
   const openModal = (op, id, nombre, apellido, documento, cargo, fechaInicio, fechaFin, sueldo, bodegaId) => {
@@ -112,6 +125,20 @@ const ManageEmpleados = () => {
     }
   };
 
+  const handleSearch = (e) => {
+    const text = e.target.value;
+    setSearchText(text);
+    if (text.trim() === '') {
+      setPageNumber(1);
+      getEmpleados();
+    } else {
+      const filteredEmpleados = empleados.filter((empleado) =>
+        empleado.nombre.toLowerCase().includes(text.toLowerCase())
+      );
+      setEmpleados(filteredEmpleados);
+    }
+  };
+
   const deleteEmpleado = (empleadoId, nombre) => {
     const MySwal = withReactContent(Swal);
     MySwal.fire({
@@ -153,21 +180,40 @@ const ManageEmpleados = () => {
     <div className='container-fluid'>
       <div className='row justify-content-center'>
         <div className='col-md-4 offset-md-4'>
+        <div style={{ display: 'flex', alignItems: 'center' }}>
+
+        <div style={{ display: 'flex', alignItems: 'center' }}>
+          <div className='input-group mb-3'>
+            <input
+              type='text'
+              className='form-control'
+              placeholder='Buscar empleado'
+              aria-label='Buscar empleado'
+              aria-describedby='button-addon2'
+              onChange={handleSearch}
+              value={searchText}
+              style={{ height: '40px',borderRadius: '45px', marginRight: '100px',width: '500px', marginLeft: 'auto', position: 'absolute', right: 0}}
+            />
+          </div>
           <DivAdd>
             <button
+              type="button" class="btn btn-danger"
               onClick={() => openModal(1)}
               data-bs-toggle='modal'
               data-bs-target='#modalEmpleados'
-              className='btn btn-dark mx-auto col-3'
-              style={{ background: '#440000', borderColor: '#440000', borderRadius: '45px', transform: 'translate(36px)', color: 'white' }}
+              className='btn btn-dark'
+              style={{ background: '#440000', borderColor: '#440000', color: 'white', width: '100%',marginLeft: '100px' }}
             >
               <i className='fa-solid fa-circle-plus'></i> Añadir
             </button>
           </DivAdd>
+        </div>        
+        </div> 
         </div>
       </div>
       <div className='row mt-3'>
         <div className='col-12 col-lg-8 offset-0 offset-lg-2 mx-auto text-center' style={{ width: '100%' }}>
+        
           <DivTable col='6' off='3'>
             <table className='table table-bordered'>
               <thead>
@@ -200,7 +246,9 @@ const ManageEmpleados = () => {
                 </tr>
               </thead>
               <tbody className='table-group-divider'>
-                {empleados.map((empleado, i) => (
+                {empleados
+                .slice((pageNumber - 1) * pageSize, pageNumber * pageSize)
+                .map((empleado, i) => (
                   <tr key={empleado.empleadoId}>
                     <td style={{ background: '#dadada' }}>{i + 1}</td>
                     <td style={{ background: '#dadada' }}>{empleado.nombre}</td>
@@ -246,7 +294,20 @@ const ManageEmpleados = () => {
                 ))}
               </tbody>
             </table>
+            <div className='d-flex justify-content-between'>
+              <button onClick={handlePreviousPage} disabled={pageNumber === 1}style={{ background: '#440000', borderColor: '#440000', color: 'white' }}>
+                Anterior
+              </button>
+              <span>
+                Página {pageNumber} de {pageSize}
+              </span>
+            <button onClick={handleNextPage} disabled={pageNumber === totalPages}style={{ background: '#440000', borderColor: '#440000', color: 'white' }}>
+              Siguiente
+            </button>
+            </div>
+
           </DivTable>
+          
         </div>
       </div>
       <div id='modalEmpleados' className='modal fade' aria-hidden='true'>

@@ -4,7 +4,6 @@ import './App.scss';
 import ProtectedRoutes from '../src/Components/ProtectedRoutes';
 import VistaAdministrador from './redi/admi';
 import VistaCaja from './redi/caj';
-import VistaContador from './redi/cont';
 import VistaGerente from './redi/bod';
 import Login from '../src/Views/Login';
 
@@ -16,7 +15,6 @@ function App() {
         <Route element={<ProtectedRoutes />}>
           <Route path="/administradorv/*" element={<VistaAdministrador />} />
           <Route path="/cajav/*" element={<VistaCaja />} />
-          <Route path="/contadorv/*" element={<VistaContador />} />
           <Route path="/bodegav/*" element={<VistaGerente />} />
         </Route>
       </Routes>

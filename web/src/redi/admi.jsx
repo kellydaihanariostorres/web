@@ -8,7 +8,6 @@ import Clientes from '../Views/Clientes/index';
 import Productos from '../Views/Productos/index';
 import Caja from '../Views/Caja/Index';
 import Inventario from '../Views/Inventario/Index';
-import Pago from '../Views/Pagos/Index';
 import Proveedor from '../Views/Proveedor/Index';
 import Factura from '../Views/Caja/Factura';
 import Navb from '../Components/Nav';
@@ -48,7 +47,6 @@ function VistaAdministrador({ cargo }) {
           <Route path="empleado/*" element={<Empleado />} />
           <Route path="clientes/*" element={<Clientes rutaBase="/administradorv/clientes" />} />
           <Route path="productos/*" element={<Productos />} />
-          <Route path="pago/*" element={<Pago />} />
           <Route path="inventario/*" element={<Inventario />} />
           <Route path="caja/*" element={<Caja />} />
           <Route path="proveedor/*" element={<Proveedor />} />

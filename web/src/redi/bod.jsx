@@ -3,12 +3,8 @@ import SideBar from '../VistasLogin/Gerente';// menu
 import { Routes, Route } from 'react-router-dom';
 import Home from '../Views/Home/Home';
 import Bodega from '../Views/Bodega/Index';
-import Empleado from '../Views/Empleados/Index';
-import Clientes from '../Views/Clientes/index';
 import Productos from '../Views/Productos/index';
-import Caja from '../Views/Caja/Index';
 import Inventario from '../Views/Inventario/Index';
-import Pago from '../Views/Pagos/Index';
 import Proveedor from '../Views/Proveedor/Index';
 import Factura from '../Views/Caja/Factura';
 import Navb from '../Components/Nav';
