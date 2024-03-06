@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { sendRequest } from '../../functions';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import Venta from './Venta'; // Importa el componente Venta
+import RegistroClienteModal from './RegistroClienteModal'; // Importa el componente de ventana emergente de registro de cliente
 
 const Caja = ({ id }) => {
   const [fechaCompra, setFechaCompra] = useState('');
@@ -14,6 +15,7 @@ const Caja = ({ id }) => {
   const [productList, setProductList] = useState([]);
   const [ventaConfirmada, setVentaConfirmada] = useState(null); // Estado para almacenar la venta confirmada
   const [modalOpen, setModalOpen] = useState(false);
+  const [registroClienteModalOpen, setRegistroClienteModalOpen] = useState(false); // Estado para controlar la ventana emergente de registro de cliente
 
   const getCurrentDate = () => {
     const date = new Date();
@@ -74,7 +76,8 @@ const Caja = ({ id }) => {
   };
 
   const handleCloseModal = () => {
-    setModalOpen(false);
+    setRegistroClienteModalOpen(false); // Cerrar la ventana emergente de registro de cliente
+    setModalOpen(false); // Cerrar la ventana de confirmación de venta
     
     // Limpiar los campos y restablecer los estados
     setFechaCompra('');
@@ -87,6 +90,7 @@ const Caja = ({ id }) => {
     setProductList([]);
     setVentaConfirmada(null);
   };
+
   const getDate = () => {
     const date = new Date();
     // Formatea la fecha en el formato deseado, por ejemplo: DD/MM/YYYY
@@ -94,11 +98,35 @@ const Caja = ({ id }) => {
     return formattedDate;
   };
   
+  const handleOpenRegistroClienteModal = () => {
+    setRegistroClienteModalOpen(true);
+  };
+
+  const handleCloseRegistroClienteModal = () => {
+    setRegistroClienteModalOpen(false);
+  };
 
   return (
     <div className="col-11 col-xl-11 col-xxl-11">
+      {registroClienteModalOpen && (
+        <div className="modal" tabIndex="-1" role="dialog" style={{ display: 'block', backgroundColor: 'rgba(0, 0, 0, 0.5)' }}>
+          <div className="modal-dialog" role="document">
+            <div className="modal-content">
+              <div className="modal-header">
+                <h5 className="modal-title">Registrar Cliente</h5>
+                <button type="button" className="close" data-dismiss="modal" aria-label="Close" onClick={handleCloseModal}>
+                  <span aria-hidden="true">&times;</span>
+                </button>
+              </div>
+              <div className="modal-body">
+                <RegistroClienteModal RegistroClienteModal={ventaConfirmada} />
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
       <div style={{  top: '10px', right: '10px', color: 'black' }}>
-      Fecha de Compra: {getDate()}
+        Fecha de Compra: {getDate()}
       </div>
       <div className="form-group">
         <label htmlFor="productName" className="form-label" style={{ color: 'black' }}>
@@ -189,7 +217,9 @@ const Caja = ({ id }) => {
         <h5>Total: {total}</h5>
       </div>
 
-      <a className="btn btn-secondary" role="button" id="cancelBtn" href="#!" onClick={handleCancel} style={{ borderRadius: '45px', borderColor: '#440000', background: '#440000', marginTop: '16px' }}>Cancelar</a>
+      <button className="btn btn-primary" onClick={handleOpenRegistroClienteModal} style={{ borderRadius: '45px', borderColor: '#440000', background: '#440000', marginTop: '16px' }}>Registrar Cliente</button>
+
+      <a className="btn btn-secondary" role="button" id="cancelBtn" href="#!" onClick={handleCancel} style={{ borderRadius: '45px', borderColor: '#440000', background: '#440000', marginTop: '16px', marginLeft: '16px' }}>Cancelar</a>
       <button className="btn btn-primary" id="confirmBtn" type="button" onClick={handleConfirm} style={{ borderRadius: '45px', borderColor: '#440000', background: '#440000', marginTop: '16px' }}>Confirmar</button>
       {modalOpen && (
         <div className="modal" tabIndex="-1" role="dialog" style={{ display: 'block', backgroundColor: 'rgba(0, 0, 0, 0.5)' }}>

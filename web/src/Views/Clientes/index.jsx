@@ -92,6 +92,21 @@ const ManageClientes = () => {
   const enviarSolicitud = async (metodo, parametros) => {
     const clienteIdParam = clienteId || '';
     try {
+      // Validar que los campos requeridos estén completos
+      if (
+        nombre.trim() === '' ||
+        apellido.trim() === '' ||
+        edad.trim() === '' ||
+        tipoDocumento.trim() === '' ||
+        numDocumento.trim() === '' ||
+        correo.trim() === ''
+      ) {
+        // Mostrar mensaje de error si algún campo requerido está vacío
+        show_alerta('Completa todos los campos', 'warning');
+        return; // Salir de la función si hay campos vacíos
+      }
+
+      // Continuar con el envío de la solicitud si todos los campos requeridos están completos
       const response = await axios[metodo.toLowerCase()](
         clienteIdParam ? `${apiUrl}/${clienteIdParam}` : apiUrl,
         parametros
@@ -187,11 +202,10 @@ const ManageClientes = () => {
             </div>
             <DivAdd>
               <button
-                type="button" class="btn btn-danger"
+                type="button" className="btn btn-danger"
                 onClick={() => openModal(1)}
                 data-bs-toggle='modal'
                 data-bs-target='#modalClientes'
-                className='btn btn-dark'
                 style={{ background: '#440000', borderColor: '#440000', color: 'white', width: '100%',marginLeft: '100px' }}
               >
                 <i className='fa-solid fa-circle-plus'></i> Añadir
@@ -312,6 +326,7 @@ const ManageClientes = () => {
                   placeholder='Nombre'
                   value={nombre}
                   onChange={(e) => setNombre(e.target.value)}
+                  required  // Agregar el atributo 'required' para hacer que este campo sea obligatorio
                 />
               </div>
               <div className='input-group mb-3'>
@@ -325,6 +340,7 @@ const ManageClientes = () => {
                   placeholder='Apellido'
                   value={apellido}
                   onChange={(e) => setApellido(e.target.value)}
+                  required  // Agregar el atributo 'required' para hacer que este campo sea obligatorio
                 />
               </div>
               <div className='input-group mb-3'>
@@ -338,6 +354,7 @@ const ManageClientes = () => {
                   placeholder='Edad'
                   value={edad}
                   onChange={(e) => setEdad(e.target.value)}
+                  required  // Agregar el atributo 'required' para hacer que este campo sea obligatorio
                 />
               </div>
               <div className='input-group mb-3'>
@@ -351,6 +368,7 @@ const ManageClientes = () => {
                   placeholder='Tipo de Documento'
                   value={tipoDocumento}
                   onChange={(e) => setTipoDocumento(e.target.value)}
+                  required  // Agregar el atributo 'required' para hacer que este campo sea obligatorio
                 />
               </div>
               <div className='input-group mb-3'>
@@ -364,6 +382,7 @@ const ManageClientes = () => {
                   placeholder='Número de Documento'
                   value={numDocumento}
                   onChange={(e) => setNumDocumento(e.target.value)}
+                  required  // Agregar el atributo 'required' para hacer que este campo sea obligatorio
                 />
               </div>
               <div className='input-group mb-3'>
@@ -371,23 +390,22 @@ const ManageClientes = () => {
                   <i className='fa-solid fa-gift'></i>
                 </span>
                 <input
-                  type='text'
+                  type='email'
                   id='correo'
                   className='form-control'
                   placeholder='Correo'
                   value={correo}
                   onChange={(e) => setCorreo(e.target.value)}
+                  required  // Agregar el atributo 'required' para hacer que este campo sea obligatorio
                 />
-              </div>
-              <div className='d-grid col-6 mx-auto'>
-                <button onClick={() => validar(clienteId)} className='btn btn-success'>
-                  <i className='fa-solid fa-floppy-disk'></i> Guardar
-                </button>
               </div>
             </div>
             <div className='modal-footer'>
-              <button type='button' id='btnCerrar' className='btn btn-secondary' data-bs-dismiss='modal'>
+              <button type='button' className='btn btn-danger' data-bs-dismiss='modal'>
                 Cerrar
+              </button>
+              <button type='button' className='btn btn-success' onClick={validar}>
+                Guardar
               </button>
             </div>
           </div>

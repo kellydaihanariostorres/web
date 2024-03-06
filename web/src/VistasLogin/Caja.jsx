@@ -32,7 +32,7 @@ const SideBar = () => {
             <span className='navbar-toggler-icon'></span>
           </button>
 
-          {!storage.get('authToken') ? (
+          {storage.get('authToken') ? (
             <div className='collapse navbar-collapse navbar-dark bg-dark' id='nav'>  
                
               <ul className='navbar-nav flex-column mb-2'>

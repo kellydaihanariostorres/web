@@ -24,7 +24,7 @@
     "react-icons": "^4.12.0",
     "react-router-dom": "^6.20.1",
     "reactstrap": "^9.2.1",
-    "sweetalert2": "^11.10.1",
+    "sweetalert2": "^11.6.13",
     "sweetalert2-react-content": "^5.0.7"
   },
   "devDependencies": {
@@ -35,6 +35,7 @@
     "eslint-plugin-react": "^7.33.2",
     "eslint-plugin-react-hooks": "^4.6.0",
     "eslint-plugin-react-refresh": "^0.4.4",
+    "jwt-decode": "^4.0.0",
     "sass": "^1.69.5",
     "vite": "^5.0.4"
   }

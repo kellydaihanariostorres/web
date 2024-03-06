@@ -1,21 +1,36 @@
-export const storage = {
-    get(key){
-        const val = window.localStorage.getItem(key);
-        if(!val){
-            return null;
-        }
-        return JSON.parse(val);
-    },
-    set(key,val){
-        window.localStorage.setItem(key,JSON.stringify(val));
-    },
-    remove(key){
-        window.localStorage.removeItem(key);
-    },
-    clear(){
-        window.localStorage.clear();
+const storage = {
+  get(key) {
+    try {
+      const val = window.localStorage.getItem(key);
+      return val ? JSON.parse(val) : null;
+    } catch (error) {
+      console.error('Error parsing JSON:', error);
+      return null;
     }
-}
+  },
+  set(key, val) {
+    try {
+      window.localStorage.setItem(key, JSON.stringify(val));
+    } catch (error) {
+      console.error('Error storing data:', error);
+    }
+  },
+  remove(key) {
+    try {
+      window.localStorage.removeItem(key);
+    } catch (error) {
+      console.error('Error removing data:', error);
+    }
+  },
+  clear() {
+    try {
+      window.localStorage.clear();
+    } catch (error) {
+      console.error('Error clearing storage:', error);
+    }
+  }
+};
+
 export default storage;
 
 
