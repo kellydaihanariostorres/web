@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import axios from 'axios';
-import '../Views/Login.css'
+import '../Views/Login.css';
+import storage from '../Storage/storage';
 
 const Login = () => {
   const [userName, setUserName] = useState('');
@@ -10,10 +11,12 @@ const Login = () => {
     e.preventDefault();
 
     try {
-      // Hacer una solicitud al servidor para iniciar sesión
       const response = await axios.post('https://localhost:7284/api/authentication/login', { userName, password });
-      // Si la solicitud tiene éxito, redirigir al usuario a la página correspondiente
       const userRole = response.data.role;
+
+      // Almacenar el token de autenticación en el almacenamiento local
+      storage.set('authToken', response.data.token);
+
       switch (userRole) {
         case 'Administrador':
           window.location.href = '/administradorv';

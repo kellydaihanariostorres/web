@@ -1,20 +1,18 @@
-import React from 'react'
-import { Navigate, Outlet } from 'react-router-dom'
-import storage from '../Storage/storage'
+import React from 'react';
+import { Navigate, Outlet } from 'react-router-dom';
+import storage from '../Storage/storage';
 
-const ProtectedRoutes = ({ children }) => {
+const ProtectedRoutes = () => {
   const authToken = storage.get('authToken');
-  
+
   // Verificar si el token está presente y es válido (no ha expirado)
   if (!authToken) {
-    return <Navigate to='/' />;
+    return <Navigate to="/" />;
   }
-  
-  // Verificar si el token está presente y es válido (no ha expirado) aquí
-  
+
+  // Aquí puedes agregar lógica adicional para verificar la validez del token, si es necesario
+
   return <Outlet />;
 };
 
-export default  ProtectedRoutes;
-
-/// protector de rutas si no se logea recrese al login 
+export default ProtectedRoutes;
