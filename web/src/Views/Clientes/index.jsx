@@ -21,7 +21,7 @@ const ManageClientes = () => {
   const [searchText, setSearchText] = useState('');
   const [pageNumber, setPageNumber] = useState(1);
   const [pageSize, setPageSize] = useState(8);
-  const [totalPages, setTotalPages] = useState(1); 
+  const [totalPages, setTotalPages] = useState(1);
 
   useEffect(() => {
     getClientes();
@@ -88,7 +88,7 @@ const ManageClientes = () => {
       enviarSolicitud(metodo, parametros);
     }
   };
-  
+
   const handleSearch = (e) => {
     const text = e.target.value;
     setSearchText(text);
@@ -113,28 +113,28 @@ const ManageClientes = () => {
       const tipo = response.data[0];
       const msj = response.data[1];
       show_alerta(msj, tipo);
-  
+
       if (tipo === 'success') {
         // Si la operación fue exitosa, solo actualizamos la lista después de eliminar un cliente
         if (metodo === 'DELETE') {
           getClientes(pageNumber, pageSize); // Aquí pasamos los parámetros pageNumber y pageSize
         }
       }
-    
-        // Reiniciamos los campos del formulario después de agregar o editar el cliente
-        setClienteId('');
-        setNombre('');
-        setApellido('');
-        setEdad('');
-        setTipoDocumento('');
-        setNumDocumento('');
-        setCorreo('');
-      } catch (error) {
-        show_alerta('Error de solicitud', 'error');
-        console.error(error);
-      }
+
+      // Reiniciamos los campos del formulario después de agregar o editar el cliente
+      setClienteId('');
+      setNombre('');
+      setApellido('');
+      setEdad('');
+      setTipoDocumento('');
+      setNumDocumento('');
+      setCorreo('');
+    } catch (error) {
+      show_alerta('Error de solicitud', 'error');
+      console.error(error);
+    }
   };
-  
+
   const deleteCliente = async (clienteId, nombre) => {
     const MySwal = withReactContent(Swal);
     MySwal.fire({
@@ -169,8 +169,10 @@ const ManageClientes = () => {
       }
     });
   };
-  
-  
+
+  const showPreviousButton = pageNumber > 1;
+  const showNextButton = pageNumber < totalPages;
+
   return (
     <div className='container-fluid'>
       <div className='row justify-content-center'>
@@ -287,19 +289,21 @@ const ManageClientes = () => {
               </tbody>
             </table>
             <div className='d-flex justify-content-between'>
-              <button onClick={handlePreviousPage} disabled={pageNumber === 1}style={{ background: '#440000', borderColor: '#440000', color: 'white' }}>
-                Anterior
-              </button>
+              {showPreviousButton && (
+                <button onClick={handlePreviousPage} style={{ background: '#440000', borderColor: '#440000', color: 'white' }}>
+                  Anterior
+                </button>
+              )}
               <span>
                 Página {pageNumber} de {pageSize}
               </span>
-            <button onClick={handleNextPage} disabled={pageNumber === totalPages}style={{ background: '#440000', borderColor: '#440000', color: 'white' }}>
-              Siguiente
-            </button>
+              {showNextButton && (
+                <button onClick={handleNextPage} style={{ background: '#440000', borderColor: '#440000', color: 'white' }}>
+                  Siguiente
+                </button>
+              )}
             </div>
-
           </DivTable>
-          
         </div>
       </div>
       <div id='modalClientes' className='modal fade' aria-hidden='true'>
@@ -308,7 +312,7 @@ const ManageClientes = () => {
             <div className='modal-header'>
               <label className='h5'>{title}</label>
               <button type='button' className='btn-close' data-bs-dismiss='modal' aria-label='Close'></button>
-            </div>
+              </div>
             <div className='modal-body'>
               <input type='hidden' id='id' />
               <div className='input-group mb-3'>

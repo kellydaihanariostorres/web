@@ -3,6 +3,7 @@ import { sendRequest } from '../../functions';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import Venta from './Venta'; // Importa el componente Venta
 import RegistroClienteModal from './RegistroClienteModal'; // Importa el componente de ventana emergente de registro de cliente
+import Logo_sistema from '../../../public/logo_sistema.jpg'
 
 const Caja = ({ id }) => {
   const [fechaCompra, setFechaCompra] = useState('');
@@ -16,11 +17,11 @@ const Caja = ({ id }) => {
   const [ventaConfirmada, setVentaConfirmada] = useState(null); // Estado para almacenar la venta confirmada
   const [modalOpen, setModalOpen] = useState(false);
   const [registroClienteModalOpen, setRegistroClienteModalOpen] = useState(false); // Estado para controlar la ventana emergente de registro de cliente
+  const [searchText, setSearchText] = useState('');
 
   const getCurrentDate = () => {
     const date = new Date();
     return date.toLocaleDateString();
-    
   };
 
   const handleAddProduct = () => {
@@ -53,7 +54,6 @@ const Caja = ({ id }) => {
   };
 
   const handleConfirm = async () => {
-    // Aquí guarda los datos necesarios para la venta en el estado del componente
     const venta = {
       id: id || '',
       fechaCompra: getCurrentDate(),
@@ -63,11 +63,9 @@ const Caja = ({ id }) => {
       productList: productList
     };
 
-    // Muestra la ventana emergente de Venta con los datos guardados
     setVentaConfirmada(venta);
     setModalOpen(true);
 
-    // Envía la venta a la API
     await sendRequest('POST', venta, 'https://localhost:7284/api/factura');
   };
 
@@ -76,10 +74,8 @@ const Caja = ({ id }) => {
   };
 
   const handleCloseModal = () => {
-    setRegistroClienteModalOpen(false); // Cerrar la ventana emergente de registro de cliente
-    setModalOpen(false); // Cerrar la ventana de confirmación de venta
-    
-    // Limpiar los campos y restablecer los estados
+    setRegistroClienteModalOpen(false);
+    setModalOpen(false);
     setFechaCompra('');
     setProductName('');
     setProductPrice('');
@@ -93,7 +89,6 @@ const Caja = ({ id }) => {
 
   const getDate = () => {
     const date = new Date();
-    // Formatea la fecha en el formato deseado, por ejemplo: DD/MM/YYYY
     const formattedDate = `${date.getDate()}/${date.getMonth() + 1}/${date.getFullYear()}`;
     return formattedDate;
   };
@@ -106,121 +101,141 @@ const Caja = ({ id }) => {
     setRegistroClienteModalOpen(false);
   };
 
+  const handleSearch = (e) => {
+    const text = e.target.value;
+    setSearchText(text);
+    if (text.trim() === '') {
+      setPageNumber(1);
+      getProductos();
+    } else {
+      const filteredProductos = productos.filter((producto) =>
+        producto.nombreProducto.toLowerCase().includes(text.toLowerCase())
+      );
+      setProductos(filteredProductos);
+    }
+  };
+
   return (
-    <div className="col-11 col-xl-11 col-xxl-11">
-      {registroClienteModalOpen && (
-        <div className="modal" tabIndex="-1" role="dialog" style={{ display: 'block', backgroundColor: 'rgba(0, 0, 0, 0.5)' }}>
-          <div className="modal-dialog" role="document">
-            <div className="modal-content">
-              <div className="modal-header">
-                <h5 className="modal-title">Registrar Cliente</h5>
-                <button type="button" className="close" data-dismiss="modal" aria-label="Close" onClick={handleCloseModal}>
-                  <span aria-hidden="true">&times;</span>
-                </button>
-              </div>
-              <div className="modal-body">
-                <RegistroClienteModal RegistroClienteModal={ventaConfirmada} />
+    <div style={{
+      position: 'fixed',
+      top: '60px', // Altura del nav, ajusta según sea necesario
+      left: 0,
+      width: '100%',
+      height: 'calc(100% - 60px)',
+      backgroundColor: '#696969'
+    }}>
+      <button className="btn btn-primary" onClick={handleOpenRegistroClienteModal} style={{ borderRadius: '45px', borderColor: '#440000', background: '#440000', marginTop: '16px', marginLeft: '76px'}}>Registrar Cliente</button>
+      
+      <div className='input-group mb-3'>
+        <input
+          type='text'
+          className='form-control'
+          placeholder='Buscar producto'
+          aria-label='Buscar producto'
+          aria-describedby='button-addon2'
+          onChange={handleSearch}
+          value={searchText}
+          style={{
+            height: '40px',
+            borderRadius: '45px',
+            marginRight: '100px',
+            width: '500px',
+            marginLeft: 'auto',
+            position: 'absolute',
+            right: 0,
+            top: '-40px',
+          }}
+        />
+      </div>
+      
+      <div className="col-12" style={{backgroundColor: 'white', 
+        marginLeft: 'auto', // Márgen izquierdo automático para centrar
+        marginRight: 'auto', // Márgen derecho automático para centrar
+        marginTop: '16px', 
+        maxWidth: 'calc(100% - 150px)', // Ancho reducido con márgenes izquierdo y derecho
+        position: 'relative' // Para mantener los elementos hijos en su lugar original
+      }}>
+        {registroClienteModalOpen && (
+          <div className="modal" tabIndex="-1" role="dialog" style={{ display: 'block', backgroundColor: 'rgba(0, 0, 0, 0.5)' }}>
+            <div className="modal-dialog" role="document">
+              <div className="modal-content">
+                <div className="modal-header">
+                  <h5 className="modal-title">Registrar Cliente</h5>
+                  <button type="button" className="close" data-dismiss="modal" aria-label="Close" onClick={handleCloseModal}>
+                    <span aria-hidden="true">&times;</span>
+                  </button>
+                </div>
+                <div className="modal-body">
+                  <RegistroClienteModal RegistroClienteModal={ventaConfirmada} />
+                </div>
               </div>
             </div>
           </div>
+        )}
+        
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '10px', marginLeft: '10px', marginRight: '10px',  }}>
+          <div style={{ color: 'black' }}>
+            <div style={{ marginBottom: '10px' }}>Empresa: Diablo Rojo</div>
+            <div>Dirección: Calle 23 #45 - 67</div>
+          </div>
+          <div style={{ marginLeft: '20px',marginTop: '20px',  justifyContent: 'space-between',marginRight: '10px'}}>
+            <img src={Logo_sistema} alt="logo_sistema" style={{ width: '80px' }} />
+          </div>
         </div>
-      )}
-      <div style={{  top: '10px', right: '10px', color: 'black' }}>
-        Fecha de Compra: {getDate()}
-      </div>
-      <div className="form-group">
-        <label htmlFor="productName" className="form-label" style={{ color: 'black' }}>
-          Nombre del producto:
-        </label>
-        <input
-          type="text"
-          className="form-control"
-          id="productName"
-          placeholder="Ingrese el nombre del producto"
-          value={productName}
-          onChange={(e) => setProductName(e.target.value)}
-        />
-      </div>
-      <div className="form-group">
-        <label htmlFor="productPrice" className="form-label" style={{ color: 'black' }}>
-          Precio del producto:
-        </label>
-        <input
-          type="number"
-          className="form-control"
-          id="productPrice"
-          placeholder="0"
-          value={productPrice}
-          onChange={(e) => setProductPrice(e.target.value)}
-        />
-      </div>
-      <div className="form-group">
-        <label htmlFor="productQuantity" className="form-label" style={{ color: 'black' }}>
-          Cantidad de productos:
-        </label>
-        <input
-          type="number"
-          className="form-control"
-          id="productQuantity"
-          placeholder="0"
-          value={productQuantity}
-          onChange={(e) => setProductQuantity(e.target.value)}
-        />
-        <button
-          className="btn btn-primary"
-          id="addProductBtn"
-          type="button"
-          style={{ borderRadius: '45px', borderColor: '#440000', background: '#440000', marginTop: '16px' }}
-          onClick={handleAddProduct}
-        >
-          Agregar producto
-        </button>
-      </div>
-
-      <div id="productList" className="mt-5" style={{ overflow: 'auto', maxHeight: '300px' }}>
-        <h4 style={{ color: 'black' }}>Lista de Productos</h4>
-        <div>
-          <table className="table">
-            <thead style={{ background: 'var(--color-text)' }}>
-              <tr>
-                <th style={{ borderColor: 'var(--color-text)', background: 'var(--color-text)', color: 'black' }}>Producto</th>
-                <th style={{ background: 'var(--color-text)', color: 'black' }}>Precio Unitario</th>
-                <th style={{ background: 'var(--color-text)', color: 'black' }}>Cantidad</th>
-                <th style={{ background: 'var(--color-text)', color: 'black' }}>Acciones</th>
-              </tr>
-            </thead>
-            <tbody id="productTableBody" style={{ background: 'var(--color-text)' }}>
-              {productList && productList.map((product, index) => (
-                <tr key={index}>
-                  <td>{product.productName}</td>
-                  <td>{product.productPrice}</td>
-                  <td>{product.productQuantity}</td>
-                  <td>
-                    <button className="btn btn-danger" onClick={() => handleDeleteProduct(index)}>Eliminar</button>
-                  </td>
+        <hr style={{ margin: '10px 0'}} />
+        <div style={{ top: '10px', right: '10px', color: 'black', marginLeft: '10px' }}>
+          Fecha de Compra: {getDate()}
+        </div>
+        <div style={{ top: '10px', right: '10px', color: 'black', marginLeft: '10px' }}>
+          ID cliente
+        </div>
+        <hr style={{ margin: '10px 0' }} />
+        
+        <div id="productList" className="mt-5" style={{ overflow: 'auto', maxHeight: '300px' }}>
+          <div>
+            <table className="table">
+              <thead style={{ background: 'var(--color-text)' }}>
+                <tr>
+                  <th style={{ borderColor: 'var(--color-text)', background: 'var(--color-text)', color: 'black' }}>Producto</th>
+                  <th style={{ background: 'var(--color-text)', color: 'black' }}>Codigo</th>
+                  <th style={{ background: 'var(--color-text)', color: 'black' }}>Articulo</th>
+                  <th style={{ background: 'var(--color-text)', color: 'black' }}>Cantidad</th>
+                  <th style={{ background: 'var(--color-text)', color: 'black' }}>Presio unitario</th>
+                  <th style={{ background: 'var(--color-text)', color: 'black' }}>Total</th>
                 </tr>
-              ))}
-            </tbody>
-          </table>
+              </thead>
+              <tbody id="productTableBody" style={{ background: 'var(--color-text)' }}>
+                {productList && productList.map((product, index) => (
+                  <tr key={index}>
+                    <td>{product.productName}</td>
+                    <td>{product.productPrice}</td>
+                    <td>{product.productQuantity}</td>
+                    <td>
+                      <button className="btn btn-danger" onClick={() => handleDeleteProduct(index)}>Eliminar</button>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+      </div>
+      <a className="btn btn-secondary" role="button" id="cancelBtn" href="#!" onClick={handleCancel} style={{ borderRadius: '45px', borderColor: '#440000', background: '#440000', marginTop: '16px', marginLeft: '76px' }}>Cancelar</a>
+      <button className="btn btn-primary" id="confirmBtn" type="button" onClick={handleConfirm} style={{ borderRadius: '45px', borderColor: '#440000', background: '#440000', marginTop: '96px' }}>Confirmar</button>
+      <div style={{ marginTop: '10px', textAlign: 'right', marginRight: '16px' }}>
+        <div style={{ display: 'inline-block', background: 'white', padding: '10px', marginRight: '10px' }}>
+          <h5 style={{ marginBottom: '0' }}>Subtotal: {subtotal}</h5>
+        </div>
+
+        <div style={{ display: 'inline-block', background: 'white', padding: '10px', marginRight: '10px' }}>
+          <h5 style={{ marginBottom: '0' }}>IVA: {ivaCompra}</h5>
+        </div>
+
+        <div style={{ display: 'inline-block', background: 'white', padding: '10px' }}>
+          <h5 style={{ marginBottom: '0' }}>Total: {total}</h5>
         </div>
       </div>
-
-      <div style={{ background: 'white', padding: '10px', marginTop: '10px' }}>
-        <h5>Subtotal: {subtotal}</h5>
-      </div>
-
-      <div style={{ background: 'white', padding: '10px', marginTop: '10px' }}>
-        <h5>Iva: {ivaCompra}</h5>
-      </div>
-
-      <div style={{ background: 'white', padding: '10px', marginTop: '10px' }}>
-        <h5>Total: {total}</h5>
-      </div>
-
-      <button className="btn btn-primary" onClick={handleOpenRegistroClienteModal} style={{ borderRadius: '45px', borderColor: '#440000', background: '#440000', marginTop: '16px' }}>Registrar Cliente</button>
-
-      <a className="btn btn-secondary" role="button" id="cancelBtn" href="#!" onClick={handleCancel} style={{ borderRadius: '45px', borderColor: '#440000', background: '#440000', marginTop: '16px', marginLeft: '16px' }}>Cancelar</a>
-      <button className="btn btn-primary" id="confirmBtn" type="button" onClick={handleConfirm} style={{ borderRadius: '45px', borderColor: '#440000', background: '#440000', marginTop: '16px' }}>Confirmar</button>
       {modalOpen && (
         <div className="modal" tabIndex="-1" role="dialog" style={{ display: 'block', backgroundColor: 'rgba(0, 0, 0, 0.5)' }}>
           <div className="modal-dialog" role="document">
