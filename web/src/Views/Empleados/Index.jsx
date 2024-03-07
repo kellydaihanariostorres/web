@@ -5,7 +5,7 @@ import { show_alerta } from '../../functions';
 import axios from 'axios';
 import Swal from 'sweetalert2';
 import withReactContent from 'sweetalert2-react-content';
-//CRUD completo mirar la parte de
+
 const ManageEmpleados = () => {
   const apiUrl = 'https://localhost:7284/api/empleados';
   const [empleados, setEmpleados] = useState([]);
@@ -26,12 +26,12 @@ const ManageEmpleados = () => {
   const [totalPages, setTotalPages] = useState(1); 
 
   useEffect(() => {
-    getEmpleados(pageNumber, pageSize);
+    getEmpleados();
   }, [pageNumber, pageSize]);
 
-  const getEmpleados = async (pageNumber, pageSize) => {
+  const getEmpleados = async () => {
     try {
-      const response = await axios.get(`${apiUrl}?page=${pageNumber}&size=${pageSize}`);
+      const response = await axios.get(apiUrl);
       setEmpleados(response.data);
       setTotalPages(Math.ceil(response.data.length / pageSize));
     } catch (error) {
@@ -153,10 +153,6 @@ const ManageEmpleados = () => {
         try {
           await axios.delete(`${apiUrl}/${empleadoId}`);
           show_alerta('Empleado eliminado exitosamente', 'success');
-        } catch (error) {
-          show_alerta('Error al eliminar al empleado', 'error');
-          console.error(error);
-        } finally {
           // Después de eliminar, actualizar el estado de 'empleados'
           getEmpleados();
           // Restablecer estados para preparar el formulario para una nueva entrada
@@ -169,6 +165,9 @@ const ManageEmpleados = () => {
           setFechaFin('');
           setSueldo('');
           setBodegaId('');
+        } catch (error) {
+          show_alerta('Error al eliminar al empleado', 'error');
+          console.error(error);
         }
       } else {
         show_alerta('El empleado no fue eliminado', 'info');
@@ -180,40 +179,36 @@ const ManageEmpleados = () => {
     <div className='container-fluid'>
       <div className='row justify-content-center'>
         <div className='col-md-4 offset-md-4'>
-        <div style={{ display: 'flex', alignItems: 'center' }}>
-
-        <div style={{ display: 'flex', alignItems: 'center' }}>
-          <div className='input-group mb-3'>
-            <input
-              type='text'
-              className='form-control'
-              placeholder='Buscar empleado'
-              aria-label='Buscar empleado'
-              aria-describedby='button-addon2'
-              onChange={handleSearch}
-              value={searchText}
-              style={{ height: '40px',borderRadius: '45px', marginRight: '100px',width: '500px', marginLeft: 'auto', position: 'absolute', right: 0}}
-            />
+          <div style={{ display: 'flex', alignItems: 'center' }}>
+            <div className='input-group mb-3'>
+              <input
+                type='text'
+                className='form-control'
+                placeholder='Buscar empleado'
+                aria-label='Buscar empleado'
+                aria-describedby='button-addon2'
+                onChange={handleSearch}
+                value={searchText}
+                style={{ height: '40px',borderRadius: '45px', marginRight: '100px',width: '500px', marginLeft: 'auto', position: 'absolute', right: 0}}
+              />
+            </div>
+            <DivAdd>
+              <button
+                type="button" class="btn btn-danger"
+                onClick={() => openModal(1)}
+                data-bs-toggle='modal'
+                data-bs-target='#modalEmpleados'
+                className='btn btn-dark'
+                style={{ background: '#440000', borderColor: '#440000', color: 'white', width: '100%',marginLeft: '100px' }}
+              >
+                <i className='fa-solid fa-circle-plus'></i> Añadir
+              </button>
+            </DivAdd>
           </div>
-          <DivAdd>
-            <button
-              type="button" class="btn btn-danger"
-              onClick={() => openModal(1)}
-              data-bs-toggle='modal'
-              data-bs-target='#modalEmpleados'
-              className='btn btn-dark'
-              style={{ background: '#440000', borderColor: '#440000', color: 'white', width: '100%',marginLeft: '100px' }}
-            >
-              <i className='fa-solid fa-circle-plus'></i> Añadir
-            </button>
-          </DivAdd>
-        </div>        
-        </div> 
         </div>
       </div>
       <div className='row mt-3'>
         <div className='col-12 col-lg-8 offset-0 offset-lg-2 mx-auto text-center' style={{ width: '100%' }}>
-        
           <DivTable col='6' off='3'>
             <table className='table table-bordered'>
               <thead>
@@ -424,7 +419,7 @@ const ManageEmpleados = () => {
                 />
               </div>
               <div className='d-grid col-6 mx-auto'>
-                <button onClick={() => validar(empleadoId)} className='btn btn-success'>
+                <button onClick={() => validar()} className='btn btn-success'>
                   <i className='fa-solid fa-floppy-disk'></i> Guardar
                 </button>
               </div>

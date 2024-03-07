@@ -26,12 +26,12 @@ const ManageFacturaProveedores = () => {
   const [totalPages, setTotalPages] = useState(1); 
 
   useEffect(() => {
-    getFacturas(pageNumber, pageSize);
+    getFacturas();
   }, [pageNumber, pageSize]);
 
-  const getFacturas = async (pageNumber, pageSize) => {
+  const getFacturas = async () => {
     try {
-      const response = await axios.get(`${apiUrl}?page=${pageNumber}&size=${pageSize}`);
+      const response = await axios.get(apiUrl);
       setFacturas(response.data);
       setTotalPages(Math.ceil(response.data.length / pageSize));
     } catch (error) {
@@ -197,18 +197,6 @@ const ManageFacturaProveedores = () => {
                 }}
               />
             </div>
-            <DivAdd>
-              <button
-                type="button" class="btn btn-danger"
-                onClick={() => openModal(1)}
-                data-bs-toggle='modal'
-                data-bs-target='#modalFacturas'
-                className='btn btn-dark'
-                style={{ background: '#440000', borderColor: '#440000', color: 'white', width: '100%', marginLeft: '100px' }}
-              >
-                <i className='fa-solid fa-circle-plus'></i> Añadir
-              </button>
-            </DivAdd>
           </div>
         </div>
       </div>

@@ -22,7 +22,7 @@ const ManageBodegas = () => {
   const [totalPages, setTotalPages] = useState(1); 
 
   useEffect(() => {
-    getBodegas(pageNumber, pageSize);
+    getBodegas();
   }, [pageNumber, pageSize]);
 
   const getBodegas = async () => {

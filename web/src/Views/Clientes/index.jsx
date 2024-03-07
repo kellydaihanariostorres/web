@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
+import { show_alerta } from '../../functions';
 import DivAdd from '../../Components/DivAdd';
 import DivTable from '../../Components/DivTable';
-import { show_alerta } from '../../functions';
 import axios from 'axios';
 import Swal from 'sweetalert2';
 import withReactContent from 'sweetalert2-react-content';
@@ -24,12 +24,12 @@ const ManageClientes = () => {
   const [totalPages, setTotalPages] = useState(1); 
 
   useEffect(() => {
-    getClientes(pageNumber, pageSize);
+    getClientes();
   }, [pageNumber, pageSize]);
 
-  const getClientes = async (pageNumber, pageSize) => {
+  const getClientes = async () => {
     try {
-      const response = await axios.get(`${apiUrl}?page=${pageNumber}&size=${pageSize}`);
+      const response = await axios.get(apiUrl);
       setClientes(response.data);
       setTotalPages(Math.ceil(response.data.length / pageSize));
     } catch (error) {
@@ -76,9 +76,9 @@ const ManageClientes = () => {
     if (
       nombre.trim() === '' ||
       apellido.trim() === '' ||
-      edad.trim() === '' ||
+      String(edad).trim() === '' ||
       tipoDocumento.trim() === '' ||
-      numDocumento.trim() === '' ||
+      String(numDocumento).trim() === '' || // Convertir a string antes de llamar a trim()
       correo.trim() === ''
     ) {
       show_alerta('Completa todos los campos', 'warning');
@@ -88,46 +88,7 @@ const ManageClientes = () => {
       enviarSolicitud(metodo, parametros);
     }
   };
-
-  const enviarSolicitud = async (metodo, parametros) => {
-    const clienteIdParam = clienteId || '';
-    try {
-      // Validar que los campos requeridos estén completos
-      if (
-        nombre.trim() === '' ||
-        apellido.trim() === '' ||
-        edad.trim() === '' ||
-        tipoDocumento.trim() === '' ||
-        numDocumento.trim() === '' ||
-        correo.trim() === ''
-      ) {
-        // Mostrar mensaje de error si algún campo requerido está vacío
-        show_alerta('Completa todos los campos', 'warning');
-        return; // Salir de la función si hay campos vacíos
-      }
-
-      // Continuar con el envío de la solicitud si todos los campos requeridos están completos
-      const response = await axios[metodo.toLowerCase()](
-        clienteIdParam ? `${apiUrl}/${clienteIdParam}` : apiUrl,
-        parametros
-      );
-      const tipo = response.data[0];
-      const msj = response.data[1];
-      show_alerta(msj, tipo);
-      getClientes();
-      setClienteId('');
-      setNombre('');
-      setApellido('');
-      setEdad('');
-      setTipoDocumento('');
-      setNumDocumento('');
-      setCorreo('');
-    } catch (error) {
-      show_alerta('Error de solicitud', 'error');
-      console.error(error);
-    }
-  };
-
+  
   const handleSearch = (e) => {
     const text = e.target.value;
     setSearchText(text);
@@ -142,7 +103,39 @@ const ManageClientes = () => {
     }
   };
 
-  const deleteCliente = (clienteId, nombre) => {
+  const enviarSolicitud = async (metodo, parametros) => {
+    const clienteIdParam = clienteId || '';
+    try {
+      const response = await axios[metodo.toLowerCase()](
+        clienteIdParam ? `${apiUrl}/${clienteIdParam}` : apiUrl,
+        parametros
+      );
+      const tipo = response.data[0];
+      const msj = response.data[1];
+      show_alerta(msj, tipo);
+  
+      if (tipo === 'success') {
+        // Si la operación fue exitosa, solo actualizamos la lista después de eliminar un cliente
+        if (metodo === 'DELETE') {
+          getClientes(pageNumber, pageSize); // Aquí pasamos los parámetros pageNumber y pageSize
+        }
+      }
+    
+        // Reiniciamos los campos del formulario después de agregar o editar el cliente
+        setClienteId('');
+        setNombre('');
+        setApellido('');
+        setEdad('');
+        setTipoDocumento('');
+        setNumDocumento('');
+        setCorreo('');
+      } catch (error) {
+        show_alerta('Error de solicitud', 'error');
+        console.error(error);
+      }
+  };
+  
+  const deleteCliente = async (clienteId, nombre) => {
     const MySwal = withReactContent(Swal);
     MySwal.fire({
       title: `¿Seguro quieres eliminar al cliente ${nombre}?`,
@@ -156,11 +149,13 @@ const ManageClientes = () => {
         try {
           await axios.delete(`${apiUrl}/${clienteId}`);
           show_alerta('Cliente eliminado exitosamente', 'success');
+          // Actualizamos la lista de clientes después de eliminar
+          getClientes(pageNumber, pageSize); // Aquí pasamos los parámetros pageNumber y pageSize
         } catch (error) {
           show_alerta('Error al eliminar al cliente', 'error');
           console.error(error);
         } finally {
-          getClientes();
+          // Restablecemos los campos del formulario después de eliminar el cliente
           setClienteId('');
           setNombre('');
           setApellido('');
@@ -174,7 +169,8 @@ const ManageClientes = () => {
       }
     });
   };
-
+  
+  
   return (
     <div className='container-fluid'>
       <div className='row justify-content-center'>

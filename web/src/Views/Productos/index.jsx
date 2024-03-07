@@ -22,12 +22,12 @@ const ManageProductos = () => {
   const [totalPages, setTotalPages] = useState(1); 
 
   useEffect(() => {
-    getProductos(pageNumber, pageSize);
+    getProductos();
   }, [pageNumber, pageSize]);
 
-  const getProductos = async (pageNumber, pageSize) => {
+  const getProductos = async () => {
     try {
-      const response = await axios.get(`${apiUrl}?page=${pageNumber}&size=${pageSize}`);
+      const response = await axios.get(apiUrl);
       setProductos(response.data);
       setTotalPages(Math.ceil(response.data.length / pageSize));
     } catch (error) {
@@ -66,7 +66,7 @@ const ManageProductos = () => {
     });
   };
 
-  const validar = () => {
+  const validar = (idProducto) => {
     if (
       nombreProducto.trim() === '' ||
       precioProducto.trim() === '' ||
@@ -77,21 +77,31 @@ const ManageProductos = () => {
     } else {
       const parametros = { nombreProducto, precioProducto, marcaProducto, clasificacionProducto };
       const metodo = operation === 1 ? 'POST' : 'PUT';
-      enviarSolicitud(metodo, parametros);
+      enviarSolicitud(metodo, parametros, idProducto);
     }
   };
 
-  const enviarSolicitud = async (metodo, parametros) => {
-    const idProductoParam = idProducto || '';
+  const actualizarProductos = async () => {
     try {
-      const response = await axios[metodo.toLowerCase()](
+      const response = await axios.get(apiUrl);
+      setProductos(response.data);
+      setTotalPages(Math.ceil(response.data.length / pageSize));
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
+  const enviarSolicitud = async (metodo, parametros, idProductoParam) => {
+    try {
+      await axios[metodo.toLowerCase()](
         idProductoParam ? `${apiUrl}/${idProductoParam}` : apiUrl,
         parametros
       );
-      const tipo = response.data[0];
-      const msj = response.data[1];
-      show_alerta(msj, tipo);
-      getProductos();
+      show_alerta('Operación exitosa', 'success');
+
+      // Actualizar la lista de productos después de agregar o editar
+      await actualizarProductos();
+      // Restablecer los campos de entrada después de la operación
       setIdProducto('');
       setNombreProducto('');
       setPrecioProducto('');
@@ -117,7 +127,7 @@ const ManageProductos = () => {
     }
   };
 
-  const deleteProducto = (idProducto, nombreProducto) => {
+  const deleteProducto = async (idProducto, nombreProducto) => {
     const MySwal = withReactContent(Swal);
     MySwal.fire({
       title: `¿Seguro quieres eliminar el producto ${nombreProducto}?`,
@@ -131,16 +141,12 @@ const ManageProductos = () => {
         try {
           await axios.delete(`${apiUrl}/${idProducto}`);
           show_alerta('Producto eliminado exitosamente', 'success');
+          
+          // Actualizar la lista de productos después de eliminar
+          await actualizarProductos();
         } catch (error) {
           show_alerta('Error al eliminar el producto', 'error');
           console.error(error);
-        } finally {
-          getProductos();
-          setIdProducto('');
-          setNombreProducto('');
-          setPrecioProducto('');
-          setMarcaProducto('');
-          setClasificacionProducto('');
         }
       } else {
         show_alerta('El producto no fue eliminado', 'info');

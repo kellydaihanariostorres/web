@@ -7,7 +7,7 @@ import Swal from 'sweetalert2';
 import withReactContent from 'sweetalert2-react-content';
 
 const ManageProveedores = () => {
-  const apiUrl = 'https://localhost:7284/api/proveedores';
+  const apiUrl = 'https://localhost:7284/api/proveedor';
   const [proveedores, setProveedores] = useState([]);
   const [idProveedor, setIdProveedor] = useState('');
   const [nombre, setNombre] = useState('');
@@ -25,12 +25,12 @@ const ManageProveedores = () => {
   const [totalPages, setTotalPages] = useState(1); 
 
   useEffect(() => {
-    getProveedores(pageNumber, pageSize);
+    getProveedores();
   }, [pageNumber, pageSize]);
 
-  const getProveedores = async (pageNumber, pageSize) => {
+  const getProveedores = async () => {
     try {
-      const response = await axios.get(`${apiUrl}?page=${pageNumber}&size=${pageSize}`);
+      const response = await axios.get(apiUrl);
       setProveedores(response.data);
       setTotalPages(Math.ceil(response.data.length / pageSize));
     } catch (error) {
@@ -78,12 +78,12 @@ const ManageProveedores = () => {
   const validar = () => {
     if (
       nombre.trim() === '' ||
-      numDocumento.trim() === '' ||
-      edad.trim() === '' ||
+      String(numDocumento).trim() === '' ||
+      String(edad).trim() === '' ||
       telefono.trim() === '' ||
       correo.trim() === '' ||
-      nombreEntidadBancaria.trim() === '' ||
-      numeroCuentaBancaria.trim() === ''
+      String(nombreEntidadBancaria).trim() === '' ||
+      String(numeroCuentaBancaria).trim() === ''
     ) {
       show_alerta('Completa todos los campos', 'warning');
     } else {
@@ -103,7 +103,11 @@ const ManageProveedores = () => {
       const tipo = response.data[0];
       const msj = response.data[1];
       show_alerta(msj, tipo);
+
+
       getProveedores();
+
+
       setIdProveedor('');
       setNombre('');
       setNumDocumento('');

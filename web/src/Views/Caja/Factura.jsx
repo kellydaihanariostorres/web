@@ -174,19 +174,6 @@ const ManageFacturas = () => {
                   style={{ height: '40px', borderRadius: '45px', marginRight: '100px', width: '500px', marginLeft: 'auto', position: 'absolute', right: 0 }}
                 />
               </div>
-              <DivAdd>
-                <button
-                  type="button"
-                  class="btn btn-danger"
-                  onClick={() => openModal(1)}
-                  data-bs-toggle='modal'
-                  data-bs-target='#modalFacturas'
-                  className='btn btn-dark'
-                  style={{ background: '#440000', borderColor: '#440000', color: 'white', width: '100%', marginLeft: '100px' }}
-                >
-                  <i className='fa-solid fa-circle-plus'></i> Añadir
-                </button>
-              </DivAdd>
             </div>
           </div>
         </div>
