@@ -6,6 +6,7 @@ import storage from '../Storage/storage';
 const Login = () => {
   const [userName, setUserName] = useState('');
   const [password, setPassword] = useState('');
+  const [error, setError] = useState(null); // Estado para manejar el mensaje de error
 
   const login = async (e) => {
     e.preventDefault();
@@ -13,9 +14,10 @@ const Login = () => {
     try {
       const response = await axios.post('https://localhost:7284/api/authentication/login', { userName, password });
       const userRole = response.data.role;
+      const loggedInUserName = response.data.userName;
 
-      // Almacenar el token de autenticación en el almacenamiento local
       storage.set('authToken', response.data.token);
+      storage.set('authUser', userName);
 
       switch (userRole) {
         case 'Administrador':
@@ -28,9 +30,10 @@ const Login = () => {
           window.location.href = '/cajav';
           break;
         default:
-          window.location.href = '/'; // Redirigir a la página de inicio por defecto
+          window.location.href = '/';
       }
     } catch (error) {
+      setError('Nombre de usuario o contraseña incorrectos'); // Establecer el mensaje de error
       console.error('Error al iniciar sesión:', error);
     }
   };
@@ -42,6 +45,7 @@ const Login = () => {
           <div className="card border">
             <div className="card-header bg-danger text-white text-center">Iniciar Sesión</div>
             <div className="card-body bg-danger">
+              {error && <div className="alert alert-danger">{error}</div>} {/* Mostrar el mensaje de error si existe */}
               <form onSubmit={login}>
                 <input type="text" className="form-control mb-3" placeholder="Nombre de usuario" value={userName} onChange={(e) => setUserName(e.target.value)} />
                 <input type="password" className="form-control mb-3" placeholder="Contraseña" value={password} onChange={(e) => setPassword(e.target.value)} />

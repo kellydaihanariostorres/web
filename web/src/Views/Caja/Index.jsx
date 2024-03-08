@@ -1,90 +1,63 @@
 import React, { useState } from 'react';
-import { sendRequest } from '../../functions';
 import 'bootstrap/dist/css/bootstrap.min.css';
-import Venta from './Venta'; // Importa el componente Venta
-import RegistroClienteModal from './RegistroClienteModal'; // Importa el componente de ventana emergente de registro de cliente
-import Logo_sistema from '../../../public/logo_sistema.jpg'
+import Venta from './Venta';
+import RegistroClienteModal from './RegistroClienteModal';
+import Logo_sistema from '../../../public/logo_sistema.jpg';
+import SearchComponent from './SearchComponent'; 
 
 const Caja = ({ id }) => {
   const [fechaCompra, setFechaCompra] = useState('');
-  const [productName, setProductName] = useState('');
+  const [nombreProducto, setNombreProducto] = useState('');
   const [productPrice, setProductPrice] = useState('');
   const [productQuantity, setProductQuantity] = useState('');
   const [subtotal, setSubtotal] = useState(0);
   const [ivaCompra, setIvaCompra] = useState(0);
   const [total, setTotal] = useState(0);
   const [productList, setProductList] = useState([]);
-  const [ventaConfirmada, setVentaConfirmada] = useState(null); // Estado para almacenar la venta confirmada
+  const [ventaConfirmada, setVentaConfirmada] = useState(null);
   const [modalOpen, setModalOpen] = useState(false);
-  const [registroClienteModalOpen, setRegistroClienteModalOpen] = useState(false); // Estado para controlar la ventana emergente de registro de cliente
+  const [registroClienteModalOpen, setRegistroClienteModalOpen] = useState(false);
   const [searchText, setSearchText] = useState('');
 
   const getCurrentDate = () => {
     const date = new Date();
     return date.toLocaleDateString();
   };
+ 
+  
+  
+  const handleSuggestionClick = (suggestion) => {
+    setNombreProducto(suggestion.nombreProducto);
+    console.log(productList);
 
-  const handleAddProduct = () => {
-    const product = {
-      productName: productName,
-      productPrice: parseFloat(productPrice),
-      productQuantity: parseInt(productQuantity)
-    };
-    const updatedProductList = [...productList, product];
-    setProductList(updatedProductList);
-    const subtotalCalc = updatedProductList.reduce((acc, curr) => acc + curr.productPrice * curr.productQuantity, 0);
-    setSubtotal(subtotalCalc);
-    const ivaCalc = subtotalCalc * 0.18;
-    setIvaCompra(ivaCalc);
-    setTotal(subtotalCalc + ivaCalc);
-    setProductName('');
-    setProductPrice('');
-    setProductQuantity('');
   };
-
+  
+  const handleAddProduct = () => {
+    const newProduct = {
+      nombreProducto: nombreProducto, // Asegúrate de que nombreProducto tenga el valor correcto
+      productPrice: productPrice,
+      productQuantity: productQuantity,
+    };
+    setProductList([...productList, newProduct]);
+  };
+  
   const handleDeleteProduct = (index) => {
     const updatedProductList = [...productList];
     updatedProductList.splice(index, 1);
     setProductList(updatedProductList);
-    const subtotalCalc = updatedProductList.reduce((acc, curr) => acc + curr.productPrice * curr.productQuantity, 0);
-    setSubtotal(subtotalCalc);
-    const ivaCalc = subtotalCalc * 0.18;
-    setIvaCompra(ivaCalc);
-    setTotal(subtotalCalc + ivaCalc);
   };
+  
 
   const handleConfirm = async () => {
-    const venta = {
-      id: id || '',
-      fechaCompra: getCurrentDate(),
-      ivaCompra: ivaCompra,
-      subtotal: subtotal,
-      total: total,
-      productList: productList
-    };
-
-    setVentaConfirmada(venta);
-    setModalOpen(true);
-
-    await sendRequest('POST', venta, 'https://localhost:7284/api/factura');
+    // Lógica para confirmar la venta
   };
 
   const handleCancel = () => {
-    // Implementa la lógica de cancelación si es necesario
+    // Lógica para cancelar la venta
   };
 
   const handleCloseModal = () => {
-    setRegistroClienteModalOpen(false);
-    setModalOpen(false);
-    setFechaCompra('');
-    setProductName('');
-    setProductPrice('');
-    setProductQuantity('');
-    setSubtotal(0);
-    setIvaCompra(0);
-    setTotal(0);
-    setProductList([]);
-    setVentaConfirmada(null);
+    // Lógica para cerrar el modal
   };
 
   const getDate = () => {
@@ -92,7 +65,7 @@ const Caja = ({ id }) => {
     const formattedDate = `${date.getDate()}/${date.getMonth() + 1}/${date.getFullYear()}`;
     return formattedDate;
   };
-  
+
   const handleOpenRegistroClienteModal = () => {
     setRegistroClienteModalOpen(true);
   };
@@ -101,19 +74,6 @@ const Caja = ({ id }) => {
     setRegistroClienteModalOpen(false);
   };
 
-  const handleSearch = (e) => {
-    const text = e.target.value;
-    setSearchText(text);
-    if (text.trim() === '') {
-      setPageNumber(1);
-      getProductos();
-    } else {
-      const filteredProductos = productos.filter((producto) =>
-        producto.nombreProducto.toLowerCase().includes(text.toLowerCase())
-      );
-      setProductos(filteredProductos);
-    }
-  };
 
   return (
     <div style={{
@@ -125,17 +85,7 @@ const Caja = ({ id }) => {
       backgroundColor: '#696969'
     }}>
       <button className="btn btn-primary" onClick={handleOpenRegistroClienteModal} style={{ borderRadius: '45px', borderColor: '#440000', background: '#440000', marginTop: '16px', marginLeft: '76px'}}>Registrar Cliente</button>
-      
-      <div className='input-group mb-3'>
-        <input
-          type='text'
-          className='form-control'
-          placeholder='Buscar producto'
-          aria-label='Buscar producto'
-          aria-describedby='button-addon2'
-          onChange={handleSearch}
-          value={searchText}
-          style={{
+      <div style={{
             height: '40px',
             borderRadius: '45px',
             marginRight: '100px',
@@ -144,9 +94,12 @@ const Caja = ({ id }) => {
             position: 'absolute',
             right: 0,
             top: '-40px',
-          }}
-        />
-      </div>
+          }}>
+      <SearchComponent productList={productList} handleSuggestionClick={handleSuggestionClick}  />
+      
+      <p>Producto seleccionado: {nombreProducto}</p>
+    </div>
+     
       
       <div className="col-12" style={{backgroundColor: 'white', 
         marginLeft: 'auto', // Márgen izquierdo automático para centrar
@@ -196,12 +149,11 @@ const Caja = ({ id }) => {
             <table className="table">
               <thead style={{ background: 'var(--color-text)' }}>
                 <tr>
-                  <th style={{ borderColor: 'var(--color-text)', background: 'var(--color-text)', color: 'black' }}>Producto</th>
-                  <th style={{ background: 'var(--color-text)', color: 'black' }}>Codigo</th>
+                  <th style={{ background: 'var(--color-text)', color: 'black'}}>Codigo</th>
                   <th style={{ background: 'var(--color-text)', color: 'black' }}>Articulo</th>
                   <th style={{ background: 'var(--color-text)', color: 'black' }}>Cantidad</th>
-                  <th style={{ background: 'var(--color-text)', color: 'black' }}>Presio unitario</th>
-                  <th style={{ background: 'var(--color-text)', color: 'black' }}>Total</th>
+                  <th style={{ background: 'var(--color-text)', color: 'black'}}>Presio unitario</th>
+                  <th style={{ background: 'var(--color-text)', color: 'black'}}>Total</th>
                 </tr>
               </thead>
               <tbody id="productTableBody" style={{ background: 'var(--color-text)' }}>

@@ -7,10 +7,14 @@ import axios from 'axios'; // Importar axios para usarlo en la función logout
 const Navb = () => {
   const [isOpen, setIsOpen] = useState(false);
   const [selectedCargo, setSelectedCargo] = useState('');
+  const [authUser, setAuthUser] = useState(''); 
 
   useEffect(() => {
     const cargo = storage.get('selectedCargo'); // Obtener el cargo del almacenamiento local
     setSelectedCargo(cargo); // Actualizar el estado de selectedCargo
+
+    const user = storage.get('authUser'); // Obtener el nombre de usuario del almacenamiento local
+    setAuthUser(user); // Actualizar el estado de authUser
   }, []); // Ejecutar solo una vez al cargar el componente
 
   const toggle = () => setIsOpen(!isOpen);
