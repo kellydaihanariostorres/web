@@ -7,14 +7,14 @@ import axios from 'axios'; // Importar axios para usarlo en la función logout
 const Navb = () => {
   const [isOpen, setIsOpen] = useState(false);
   const [selectedCargo, setSelectedCargo] = useState('');
-  const [authUser, setAuthUser] = useState(''); 
+  const [loggedInUserName, setLoggedInUserName] = useState('');
 
   useEffect(() => {
     const cargo = storage.get('selectedCargo'); // Obtener el cargo del almacenamiento local
     setSelectedCargo(cargo); // Actualizar el estado de selectedCargo
 
     const user = storage.get('authUser'); // Obtener el nombre de usuario del almacenamiento local
-    setAuthUser(user); // Actualizar el estado de authUser
+    setLoggedInUserName(user); // Actualizar el estado de loggedInUserName
   }, []); // Ejecutar solo una vez al cargar el componente
 
   const toggle = () => setIsOpen(!isOpen);
@@ -35,12 +35,7 @@ const Navb = () => {
         <UncontrolledDropdown nav inNavbar>
           <DropdownToggle nav caret style={{ display: 'flex', alignItems: 'center' }}>
             <span style={{ marginRight: '10px' }}>{selectedCargo}</span>
-            {/* Asegúrate de que getImageName esté definida */}
-            <img
-              src={getImageName()} // Ruta de la imagen basada en el cargo seleccionado
-              style={{ width: '40px', height: '40px', marginRight: '6px', borderRadius: '50%' }}
-              alt="Avatar"
-            />
+            <span style={{ marginRight: '10px' }}>{loggedInUserName}</span>
           </DropdownToggle>
           <DropdownMenu end style={{ background: '#212429', border: 'none' }}>
             <Link to='/' style={{ textDecoration: 'none' }}>
@@ -54,21 +49,6 @@ const Navb = () => {
       </Nav>
     </Navbar>
   );
-};
-
-// Función para obtener el nombre de la imagen basada en el cargo
-const getImageName = () => {
-  const cargo = storage.get('selectedCargo');
-  switch (cargo) {
-    case 'Administrador':
-      return 'rojo.avif'; // Nombre de la imagen para el Administrador
-    case 'Bodega':
-      return 'violeta.avif'; // Nombre de la imagen para el Gerente
-    case 'Caja':
-      return 'azul.jpg'; // Nombre de la imagen para el Cajero
-    default:
-      return 'gat.jpg'; // Si no hay un cargo válido, usamos una imagen por defecto
-  }
 };
 
 export default Navb;

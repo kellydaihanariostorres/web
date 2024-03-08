@@ -18,6 +18,7 @@ const Login = () => {
 
       storage.set('authToken', response.data.token);
       storage.set('authUser', userName);
+      storage.set('selectedCargo', userRole); // Almacena el cargo en el almacenamiento local
 
       switch (userRole) {
         case 'Administrador':
