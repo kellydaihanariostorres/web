@@ -5,15 +5,15 @@ import axios from 'axios';
 import storage from '../Storage/storage';
 
 
+
 const SideBar = () => {
   const go = useNavigate();
 
-  const logout = async () => {
+  const logout = async()=>{
     storage.remove('authToken');
-    storage.remove('authUser');
-    await axios.get('/api/auth/logout', storage.get('authToken'));
-    go('/login');
-  };
+    await axios.get('https://localhost:7284/api/authentication/login',storage.get('authToken'));
+    go('/');
+  }
   
 
   return (
@@ -34,7 +34,7 @@ const SideBar = () => {
             <span className='navbar-toggler-icon'></span>
           </button>
 
-          {!storage.get('authUser') ? (
+          {storage.get('authUser') ? (
             <div className='collapse navbar-collapse navbar-dark bg-dark' id='nav'>  
                
               <ul className='navbar-nav flex-column mb-2'>
@@ -46,11 +46,6 @@ const SideBar = () => {
                 <li className='nav-item'>
                   <NavLink to='/cajav' className='text-white rounded py-2 w-100 d-inline-block px-2'>
                     CAJA
-                  </NavLink>
-                </li>
-                <li className='nav-item'>
-                  <NavLink to='/contadorv' className='text-white rounded py-2 w-100 d-inline-block px-2'>
-                    CONTADOR
                   </NavLink>
                 </li>
                 <li className='nav-item'>

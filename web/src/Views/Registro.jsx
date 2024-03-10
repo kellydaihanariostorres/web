@@ -21,8 +21,18 @@ const ManageUsuarios = () => {
       setSelectedRoles(selectedRoles.filter((r) => r !== role));
     }
   };
+  const validarPassword = () => {
+    if (password.length < 9) {
+      show_alerta('La contraseña debe tener al menos 10 caracteres', 'warning');
+      return false;
+    }
+    // Puedes agregar más validaciones aquí, como caracteres especiales, mayúsculas, etc.
+    return true;
+  };
+  
 
   const validar = async () => {
+    console.log('Validar password');
     if (
       firstName.trim() === '' ||
       lastName.trim() === '' ||
@@ -30,9 +40,10 @@ const ManageUsuarios = () => {
       password.trim() === '' ||
       email.trim() === '' ||
       phoneNumber.trim() === '' ||
-      selectedRoles.length === 0
+      selectedRoles.length === 0 ||
+      !validarPassword()
     ) {
-      show_alerta('Completa todos los campos', 'warning');
+      show_alerta('Completa todos los campos correctamente', 'warning');
     } else {
       const parametros = {
         FirstName: firstName,

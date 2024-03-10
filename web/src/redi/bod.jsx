@@ -6,8 +6,9 @@ import Bodega from '../Views/Bodega/Index';
 import Productos from '../Views/Productos/index';
 import Inventario from '../Views/Inventario/Index';
 import Proveedor from '../Views/Proveedor/Index';
-import Factura from '../Views/Caja/Factura';
 import Navb from '../Components/Nav';
+import Facturaproveedor from '../Views/Proveedor/Factura';
+import Pedidos from '../Views/Proveedor/Pedidos'
 
 const styles = {
   flex: {
@@ -42,11 +43,14 @@ function Vistabodega({ cargo }) {
               <Route path="/inventario/*" element={<Inventario/>}/>
               <Route path="/proveedor/*" element={<Proveedor/>}/>
               <Route path="bodega/*" element={<Bodega />} />
+              <Route path="pedido/*" element={<Pedidos/>} />
+              <Route path="facturaproveedor/*" element={<Facturaproveedor />} />
         </Routes>
       </div>
     </div> 
   </div>
   );
 }
+
 
 export default Vistabodega;

@@ -13,12 +13,18 @@ const SideBar = () => {
     await axios.get('https://localhost:7284/api/authentication/login',storage.get('authToken'));
     go('/');
   }
-  //const userImageUrl = storage.get('authUser')?.image || userImage;
+  const styles = {
+    flex: {
+      display: 'flex',
+      backgroundColor: '#212429',
+    },
+    
+  };
 
   return (
     <div className="sideBar">
-      <nav className='navbar navbar-expand-lg navbar-dark bg-dark'>
-        <div className='container-fluid'>
+      <nav className='navbar navbar-expand-lg navbar-dark bg-dark'style={styles.flex}>
+        <div className='container-fluid'style={styles.flex}>
           <button
             className='navbar-toggler'
             type='button'
@@ -59,6 +65,16 @@ const SideBar = () => {
                 <li className='nav-item'>
                   <NavLink to='/bodegav/inventario' className='text-white rounded py-2 w-100 d-inline-block px-2'><FaIcons.FaClipboard className='me-2'/>
                     INVENTARIO
+                  </NavLink>
+                </li>
+                <li className='nav-item'>
+                  <NavLink to='/bodegav/facturaproveedor' className='text-white rounded py-2 w-100 d-inline-block px-2'><FaIcons.FaClipboard className='me-2'/>
+                    FACTURA PROVEEDOR
+                  </NavLink>
+                </li>
+                <li className='nav-item'>
+                  <NavLink to='/bodegav/pedido' className='text-white rounded py-2 w-100 d-inline-block px-2'><FaIcons.FaClipboard className='me-2'/>
+                    PEDIDOS
                   </NavLink>
                 </li>
               </ul>

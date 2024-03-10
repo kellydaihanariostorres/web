@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import Venta from './Venta';
 import RegistroClienteModal from './RegistroClienteModal';
-import Logo_sistema from '../../../public/logo_sistema.jpg';
+import Logo_sistema from './logo_sistema.jpg';
 import SearchComponent from './SearchComponent'; 
 
 const Caja = ({ id }) => {
@@ -97,7 +97,6 @@ const Caja = ({ id }) => {
           }}>
       <SearchComponent productList={productList} handleSuggestionClick={handleSuggestionClick}  />
       
-      <p>Producto seleccionado: {nombreProducto}</p>
     </div>
      
       

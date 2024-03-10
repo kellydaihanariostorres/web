@@ -1,45 +1,33 @@
 import React, { useState } from 'react';
+import SearchBar from '../../Components/SearchBar';
+import SearchResults from '../../Components/SearchResultslist';
 
-const SearchComponent = ({ productList, handleSuggestionClick }) => {
-  const [searchText, setSearchText] = useState('');
-  const [filteredSuggestions, setFilteredSuggestions] = useState([]);
+//
+const SearchComponent = () => {
+  const [results,setResults]=useState([]);
 
-  const handleSearch = (event) => {
-    // Obtener el término de búsqueda del evento
-    const searchTerm = event.target.value;
-    
-    // Verificar si miLista está definida y tiene elementos
-    if (miLista && miLista.length > 0) {
-      // Filtrar miLista según el término de búsqueda
-      const filteredList = miLista.filter(item =>
-        item.toLowerCase().includes(searchTerm.toLowerCase())
-      );
+  const styles = {
+    searchContainer: {
+      padding: '7vh',
+      width: '40%',
+      display: 'flex',
+      flexDirection: 'column',
+      marginLeft: '-30vw',
+      minWidth: '200px',
+    },
+    search: {
       
-      // Establecer los resultados filtrados en el estado
-      setFilteredResults(filteredList);
-    } else {
-      // Si la lista está vacía o undefined, establecer los resultados filtrados como un array vacío
-      setFilteredResults([]);
+      height: '100vh',
+      width: '100vw',
     }
   };
-  
-  
 
   return (
-    <div>
-      <input
-        type='text'
-        placeholder='Buscar producto'
-        onChange={(e) => handleSearch(e.target.value)}
-        value={searchText}
-      />
-      <ul>
-        {filteredSuggestions.map((suggestion) => (
-          <li key={suggestion.idProducto} onClick={() => handleSuggestionClick(suggestion)}>
-            {suggestion.nombreProducto}
-          </li>
-        ))}
-      </ul>
+    <div style={styles.search}>
+      <div style={styles.searchContainer}>
+        <SearchBar setResults={setResults}/>
+        <SearchResults results={results} />
+      </div>
     </div>
   );
 };

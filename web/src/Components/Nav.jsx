@@ -24,15 +24,22 @@ const Navb = () => {
     storage.remove('authUser');
     window.location.href = '/'; // Redirigir al usuario a la página de inicio de sesión
   };
+  const styles = {
+    flex: {
+      display: 'flex',
+      backgroundColor: '#212429',
+    },
+    
+  };
 
   return (
-    <Navbar color="dark" dark expand="md">
-      <NavbarBrand href="/home">
+    <Navbar  dark expand="md" style={styles.flex}>
+      <NavbarBrand  style={styles.flex}>
         <img src="logo.jpg" alt="Logo" style={{ width: '80px', marginRight: '6px' }} />
         DIABLO AMARGO
       </NavbarBrand>
-      <Nav className="ml-auto" navbar>
-        <UncontrolledDropdown nav inNavbar>
+      <Nav className="ml-auto" navbar style={styles.flex}>
+        <UncontrolledDropdown nav inNavbar style={styles.flex}>
           <DropdownToggle nav caret style={{ display: 'flex', alignItems: 'center' }}>
             <span style={{ marginRight: '10px' }}>{selectedCargo}</span>
             <span style={{ marginRight: '10px' }}>{loggedInUserName}</span>

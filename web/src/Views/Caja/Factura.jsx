@@ -156,6 +156,9 @@ const ManageFacturas = () => {
     });
   };
 
+  const showPreviousButton = pageNumber > 1;
+  const showNextButton = pageNumber < totalPages;
+
   return (
     <div className='container-fluid'>
       <div className='row justify-content-center'>
@@ -259,15 +262,19 @@ const ManageFacturas = () => {
               </tbody>
             </table>
             <div className='d-flex justify-content-between'>
-              <button onClick={handlePreviousPage} disabled={pageNumber === 1} style={{ background: '#440000', borderColor: '#440000', color: 'white' }}>
-                Anterior
-              </button>
+              {showPreviousButton && (
+                <button onClick={handlePreviousPage} style={{ background: '#440000', borderColor: '#440000', color: 'white' }}>
+                  Anterior
+                </button>
+              )}
               <span>
-                Página {pageNumber} de {pageSize}
+                Página {pageNumber} de {totalPages}
               </span>
-              <button onClick={handleNextPage} disabled={pageNumber === totalPages} style={{ background: '#440000', borderColor: '#440000', color: 'white' }}>
-                Siguiente
-              </button>
+              {showNextButton && (
+                <button onClick={handleNextPage} style={{ background: '#440000', borderColor: '#440000', color: 'white' }}>
+                  Siguiente
+                </button>
+              )}
             </div>
           </DivTable>
         </div>

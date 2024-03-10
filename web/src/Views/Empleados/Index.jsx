@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import CustomInput from '../../Components/DivInput';
 import DivAdd from '../../Components/DivAdd';
 import DivTable from '../../Components/DivTable';
 import { show_alerta } from '../../functions';
@@ -27,7 +28,7 @@ const ManageEmpleados = () => {
 
   useEffect(() => {
     getEmpleados();
-  }, [pageNumber, pageSize]);
+  }, []);
 
   const getEmpleados = async () => {
     try {
@@ -175,6 +176,9 @@ const ManageEmpleados = () => {
     });
   };
 
+  const showPreviousButton = pageNumber > 1;
+  const showNextButton = pageNumber < totalPages;
+
   return (
     <div className='container-fluid'>
       <div className='row justify-content-center'>
@@ -290,15 +294,19 @@ const ManageEmpleados = () => {
               </tbody>
             </table>
             <div className='d-flex justify-content-between'>
-              <button onClick={handlePreviousPage} disabled={pageNumber === 1}style={{ background: '#440000', borderColor: '#440000', color: 'white' }}>
-                Anterior
-              </button>
+              {showPreviousButton && (
+                <button onClick={handlePreviousPage} style={{ background: '#440000', borderColor: '#440000', color: 'white' }}>
+                  Anterior
+                </button>
+              )}
               <span>
-                Página {pageNumber} de {pageSize}
+                Página {pageNumber} de {totalPages}
               </span>
-            <button onClick={handleNextPage} disabled={pageNumber === totalPages}style={{ background: '#440000', borderColor: '#440000', color: 'white' }}>
-              Siguiente
-            </button>
+              {showNextButton && (
+                <button onClick={handleNextPage} style={{ background: '#440000', borderColor: '#440000', color: 'white' }}>
+                  Siguiente
+                </button>
+              )}
             </div>
 
           </DivTable>
@@ -314,110 +322,71 @@ const ManageEmpleados = () => {
             </div>
             <div className='modal-body'>
               <input type='hidden' id='id' />
-              <div className='input-group mb-3'>
-                <span className='input-group-text'>
-                  <i className='fa-solid fa-gift'></i>
-                </span>
-                <input
-                  type='text'
-                  id='nombre'
-                  className='form-control'
-                  placeholder='Nombre'
-                  value={nombre}
-                  onChange={(e) => setNombre(e.target.value)}
-                />
-              </div>
-              <div className='input-group mb-3'>
-                <span className='input-group-text'>
-                  <i className='fa-solid fa-gift'></i>
-                </span>
-                <input
-                  type='text'
-                  id='apellido'
-                  className='form-control'
-                  placeholder='Apellido'
-                  value={apellido}
-                  onChange={(e) => setApellido(e.target.value)}
-                />
-              </div>
-              <div className='input-group mb-3'>
-                <span className='input-group-text'>
-                  <i className='fa-solid fa-gift'></i>
-                </span>
-                <input
-                  type='text'
-                  id='documento'
-                  className='form-control'
-                  placeholder='Documento'
-                  value={documento}
-                  onChange={(e) => setDocumento(e.target.value)}
-                />
-              </div>
-              <div className='input-group mb-3'>
-                <span className='input-group-text'>
-                  <i className='fa-solid fa-gift'></i>
-                </span>
-                <input
-                  type='text'
-                  id='cargo'
-                  className='form-control'
-                  placeholder='Cargo'
-                  value={cargo}
-                  onChange={(e) => setCargo(e.target.value)}
-                />
-              </div>
-              <div className='input-group mb-3'>
-                <span className='input-group-text'>
-                  <i className='fa-solid fa-gift'></i>
-                </span>
-                <input
-                  type='text'
-                  id='fechaInicio'
-                  className='form-control'
-                  placeholder='Fecha de Inicio'
-                  value={fechaInicio}
-                  onChange={(e) => setFechaInicio(e.target.value)}
-                />
-              </div>
-              <div className='input-group mb-3'>
-                <span className='input-group-text'>
-                  <i className='fa-solid fa-gift'></i>
-                </span>
-                <input
-                  type='text'
-                  id='fechaFin'
-                  className='form-control'
-                  placeholder='Fecha de Fin'
-                  value={fechaFin}
-                  onChange={(e) => setFechaFin(e.target.value)}
-                />
-              </div>
-              <div className='input-group mb-3'>
-                <span className='input-group-text'>
-                  <i className='fa-solid fa-gift'></i>
-                </span>
-                <input
-                  type='text'
-                  id='sueldo'
-                  className='form-control'
-                  placeholder='Sueldo'
-                  value={sueldo}
-                  onChange={(e) => setSueldo(e.target.value)}
-                />
-              </div>
-              <div className='input-group mb-3'>
-                <span className='input-group-text'>
-                  <i className='fa-solid fa-gift'></i>
-                </span>
-                <input
-                  type='text'
-                  id='bodegaId'
-                  className='form-control'
-                  placeholder='Bodega ID'
-                  value={bodegaId}
-                  onChange={(e) => setBodegaId(e.target.value)}
-                />
-              </div>
+              <CustomInput
+                type="text"
+                placeholder="Nombre"
+                id="nombre"
+                value={nombre}
+                handleChange={(e) => setNombre(e.target.value)}
+                icon="fa-gift"
+              />
+              <CustomInput
+                type="text"
+                placeholder="Apellido"
+                id="apellido"
+                value={apellido}
+                handleChange={(e) => setApellido(e.target.value)}
+                icon="fa-gift"
+              />
+              <CustomInput
+                type="text"
+                placeholder="documento"
+                id="documento"
+                value={documento}
+                handleChange={(e) => setDocumento(e.target.value)}
+                icon="fa-gift"
+              />
+              <CustomInput
+                type="text"
+                placeholder="cargo"
+                id="cargo"
+                value={cargo}
+                handleChange={(e) => setCargo(e.target.value)}
+                icon="fa-gift"
+              />
+              <CustomInput
+                type="text"
+                placeholder="fechaInicio"
+                id="fechaInicio"
+                value={fechaInicio}
+                handleChange={(e) => setFechaInicio(e.target.value)}
+                icon="fa-gift"
+              />
+              <CustomInput
+                type="text"
+                placeholder="fechaFin"
+                id="fechaFin"
+                value={fechaFin}
+                handleChange={(e) => setFechaFin(e.target.value)}
+                icon="fa-gift"
+              />
+              <CustomInput
+                type="text"
+                placeholder="sueldo"
+                id="sueldo"
+                value={sueldo}
+                handleChange={(e) => setSueldo(e.target.value)}
+                icon="fa-gift"
+              />
+              <CustomInput
+                type="text"
+                placeholder="bodegaId"
+                id="bodegaId"
+                value={bodegaId}
+                handleChange={(e) => setBodegaId(e.target.value)}
+                icon="fa-gift"
+              />
+
               <div className='d-grid col-6 mx-auto'>
                 <button onClick={() => validar()} className='btn btn-success'>
                   <i className='fa-solid fa-floppy-disk'></i> Guardar
