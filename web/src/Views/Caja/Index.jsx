@@ -20,6 +20,7 @@ const Caja = () => {
   const [searchText, setSearchText] = useState('');
   const [clienteId, setClienteId] = useState(null);
   const [updateComponent, setUpdateComponent] = useState(false); // Nuevo estado para forzar la actualización del componente
+  const [empleadoId, setEmpleadoId] = useState('');
 
   useEffect(() => {
     calcularSubtotal();
@@ -68,13 +69,16 @@ const Caja = () => {
     const ventaConfirmada = {
       fechaCompra: getCurrentDate(),
       productList: productList,
-      idCliente: clienteId, // Usar clienteId en lugar de idCliente
+      idCliente: clienteId,
+      idEmpleado: empleadoId,
       subtotal: subtotal,
       iva: ivaCompra,
       total: total
     };
     setVentaConfirmada(ventaConfirmada);
+    setModalOpen(true); // Establecer modalOpen en true para mostrar el modal de confirmación
   };
+  
   
   const calcularSubtotal = () => {
     let total = 0;
@@ -97,8 +101,19 @@ const Caja = () => {
   };
   
   const handleCancel = () => {
-    // Lógica para cancelar la venta
+    // Limpiar la lista de productos
+    setProductList([]);
+    // Limpiar el ID del cliente
+    setClienteId(null);
+    // Limpiar la sumatoria del subtotal
+    setSubtotal(0);
+    // Limpiar la sumatoria del IVA
+    setIvaCompra(0);
+    // Limpiar la sumatoria del total
+    setTotal(0);
   };
+  
+  
 
   const getDate = () => {
     const date = new Date();
@@ -189,6 +204,9 @@ const Caja = () => {
         <div style={{ top: '10px', right: '10px', color: 'black', marginLeft: '10px' }}>
           ID cliente: {clienteId}
         </div>
+        <div style={{ top: '10px', right: '10px', color: 'black', marginLeft: '10px' }}>
+          ID Empleado: <input type="text" value={empleadoId} onChange={(e) => setEmpleadoId(e.target.value)} />
+        </div>
 
 
         <hr style={{ margin: '10px 0' }} />
@@ -246,12 +264,13 @@ const Caja = () => {
                 </button>
               </div>
               <div className="modal-body">
-                <Venta venta={ventaConfirmada} />
+                <Venta venta={ventaConfirmada} clienteId={clienteId} empleadoId={empleadoId} />
               </div>
             </div>
           </div>
         </div>
       )}
+
     </div>
   );
 };

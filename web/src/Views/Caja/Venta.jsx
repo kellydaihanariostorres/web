@@ -26,7 +26,7 @@ const Venta = ({ venta, clienteId, empleadoId }) => {
 
     // Llama a la función para enviar la venta cuando se monte o renderice el componente
     enviarVenta();
-  }, [idFactura, fechaCompra, ivaCompra, subtotal, total, productList, clienteId, empleadoId]);
+  }, [fechaCompra, ivaCompra, subtotal, total, productList, clienteId, empleadoId]);
 
   return (
     <div>
