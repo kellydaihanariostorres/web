@@ -19,14 +19,19 @@ const Caja = () => {
   const [registroClienteModalOpen, setRegistroClienteModalOpen] = useState(false);
   const [searchText, setSearchText] = useState('');
   const [clienteId, setClienteId] = useState(null);
+  const [updateComponent, setUpdateComponent] = useState(false); // Nuevo estado para forzar la actualización del componente
 
-    
   useEffect(() => {
     calcularSubtotal();
     calcularIVA();
     calcularTotal();
   }, [productList]); // Ejecutar cada vez que cambie la lista de productos
   
+  useEffect(() => {
+    // Esta función se ejecutará cada vez que el estado de updateComponent cambie,
+    // lo que forzará la actualización del componente
+    setUpdateComponent(false); // Reinicia el estado después de la actualización
+  }, [updateComponent]);
 
   const getCurrentDate = () => {
     const date = new Date();
@@ -36,7 +41,6 @@ const Caja = () => {
   const handleOpenRegistroClienteModal = () => {
     setRegistroClienteModalOpen(true); // Abre el modal de registro de cliente
   };
-  
   
   const handleSuggestionClick = (suggestion) => {
     const newProduct = {
@@ -50,10 +54,6 @@ const Caja = () => {
     calcularTotal();
   };
   
-  
-  
- 
-  
   const handleDeleteProduct = (index) => {
     const updatedProductList = [...productList];
     updatedProductList.splice(index, 1);
@@ -63,7 +63,6 @@ const Caja = () => {
     calcularTotal();
   };
   
-
   const handleConfirm = async () => {
     // Lógica para confirmar la venta
     const ventaConfirmada = {
@@ -77,7 +76,6 @@ const Caja = () => {
     setVentaConfirmada(ventaConfirmada);
   };
   
-
   const calcularSubtotal = () => {
     let total = 0;
     productList.forEach(producto => {
@@ -108,23 +106,22 @@ const Caja = () => {
     return formattedDate;
   };
 
- 
   const handleCloseRegistroClienteModal = () => {
     // Cierra el formulario de registro de cliente
     setRegistroClienteModalOpen(false);
   };
 
   const handleClienteGuardado = (clienteId) => {
-    setIdCliente(clienteId);
+    console.log("ID del cliente guardado:", clienteId); // Verificar si se guarda el ID del cliente correctamente
+    setClienteId(clienteId); // Guardar el ID del cliente
+    handleCloseModal(); // Cerrar el modal después de guardar el cliente
   };
+  
   
   const handleCloseModal = () => {
     setRegistroClienteModalOpen(false); // Asegúrate de cambiar el estado a false para cerrar la ventana emergente
   };
   
-  
-
-
   return (
     <div>
       <button className="btn btn-primary" onClick={handleOpenRegistroClienteModal} style={{ borderRadius: '45px', borderColor: '#440000', background: '#440000', marginTop: '16px',marginLeft: 'auto',marginRight: '1160px'}}>Registrar Cliente</button>
@@ -157,17 +154,20 @@ const Caja = () => {
         {registroClienteModalOpen && (
           <div className="modal" tabIndex="-1" role="dialog" style={{ display: 'block', backgroundColor: 'rgba(0, 0, 0, 0.5)' }}>
             <div className="modal-dialog" role="document">
-            <div className="modal-content">
-              <div className="modal-header">
-                <h5 className="modal-title">Registrar Cliente</h5>
-                <button type="button" className="close" aria-label="Close" onClick={handleCloseModal}>
-                  <span aria-hidden="true">&times;</span>
-                </button>
+              <div className="modal-content">
+                <div className="modal-header">
+                  <h5 className="modal-title">Registrar Cliente</h5>
+                  <button type="button" className="close" aria-label="Close" onClick={handleCloseModal}>
+                    <span aria-hidden="true">&times;</span>
+                  </button>
+                </div>
+                <div className="modal-body">
+                  <RegistroClienteModal handleClienteGuardado={handleClienteGuardado} /> {/* Pasar la función handleClienteGuardado como prop */}
+                </div>
+                <div className="modal-footer">
+                  <button type="button" className="btn btn-secondary" onClick={handleCloseModal}>Cerrar</button>
+                </div>
               </div>
-              <div className="modal-footer">
-                <button type="button" className="btn btn-secondary" onClick={handleCloseModal}>Cerrar</button>
-              </div>
-            </div>
             </div>
           </div>
         )}
@@ -186,7 +186,10 @@ const Caja = () => {
         <div style={{ top: '10px', right: '10px', color: 'black', marginLeft: '10px' }}>
           Fecha de Compra: {getDate()}
         </div>
-        
+        <div style={{ top: '10px', right: '10px', color: 'black', marginLeft: '10px' }}>
+          ID cliente: {clienteId}
+        </div>
+
 
         <hr style={{ margin: '10px 0' }} />
         
