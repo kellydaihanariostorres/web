@@ -1,15 +1,24 @@
 import React, { useEffect } from 'react';
 import { sendRequest } from '../../functions';
 
-const Venta = ({ venta }) => {
+const Venta = ({ venta, clienteId, empleadoId }) => {
   // Extrae los datos necesarios para la venta
-  const { id, fechaCompra, ivaCompra, subtotal, total, productList } = venta;
+  const { idFactura, fechaCompra, ivaCompra, subtotal, total, productList } = venta;
 
   useEffect(() => {
     const enviarVenta = async () => {
       try {
         // Envía la venta a la API
-        await sendRequest('POST', { id, fechaCompra, ivaCompra, subtotal, total }, 'https://localhost:7284/api/factura');
+        await sendRequest('POST', {
+          idFactura,
+          fechaCompra,
+          ivaCompra,
+          subtotal,
+          total,
+          productList,
+          clienteId,
+          empleadoId
+        }, 'https://localhost:7284/api/factura');
       } catch (error) {
         console.error('Error al enviar la venta:', error);
       }
@@ -17,14 +26,13 @@ const Venta = ({ venta }) => {
 
     // Llama a la función para enviar la venta cuando se monte o renderice el componente
     enviarVenta();
-  }, [venta]);
-
+  }, [idFactura, fechaCompra, ivaCompra, subtotal, total, productList, clienteId, empleadoId]);
 
   return (
     <div>
       <h3>Factura</h3>
-      <p>ID: {id}</p>
       <p>Fecha de Compra: {fechaCompra}</p>
+      <p>ID del Cliente: {clienteId}</p>
       <p>IVA: {ivaCompra}</p>
       <p>Subtotal: {subtotal}</p>
       <p>Total: {total}</p>
@@ -32,17 +40,15 @@ const Venta = ({ venta }) => {
       <table className="table">
         <thead>
           <tr>
-            <th>Producto</th>
+            <th>Nombre del Producto</th>
             <th>Precio Unitario</th>
-            <th>Cantidad</th>
           </tr>
         </thead>
         <tbody>
           {productList.map((product, index) => (
             <tr key={index}>
-              <td>{product.productName}</td>
-              <td>{product.productPrice}</td>
-              <td>{product.productQuantity}</td>
+              <td>{product.nombreProducto}</td>
+              <td>{product.precioProducto}</td>
             </tr>
           ))}
         </tbody>

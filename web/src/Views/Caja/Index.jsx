@@ -1,11 +1,11 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import Venta from './Venta';
 import RegistroClienteModal from './RegistroClienteModal';
 import Logo_sistema from './logo_sistema.jpg';
 import SearchComponent from './SearchComponent'; 
 
-const Caja = ({ id }) => {
+const Caja = () => {
   const [fechaCompra, setFechaCompra] = useState('');
   const [nombreProducto, setNombreProducto] = useState('');
   const [productPrice, setProductPrice] = useState('');
@@ -18,46 +18,88 @@ const Caja = ({ id }) => {
   const [modalOpen, setModalOpen] = useState(false);
   const [registroClienteModalOpen, setRegistroClienteModalOpen] = useState(false);
   const [searchText, setSearchText] = useState('');
+  const [clienteId, setClienteId] = useState(null);
+
+    
+  useEffect(() => {
+    calcularSubtotal();
+    calcularIVA();
+    calcularTotal();
+  }, [productList]); // Ejecutar cada vez que cambie la lista de productos
+  
 
   const getCurrentDate = () => {
     const date = new Date();
     return date.toLocaleDateString();
   };
- 
+
+  const handleOpenRegistroClienteModal = () => {
+    setRegistroClienteModalOpen(true); // Abre el modal de registro de cliente
+  };
   
   
   const handleSuggestionClick = (suggestion) => {
-    setNombreProducto(suggestion.nombreProducto);
-    console.log(productList);
-
-  };
-  
-  const handleAddProduct = () => {
     const newProduct = {
-      nombreProducto: nombreProducto, // Asegúrate de que nombreProducto tenga el valor correcto
-      productPrice: productPrice,
-      productQuantity: productQuantity,
+      idProducto: suggestion.idProducto,
+      nombreProducto: suggestion.nombreProducto,
+      precioProducto: suggestion.precioProducto, // Corregido aquí
     };
     setProductList([...productList, newProduct]);
+    calcularSubtotal();
+    calcularIVA();
+    calcularTotal();
   };
+  
+  
+  
+ 
   
   const handleDeleteProduct = (index) => {
     const updatedProductList = [...productList];
     updatedProductList.splice(index, 1);
     setProductList(updatedProductList);
+    calcularSubtotal();
+    calcularIVA();
+    calcularTotal();
   };
   
 
   const handleConfirm = async () => {
     // Lógica para confirmar la venta
+    const ventaConfirmada = {
+      fechaCompra: getCurrentDate(),
+      productList: productList,
+      idCliente: clienteId, // Usar clienteId en lugar de idCliente
+      subtotal: subtotal,
+      iva: ivaCompra,
+      total: total
+    };
+    setVentaConfirmada(ventaConfirmada);
+  };
+  
+
+  const calcularSubtotal = () => {
+    let total = 0;
+    productList.forEach(producto => {
+      total += parseFloat(producto.precioProducto);
+    });
+    setSubtotal(total);
   };
 
+  // Función para calcular el IVA
+  const calcularIVA = () => {
+    const iva = subtotal * 0.19; // Suponiendo que el IVA es del 19%
+    setIvaCompra(iva);
+  };
+
+  // Función para calcular el total
+  const calcularTotal = () => {
+    const total = subtotal + ivaCompra;
+    setTotal(total);
+  };
+  
   const handleCancel = () => {
     // Lógica para cancelar la venta
-  };
-
-  const handleCloseModal = () => {
-    // Lógica para cerrar el modal
   };
 
   const getDate = () => {
@@ -66,25 +108,26 @@ const Caja = ({ id }) => {
     return formattedDate;
   };
 
-  const handleOpenRegistroClienteModal = () => {
-    setRegistroClienteModalOpen(true);
-  };
-
+ 
   const handleCloseRegistroClienteModal = () => {
+    // Cierra el formulario de registro de cliente
     setRegistroClienteModalOpen(false);
   };
 
+  const handleClienteGuardado = (clienteId) => {
+    setIdCliente(clienteId);
+  };
+  
+  const handleCloseModal = () => {
+    setRegistroClienteModalOpen(false); // Asegúrate de cambiar el estado a false para cerrar la ventana emergente
+  };
+  
+  
+
 
   return (
-    <div style={{
-      position: 'fixed',
-      top: '60px', // Altura del nav, ajusta según sea necesario
-      left: 0,
-      width: '100%',
-      height: 'calc(100% - 60px)',
-      backgroundColor: '#696969'
-    }}>
-      <button className="btn btn-primary" onClick={handleOpenRegistroClienteModal} style={{ borderRadius: '45px', borderColor: '#440000', background: '#440000', marginTop: '16px', marginLeft: '76px'}}>Registrar Cliente</button>
+    <div>
+      <button className="btn btn-primary" onClick={handleOpenRegistroClienteModal} style={{ borderRadius: '45px', borderColor: '#440000', background: '#440000', marginTop: '16px',marginLeft: 'auto',marginRight: '1160px'}}>Registrar Cliente</button>
       <div style={{
             height: '40px',
             borderRadius: '45px',
@@ -95,8 +138,12 @@ const Caja = ({ id }) => {
             right: 0,
             top: '-40px',
           }}>
-      <SearchComponent productList={productList} handleSuggestionClick={handleSuggestionClick}  />
-      
+          <SearchComponent 
+            productList={productList} 
+            handleSuggestionClick={handleSuggestionClick} 
+            setResults={setProductList} // Asegúrate de pasar setProductList
+            style={{ zIndex: 9999 }} 
+          />
     </div>
      
       
@@ -110,20 +157,21 @@ const Caja = ({ id }) => {
         {registroClienteModalOpen && (
           <div className="modal" tabIndex="-1" role="dialog" style={{ display: 'block', backgroundColor: 'rgba(0, 0, 0, 0.5)' }}>
             <div className="modal-dialog" role="document">
-              <div className="modal-content">
-                <div className="modal-header">
-                  <h5 className="modal-title">Registrar Cliente</h5>
-                  <button type="button" className="close" data-dismiss="modal" aria-label="Close" onClick={handleCloseModal}>
-                    <span aria-hidden="true">&times;</span>
-                  </button>
-                </div>
-                <div className="modal-body">
-                  <RegistroClienteModal RegistroClienteModal={ventaConfirmada} />
-                </div>
+            <div className="modal-content">
+              <div className="modal-header">
+                <h5 className="modal-title">Registrar Cliente</h5>
+                <button type="button" className="close" aria-label="Close" onClick={handleCloseModal}>
+                  <span aria-hidden="true">&times;</span>
+                </button>
               </div>
+              <div className="modal-footer">
+                <button type="button" className="btn btn-secondary" onClick={handleCloseModal}>Cerrar</button>
+              </div>
+            </div>
             </div>
           </div>
         )}
+
         
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '10px', marginLeft: '10px', marginRight: '10px',  }}>
           <div style={{ color: 'black' }}>
@@ -138,38 +186,35 @@ const Caja = ({ id }) => {
         <div style={{ top: '10px', right: '10px', color: 'black', marginLeft: '10px' }}>
           Fecha de Compra: {getDate()}
         </div>
-        <div style={{ top: '10px', right: '10px', color: 'black', marginLeft: '10px' }}>
-          ID cliente
-        </div>
+        
+
         <hr style={{ margin: '10px 0' }} />
         
         <div id="productList" className="mt-5" style={{ overflow: 'auto', maxHeight: '300px' }}>
-          <div>
-            <table className="table">
-              <thead style={{ background: 'var(--color-text)' }}>
-                <tr>
-                  <th style={{ background: 'var(--color-text)', color: 'black'}}>Codigo</th>
-                  <th style={{ background: 'var(--color-text)', color: 'black' }}>Articulo</th>
-                  <th style={{ background: 'var(--color-text)', color: 'black' }}>Cantidad</th>
-                  <th style={{ background: 'var(--color-text)', color: 'black'}}>Presio unitario</th>
-                  <th style={{ background: 'var(--color-text)', color: 'black'}}>Total</th>
+        <div>
+          <table className="table">
+            <thead style={{ background: 'var(--color-text)' }}>
+              <tr>
+              <th style={{ background: 'var(--color-text)', color: 'black' }}>ID</th>
+                <th style={{ background: 'var(--color-text)', color: 'black' }}>Nombre</th>
+                <th style={{ background: 'var(--color-text)', color: 'black' }}>Precio Unitario</th>
+              </tr>
+            </thead>
+            <tbody id="productTableBody" style={{ background: 'var(--color-text)' }}>
+              {productList && productList.map((product, index) => (
+                <tr key={index}>
+                  <td>{product.idProducto}</td>
+                  <td>{product.nombreProducto}</td>
+                  <td>{product.precioProducto}</td>
+                  <td>
+                    <button className="btn btn-danger" onClick={() => handleDeleteProduct(index)}>Eliminar</button>
+                  </td>
                 </tr>
-              </thead>
-              <tbody id="productTableBody" style={{ background: 'var(--color-text)' }}>
-                {productList && productList.map((product, index) => (
-                  <tr key={index}>
-                    <td>{product.productName}</td>
-                    <td>{product.productPrice}</td>
-                    <td>{product.productQuantity}</td>
-                    <td>
-                      <button className="btn btn-danger" onClick={() => handleDeleteProduct(index)}>Eliminar</button>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
+              ))}
+            </tbody>
+          </table>
         </div>
+      </div>
 
       </div>
       <a className="btn btn-secondary" role="button" id="cancelBtn" href="#!" onClick={handleCancel} style={{ borderRadius: '45px', borderColor: '#440000', background: '#440000', marginTop: '16px', marginLeft: '76px' }}>Cancelar</a>

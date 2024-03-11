@@ -1,14 +1,21 @@
 import "./SearchResults.css";
-import { SearchResult } from "./SearchResult";
+import React from 'react';
+import SearchResult from './SearchResult';
 
-const SearchResultsList = ({ results }) => {
+
+const SearchResultsList = ({ results, handleClick }) => {
   return (
     <div className="results-list">
-      {results.map((result, id) => {
-        return <SearchResult result={result.nombreProducto} key={id} />;
-      })}
+      {results.map((result, index) => (
+        <SearchResult 
+          key={index} 
+          result={result} 
+          handleClick={handleClick} 
+        />
+      ))}
     </div>
   );
 };
 
 export default SearchResultsList;
+

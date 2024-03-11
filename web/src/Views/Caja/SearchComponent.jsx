@@ -3,8 +3,8 @@ import SearchBar from '../../Components/SearchBar';
 import SearchResults from '../../Components/SearchResultslist';
 
 //
-const SearchComponent = () => {
-  const [results,setResults]=useState([]);
+const SearchComponent = ({ handleSuggestionClick }) => {
+  const [results, setResults] = useState([]);
 
   const styles = {
     searchContainer: {
@@ -12,24 +12,30 @@ const SearchComponent = () => {
       width: '40%',
       display: 'flex',
       flexDirection: 'column',
-      marginLeft: '-30vw',
+      marginLeft: '-20vw',
       minWidth: '200px',
+      marginTop: '60px'
     },
     search: {
-      
       height: '100vh',
       width: '100vw',
     }
   };
 
+  // Esta función maneja el clic en un resultado de búsqueda
+  const handleClick = (result) => {
+    handleSuggestionClick(result); // Llama a la función handleSuggestionClick en el componente padre con el resultado seleccionado
+  };
+
   return (
     <div style={styles.search}>
       <div style={styles.searchContainer}>
-        <SearchBar setResults={setResults}/>
-        <SearchResults results={results} />
+        <SearchBar setResults={setResults} />
+        <SearchResults results={results} handleClick={handleClick} />
       </div>
     </div>
   );
 };
+
 
 export default SearchComponent;
