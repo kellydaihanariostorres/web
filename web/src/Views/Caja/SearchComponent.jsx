@@ -25,6 +25,7 @@ const SearchComponent = ({ handleSuggestionClick }) => {
   // Esta función maneja el clic en un resultado de búsqueda
   const handleClick = (result) => {
     handleSuggestionClick(result); // Llama a la función handleSuggestionClick en el componente padre con el resultado seleccionado
+    setResults([]);
   };
 
   return (

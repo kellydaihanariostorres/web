@@ -24,7 +24,7 @@ const ManageEmpleados = () => {
   const [searchText, setSearchText] = useState('');
   const [pageNumber, setPageNumber] = useState(1);
   const [pageSize, setPageSize] = useState(8);
-  const [totalPages, setTotalPages] = useState(1); 
+  const [totalPages, setTotalPages] = useState(1);
 
   useEffect(() => {
     getEmpleados();
@@ -193,16 +193,23 @@ const ManageEmpleados = () => {
                 aria-describedby='button-addon2'
                 onChange={handleSearch}
                 value={searchText}
-                style={{ height: '40px',borderRadius: '45px', marginRight: '100px',width: '500px', marginLeft: 'auto', position: 'absolute', right: 0}}
+                style={{
+                  height: '40px',
+                  borderRadius: '45px',
+                  marginRight: '100px',
+                  width: '500px',
+                  marginLeft: 'auto',
+                  position: 'absolute',
+                  right: 0,
+                }}
               />
             </div>
             <DivAdd>
               <button
-                type="button" class="btn btn-danger"
+                type="button" className="btn btn-danger"
                 onClick={() => openModal(1)}
                 data-bs-toggle='modal'
                 data-bs-target='#modalEmpleados'
-                className='btn btn-dark'
                 style={{ background: '#440000', borderColor: '#440000', color: 'white', width: '100%',marginLeft: '100px' }}
               >
                 <i className='fa-solid fa-circle-plus'></i> Añadir
@@ -241,6 +248,9 @@ const ManageEmpleados = () => {
                   <th className='table-header' style={{ background: '#440000', color: 'white' }}>
                     Sueldo
                   </th>
+                  <th className='table-header' style={{ background: '#440000', color: 'white' }}>
+                    ID Bodega
+                  </th>
                   <th className='table-header' style={{ background: '#440000', color: 'white' }}></th>
                 </tr>
               </thead>
@@ -257,6 +267,7 @@ const ManageEmpleados = () => {
                     <td style={{ background: '#dadada' }}>{empleado.fechaInicio}</td>
                     <td style={{ background: '#dadada' }}>{empleado.fechaFin}</td>
                     <td style={{ background: '#dadada' }}>{empleado.sueldo}</td>
+                    <td style={{ background: '#dadada' }}>{empleado.bodegaId}</td>
                     <td style={{ background: '#dadada' }}>
                       <button
                         onClick={() =>
@@ -300,7 +311,7 @@ const ManageEmpleados = () => {
                 </button>
               )}
               <span>
-                Página {pageNumber} de {totalPages}
+                Página {pageNumber} de {pageSize}
               </span>
               {showNextButton && (
                 <button onClick={handleNextPage} style={{ background: '#440000', borderColor: '#440000', color: 'white' }}>
@@ -308,9 +319,7 @@ const ManageEmpleados = () => {
                 </button>
               )}
             </div>
-
           </DivTable>
-          
         </div>
       </div>
       <div id='modalEmpleados' className='modal fade' aria-hidden='true'>
@@ -322,80 +331,125 @@ const ManageEmpleados = () => {
             </div>
             <div className='modal-body'>
               <input type='hidden' id='id' />
-              <CustomInput
-                type="text"
-                placeholder="Nombre"
-                id="nombre"
-                value={nombre}
-                handleChange={(e) => setNombre(e.target.value)}
-                icon="fa-gift"
-              />
-              <CustomInput
-                type="text"
-                placeholder="Apellido"
-                id="apellido"
-                value={apellido}
-                handleChange={(e) => setApellido(e.target.value)}
-                icon="fa-gift"
-              />
-              <CustomInput
-                type="text"
-                placeholder="documento"
-                id="documento"
-                value={documento}
-                handleChange={(e) => setDocumento(e.target.value)}
-                icon="fa-gift"
-              />
-              <CustomInput
-                type="text"
-                placeholder="cargo"
-                id="cargo"
-                value={cargo}
-                handleChange={(e) => setCargo(e.target.value)}
-                icon="fa-gift"
-              />
-              <CustomInput
-                type="text"
-                placeholder="fechaInicio"
-                id="fechaInicio"
-                value={fechaInicio}
-                handleChange={(e) => setFechaInicio(e.target.value)}
-                icon="fa-gift"
-              />
-              <CustomInput
-                type="text"
-                placeholder="fechaFin"
-                id="fechaFin"
-                value={fechaFin}
-                handleChange={(e) => setFechaFin(e.target.value)}
-                icon="fa-gift"
-              />
-              <CustomInput
-                type="text"
-                placeholder="sueldo"
-                id="sueldo"
-                value={sueldo}
-                handleChange={(e) => setSueldo(e.target.value)}
-                icon="fa-gift"
-              />
-              <CustomInput
-                type="text"
-                placeholder="bodegaId"
-                id="bodegaId"
-                value={bodegaId}
-                handleChange={(e) => setBodegaId(e.target.value)}
-                icon="fa-gift"
-              />
-
-              <div className='d-grid col-6 mx-auto'>
-                <button onClick={() => validar()} className='btn btn-success'>
-                  <i className='fa-solid fa-floppy-disk'></i> Guardar
-                </button>
+              <div className='input-group mb-3'>
+                <span className='input-group-text'>
+                  <i className='fa-solid fa-gift'></i>
+                </span>
+                <input
+                  type='text'
+                  id='nombre'
+                  className='form-control'
+                  placeholder='Nombre'
+                  value={nombre}
+                  onChange={(e) => setNombre(e.target.value)}
+                  required
+                />
+              </div>
+              <div className='input-group mb-3'>
+                <span className='input-group-text'>
+                  <i className='fa-solid fa-gift'></i>
+                </span>
+                <input
+                  type='text'
+                  id='apellido'
+                  className='form-control'
+                  placeholder='Apellido'
+                  value={apellido}
+                  onChange={(e) => setApellido(e.target.value)}
+                  required
+                />
+              </div>
+              <div className='input-group mb-3'>
+                <span className='input-group-text'>
+                  <i className='fa-solid fa-gift'></i>
+                </span>
+                <input
+                  type='text'
+                  id='documento'
+                  className='form-control'
+                  placeholder='Documento'
+                  value={documento}
+                  onChange={(e) => setDocumento(e.target.value)}
+                  required
+                />
+              </div>
+              <div className='input-group mb-3'>
+                <span className='input-group-text'>
+                  <i className='fa-solid fa-gift'></i>
+                </span>
+                <input
+                  type='text'
+                  id='cargo'
+                  className='form-control'
+                  placeholder='Cargo'
+                  value={cargo}
+                  onChange={(e) => setCargo(e.target.value)}
+                  required
+                />
+              </div>
+              <div className='input-group mb-3'>
+                <span className='input-group-text'>
+                  <i className='fa-solid fa-gift'></i>
+                </span>
+                <input
+                  type='text'
+                  id='fechaInicio'
+                  className='form-control'
+                  placeholder='Fecha de Inicio'
+                  value={fechaInicio}
+                  onChange={(e) => setFechaInicio(e.target.value)}
+                  required
+                />
+              </div>
+              <div className='input-group mb-3'>
+                <span className='input-group-text'>
+                  <i className='fa-solid fa-gift'></i>
+                </span>
+                <input
+                  type='text'
+                  id='fechaFin'
+                  className='form-control'
+                  placeholder='Fecha de Fin'
+                  value={fechaFin}
+                  onChange={(e) => setFechaFin(e.target.value)}
+                  required
+                />
+              </div>
+              <div className='input-group mb-3'>
+                <span className='input-group-text'>
+                  <i className='fa-solid fa-gift'></i>
+                </span>
+                <input
+                  type='text'
+                  id='sueldo'
+                  className='form-control'
+                  placeholder='Sueldo'
+                  value={sueldo}
+                  onChange={(e) => setSueldo(e.target.value)}
+                  required
+                />
+              </div>
+              <div className='input-group mb-3'>
+                <span className='input-group-text'>
+                  <i className='fa-solid fa-gift'></i>
+                </span>
+                <input
+                  type='text'
+                  id='bodegaId'
+                  className='form-control'
+                  placeholder='ID Bodega'
+                  value={bodegaId}
+                  onChange={(e) => setBodegaId(e.target.value)}
+                  required
+                />
               </div>
             </div>
             <div className='modal-footer'>
-              <button type='button' id='btnCerrar' className='btn btn-secondary' data-bs-dismiss='modal'>
+              <button type='button' className='btn btn-danger' data-bs-dismiss='modal'>
                 Cerrar
+              </button>
+              <button type='button' className='btn btn-success' onClick={validar}>
+                Guardar
               </button>
             </div>
           </div>
@@ -404,5 +458,4 @@ const ManageEmpleados = () => {
     </div>
   );
 };
-
 export default ManageEmpleados;

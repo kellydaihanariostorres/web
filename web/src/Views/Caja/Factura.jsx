@@ -20,7 +20,7 @@ const ManageFacturas = () => {
   const [operation, setOperation] = useState(1);
   const [searchText, setSearchText] = useState('');
   const [pageNumber, setPageNumber] = useState(1);
-  const [pageSize, setPageSize] = useState(8);
+  const [pageSize, setPageSize] = useState(5);
   const [totalPages, setTotalPages] = useState(1);
 
   useEffect(() => {
@@ -228,26 +228,6 @@ const ManageFacturas = () => {
                     <td style={{ background: '#dadada' }}>{factura.idProducto}</td>
                     <td style={{ background: '#dadada' }}>{factura.clienteId}</td>
                     <td style={{ background: '#dadada' }}>
-                      <button
-                        onClick={() =>
-                          openModal(
-                            2,
-                            factura.idFactura,
-                            factura.fechaCompra,
-                            factura.ivaCompra,
-                            factura.subtotal,
-                            factura.total,
-                            factura.idProducto,
-                            factura.clienteId
-                          )
-                        }
-                        className='btn btn-warning'
-                        data-bs-toggle='modal'
-                        data-bs-target='#modalFacturas'
-                        style={{ background: '#440000', color: 'white' }}
-                      >
-                        <i className='fa-solid fa-edit'></i>
-                      </button>
                       &nbsp;
                       <button
                         onClick={() => deleteFactura(factura.idFactura)}

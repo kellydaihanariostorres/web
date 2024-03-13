@@ -115,10 +115,8 @@ const ManageClientes = () => {
       show_alerta(msj, tipo);
 
       if (tipo === 'success') {
-        // Si la operación fue exitosa, solo actualizamos la lista después de eliminar un cliente
-        if (metodo === 'DELETE') {
-          getClientes(pageNumber, pageSize); // Aquí pasamos los parámetros pageNumber y pageSize
-        }
+        // Si la solicitud es exitosa, recargar la lista completa de clientes
+        getClientes();
       }
 
       // Reiniciamos los campos del formulario después de agregar o editar el cliente
@@ -149,8 +147,11 @@ const ManageClientes = () => {
         try {
           await axios.delete(`${apiUrl}/${clienteId}`);
           show_alerta('Cliente eliminado exitosamente', 'success');
-          // Actualizamos la lista de clientes después de eliminar
-          getClientes(pageNumber, pageSize); // Aquí pasamos los parámetros pageNumber y pageSize
+  
+          // Actualizar el estado 'clientes' después de eliminar un cliente
+          const clientesFiltrados = clientes.filter((cliente) => cliente.clienteId !== clienteId);
+          setClientes(clientesFiltrados);
+  
         } catch (error) {
           show_alerta('Error al eliminar al cliente', 'error');
           console.error(error);
@@ -169,7 +170,7 @@ const ManageClientes = () => {
       }
     });
   };
-
+  
   const showPreviousButton = pageNumber > 1;
   const showNextButton = pageNumber < totalPages;
 
@@ -198,17 +199,6 @@ const ManageClientes = () => {
                 }}
               />
             </div>
-            <DivAdd>
-              <button
-                type="button" className="btn btn-danger"
-                onClick={() => openModal(1)}
-                data-bs-toggle='modal'
-                data-bs-target='#modalClientes'
-                style={{ background: '#440000', borderColor: '#440000', color: 'white', width: '100%',marginLeft: '100px' }}
-              >
-                <i className='fa-solid fa-circle-plus'></i> Añadir
-              </button>
-            </DivAdd>
           </div>
         </div>
       </div>

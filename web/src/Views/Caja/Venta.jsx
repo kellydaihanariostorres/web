@@ -1,58 +1,68 @@
 import React, { useEffect } from 'react';
-import { sendRequest } from '../../functions';
 
 const Venta = ({ venta, clienteId, empleadoId }) => {
-  // Extrae los datos necesarios para la venta
-  const { idFactura, fechaCompra, ivaCompra, subtotal, total, productList } = venta;
+  const { fechaCompra, ivaCompra, subtotal, total, productList } = venta;
 
   useEffect(() => {
     const enviarVenta = async () => {
       try {
-        // Envía la venta a la API
-        await sendRequest('POST', {
-          idFactura,
-          fechaCompra,
-          ivaCompra,
-          subtotal,
-          total,
-          productList,
-          clienteId,
-          empleadoId
-        }, 'https://localhost:7284/api/factura');
+        let ventaExitosa = true;
+        for (const producto of productList) {
+          const ventaData = {
+            fechaCompra: new Date(fechaCompra).toISOString(),
+            ivaCompra: parseFloat(ivaCompra), // Convertir a número de punto flotante
+            subtotal: parseFloat(subtotal), // Convertir a número de punto flotante
+            total: parseFloat(total), // Convertir a número de punto flotante
+            idProducto: producto.idProducto,
+            clienteId: clienteId,
+            empleadoId: empleadoId
+          };
+
+          const response = await fetch('https://localhost:7284/api/factura', {
+            method: 'POST',
+            body: JSON.stringify(ventaData),
+            headers: {
+              'Content-Type': 'application/json'
+            },
+            timeout: 10000
+          });
+
+          if (!response.ok) {
+            ventaExitosa = false;
+            const errorData = await response.json();
+            console.error('Hubo un error al registrar la venta:', errorData.message);
+          }
+        }
+
+        if (ventaExitosa) {
+          console.log('La venta se ha registrado correctamente.');
+        } else {
+          alert('Hubo un error al registrar la venta. Por favor, inténtelo de nuevo.');
+        }
       } catch (error) {
         console.error('Error al enviar la venta:', error);
+        alert('Hubo un error al enviar la venta. Por favor, inténtelo de nuevo.');
       }
     };
 
-    // Llama a la función para enviar la venta cuando se monte o renderice el componente
     enviarVenta();
-  }, [fechaCompra, ivaCompra, subtotal, total, productList, clienteId, empleadoId]);
+  }, [venta, clienteId, empleadoId]);
 
   return (
     <div>
       <h3>Factura</h3>
+      <p>ID Empleado: {empleadoId}</p>
       <p>Fecha de Compra: {fechaCompra}</p>
       <p>ID del Cliente: {clienteId}</p>
       <p>IVA: {ivaCompra}</p>
       <p>Subtotal: {subtotal}</p>
       <p>Total: {total}</p>
-      <h4>Lista de Productos</h4>
-      <table className="table">
-        <thead>
-          <tr>
-            <th>Nombre del Producto</th>
-            <th>Precio Unitario</th>
-          </tr>
-        </thead>
-        <tbody>
-          {productList.map((product, index) => (
-            <tr key={index}>
-              <td>{product.nombreProducto}</td>
-              <td>{product.precioProducto}</td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
+      {productList.map((producto) => (
+        <div key={producto.idProducto}>
+          <p>ID del Producto: {producto.idProducto}</p>
+          {/* Agrega aquí otros detalles del producto si es necesario */}
+        </div>
+      ))}
     </div>
   );
 };

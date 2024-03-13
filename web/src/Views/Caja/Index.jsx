@@ -3,13 +3,10 @@ import 'bootstrap/dist/css/bootstrap.min.css';
 import Venta from './Venta';
 import RegistroClienteModal from './RegistroClienteModal';
 import Logo_sistema from './logo_sistema.jpg';
-import SearchComponent from './SearchComponent'; 
+import SearchComponent from './SearchComponent';
 
 const Caja = () => {
   const [fechaCompra, setFechaCompra] = useState('');
-  const [nombreProducto, setNombreProducto] = useState('');
-  const [productPrice, setProductPrice] = useState('');
-  const [productQuantity, setProductQuantity] = useState('');
   const [subtotal, setSubtotal] = useState(0);
   const [ivaCompra, setIvaCompra] = useState(0);
   const [total, setTotal] = useState(0);
@@ -19,20 +16,19 @@ const Caja = () => {
   const [registroClienteModalOpen, setRegistroClienteModalOpen] = useState(false);
   const [searchText, setSearchText] = useState('');
   const [clienteId, setClienteId] = useState(null);
-  const [updateComponent, setUpdateComponent] = useState(false); // Nuevo estado para forzar la actualización del componente
+  const [updateComponent, setUpdateComponent] = useState(false);
   const [empleadoId, setEmpleadoId] = useState('');
 
   useEffect(() => {
-    calcularSubtotal();
-    calcularIVA();
-    calcularTotal();
-  }, [productList]); // Ejecutar cada vez que cambie la lista de productos
-  
+    if (productList.length > 0) {
+      calcularSubtotal(productList);
+    }
+  }, [productList]);
+
   useEffect(() => {
-    // Esta función se ejecutará cada vez que el estado de updateComponent cambie,
-    // lo que forzará la actualización del componente
-    setUpdateComponent(false); // Reinicia el estado después de la actualización
-  }, [updateComponent]);
+    calcularTotal();
+    calcularIVA();
+  }, [subtotal]);
 
   const getCurrentDate = () => {
     const date = new Date();
@@ -40,80 +36,112 @@ const Caja = () => {
   };
 
   const handleOpenRegistroClienteModal = () => {
-    setRegistroClienteModalOpen(true); // Abre el modal de registro de cliente
+    setRegistroClienteModalOpen(true);
   };
-  
+
   const handleSuggestionClick = (suggestion) => {
-    const newProduct = {
-      idProducto: suggestion.idProducto,
-      nombreProducto: suggestion.nombreProducto,
-      precioProducto: suggestion.precioProducto, // Corregido aquí
-    };
-    setProductList([...productList, newProduct]);
-    calcularSubtotal();
-    calcularIVA();
-    calcularTotal();
+    if (clienteId && empleadoId) {
+      const updatedProductList = [...productList, suggestion];
+      setProductList(updatedProductList);
+    } else {
+      alert('Debe seleccionar un cliente y un empleado antes de agregar un producto');
+    }
   };
-  
+
   const handleDeleteProduct = (index) => {
     const updatedProductList = [...productList];
     updatedProductList.splice(index, 1);
     setProductList(updatedProductList);
-    calcularSubtotal();
-    calcularIVA();
-    calcularTotal();
+  };
+
+  const handleConfirm = () => {
+    if (productList.length > 0 && clienteId && empleadoId) {
+      const ventaConfirmada = {
+        fechaCompra: new Date().toISOString(), // Convertir la fecha al formato ISO
+        productList: productList,
+        idCliente: clienteId,
+        idEmpleado: empleadoId,
+        subtotal: subtotal,
+        ivaCompra: ivaCompra,
+        total: total,
+      };
+      setVentaConfirmada(ventaConfirmada);
+      enviarVenta(ventaConfirmada);
+    } else {
+      alert('Debe seleccionar al menos un producto, un cliente y un empleado antes de confirmar la venta');
+    }
   };
   
-  const handleConfirm = async () => {
-    // Lógica para confirmar la venta
-    const ventaConfirmada = {
-      fechaCompra: getCurrentDate(),
-      productList: productList,
-      idCliente: clienteId,
-      idEmpleado: empleadoId,
-      subtotal: subtotal,
-      iva: ivaCompra,
-      total: total
-    };
-    setVentaConfirmada(ventaConfirmada);
-    setModalOpen(true); // Establecer modalOpen en true para mostrar el modal de confirmación
+  
+
+  const enviarVenta = async (ventaConfirmada) => {
+    try {
+      let ventaExitosa = true;
+      for (const producto of ventaConfirmada.productList) {
+        const ventaData = {
+          fechaCompra: ventaConfirmada.fechaCompra,
+          ivaCompra: ventaConfirmada.ivaCompra,
+          subtotal: ventaConfirmada.subtotal,
+          total: ventaConfirmada.total,
+          idProducto: producto.idProducto,
+          clienteId: ventaConfirmada.idCliente,
+          empleadoId: ventaConfirmada.idEmpleado
+        };
+
+        const response = await fetch('https://localhost:7284/api/factura', {
+          method: 'POST',
+          body: JSON.stringify(ventaData),
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          timeout: 10000
+        });
+
+        if (!response.ok) {
+          ventaExitosa = false;
+          const errorData = await response.json();
+          console.error('Hubo un error al registrar la venta:', errorData.message);
+          break;
+        }
+      }
+
+      if (ventaExitosa) {
+        console.log('La venta se ha registrado correctamente.');
+        setModalOpen(true);
+      } else {
+        alert('Hubo un error al registrar la venta. Por favor, inténtelo de nuevo.');
+      }
+    } catch (error) {
+      console.error('Error al enviar la venta:', error);
+      alert('Hubo un error al enviar la venta. Por favor, inténtelo de nuevo.');
+    }
   };
-  
-  
-  const calcularSubtotal = () => {
+
+  const calcularSubtotal = (updatedProductList) => {
     let total = 0;
-    productList.forEach(producto => {
+    updatedProductList.forEach((producto) => {
       total += parseFloat(producto.precioProducto);
     });
     setSubtotal(total);
   };
 
-  // Función para calcular el IVA
   const calcularIVA = () => {
-    const iva = subtotal * 0.19; // Suponiendo que el IVA es del 19%
+    const iva = subtotal * 0.19;
     setIvaCompra(iva);
   };
 
-  // Función para calcular el total
   const calcularTotal = () => {
-    const total = subtotal + ivaCompra;
-    setTotal(total);
+    const totalVenta = subtotal + ivaCompra;
+    setTotal(totalVenta);
   };
-  
+
   const handleCancel = () => {
-    // Limpiar la lista de productos
     setProductList([]);
-    // Limpiar el ID del cliente
     setClienteId(null);
-    // Limpiar la sumatoria del subtotal
     setSubtotal(0);
-    // Limpiar la sumatoria del IVA
     setIvaCompra(0);
-    // Limpiar la sumatoria del total
     setTotal(0);
   };
-  
-  
 
   const getDate = () => {
     const date = new Date();
@@ -122,50 +150,43 @@ const Caja = () => {
   };
 
   const handleCloseRegistroClienteModal = () => {
-    // Cierra el formulario de registro de cliente
     setRegistroClienteModalOpen(false);
   };
 
   const handleClienteGuardado = (clienteId) => {
-    console.log("ID del cliente guardado:", clienteId); // Verificar si se guarda el ID del cliente correctamente
-    setClienteId(clienteId); // Guardar el ID del cliente
-    handleCloseModal(); // Cerrar el modal después de guardar el cliente
+    console.log('ID del cliente guardado:', clienteId);
+    setClienteId(clienteId);
+    handleCloseModal();
   };
-  
-  
+
   const handleCloseModal = () => {
-    setRegistroClienteModalOpen(false); // Asegúrate de cambiar el estado a false para cerrar la ventana emergente
+    setRegistroClienteModalOpen(false);
   };
-  
+
   return (
     <div>
-      <button className="btn btn-primary" onClick={handleOpenRegistroClienteModal} style={{ borderRadius: '45px', borderColor: '#440000', background: '#440000', marginTop: '16px',marginLeft: 'auto',marginRight: '1160px'}}>Registrar Cliente</button>
+      <button className="btn btn-primary" onClick={handleOpenRegistroClienteModal} style={{ borderRadius: '45px', borderColor: '#440000', background: '#440000', marginTop: '16px', marginLeft: 'auto', marginRight: '1160px' }}>Registrar Cliente</button>
       <div style={{
-            height: '40px',
-            borderRadius: '45px',
-            marginRight: '100px',
-            width: '500px',
-            marginLeft: 'auto',
-            position: 'absolute',
-            right: 0,
-            top: '-40px',
-          }}>
-          <SearchComponent 
-            productList={productList} 
-            handleSuggestionClick={handleSuggestionClick} 
-            setResults={setProductList} // Asegúrate de pasar setProductList
-            style={{ zIndex: 9999 }} 
-          />
-    </div>
-     
-      
-      <div className="col-12" style={{backgroundColor: 'white', 
-        marginLeft: 'auto', // Márgen izquierdo automático para centrar
-        marginRight: 'auto', // Márgen derecho automático para centrar
-        marginTop: '16px', 
-        maxWidth: 'calc(100% - 150px)', // Ancho reducido con márgenes izquierdo y derecho
-        position: 'relative' // Para mantener los elementos hijos en su lugar original
+        height: '40px',
+        borderRadius: '45px',
+        marginRight: '100px',
+        width: '500px',
+        marginLeft: 'auto',
+        position: 'absolute',
+        right: 0,
+        top: '-40px',
       }}>
+        <SearchComponent
+          productList={productList}
+          handleSuggestionClick={handleSuggestionClick}
+          setResults={setProductList}
+          searchText={searchText}
+          setSearchText={setSearchText}
+          style={{ zIndex: 9999 }}
+        />
+      </div>
+
+      <div className="col-12" style={{ backgroundColor: 'white', marginLeft: 'auto', marginRight: 'auto', marginTop: '16px', maxWidth: 'calc(100% - 150px)', position: 'relative' }}>
         {registroClienteModalOpen && (
           <div className="modal" tabIndex="-1" role="dialog" style={{ display: 'block', backgroundColor: 'rgba(0, 0, 0, 0.5)' }}>
             <div className="modal-dialog" role="document">
@@ -177,7 +198,7 @@ const Caja = () => {
                   </button>
                 </div>
                 <div className="modal-body">
-                  <RegistroClienteModal handleClienteGuardado={handleClienteGuardado} /> {/* Pasar la función handleClienteGuardado como prop */}
+                  <RegistroClienteModal handleClienteGuardado={handleClienteGuardado} />
                 </div>
                 <div className="modal-footer">
                   <button type="button" className="btn btn-secondary" onClick={handleCloseModal}>Cerrar</button>
@@ -187,17 +208,17 @@ const Caja = () => {
           </div>
         )}
 
-        
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '10px', marginLeft: '10px', marginRight: '10px',  }}>
+
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '10px', marginLeft: '10px', marginRight: '10px', }}>
           <div style={{ color: 'black' }}>
             <div style={{ marginBottom: '10px' }}>Empresa: Diablo Rojo</div>
             <div>Dirección: Calle 23 #45 - 67</div>
           </div>
-          <div style={{ marginLeft: '20px',marginTop: '20px',  justifyContent: 'space-between',marginRight: '10px'}}>
+          <div style={{ marginLeft: '20px', marginTop: '20px', justifyContent: 'space-between', marginRight: '10px' }}>
             <img src={Logo_sistema} alt="logo_sistema" style={{ width: '80px' }} />
           </div>
         </div>
-        <hr style={{ margin: '10px 0'}} />
+        <hr style={{ margin: '10px 0' }} />
         <div style={{ top: '10px', right: '10px', color: 'black', marginLeft: '10px' }}>
           Fecha de Compra: {getDate()}
         </div>
@@ -208,34 +229,33 @@ const Caja = () => {
           ID Empleado: <input type="text" value={empleadoId} onChange={(e) => setEmpleadoId(e.target.value)} />
         </div>
 
-
         <hr style={{ margin: '10px 0' }} />
-        
+
         <div id="productList" className="mt-5" style={{ overflow: 'auto', maxHeight: '300px' }}>
-        <div>
-          <table className="table">
-            <thead style={{ background: 'var(--color-text)' }}>
-              <tr>
-              <th style={{ background: 'var(--color-text)', color: 'black' }}>ID</th>
-                <th style={{ background: 'var(--color-text)', color: 'black' }}>Nombre</th>
-                <th style={{ background: 'var(--color-text)', color: 'black' }}>Precio Unitario</th>
-              </tr>
-            </thead>
-            <tbody id="productTableBody" style={{ background: 'var(--color-text)' }}>
-              {productList && productList.map((product, index) => (
-                <tr key={index}>
-                  <td>{product.idProducto}</td>
-                  <td>{product.nombreProducto}</td>
-                  <td>{product.precioProducto}</td>
-                  <td>
-                    <button className="btn btn-danger" onClick={() => handleDeleteProduct(index)}>Eliminar</button>
-                  </td>
+          <div>
+            <table className="table">
+              <thead style={{ background: 'var(--color-text)' }}>
+                <tr>
+                  <th style={{ background: 'var(--color-text)', color: 'black' }}>ID</th>
+                  <th style={{ background: 'var(--color-text)', color: 'black' }}>Nombre</th>
+                  <th style={{ background: 'var(--color-text)', color: 'black' }}>Precio Unitario</th>
                 </tr>
-              ))}
-            </tbody>
-          </table>
+              </thead>
+              <tbody id="productTableBody" style={{ background: 'var(--color-text)' }}>
+                {productList && productList.map((product, index) => (
+                  <tr key={index}>
+                    <td>{product.idProducto}</td>
+                    <td>{product.nombreProducto}</td>
+                    <td>{product.precioProducto}</td>
+                    <td>
+                      <button className="btn btn-danger" onClick={() => handleDeleteProduct(index)}>Eliminar</button>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
         </div>
-      </div>
 
       </div>
       <a className="btn btn-secondary" role="button" id="cancelBtn" href="#!" onClick={handleCancel} style={{ borderRadius: '45px', borderColor: '#440000', background: '#440000', marginTop: '16px', marginLeft: '76px' }}>Cancelar</a>
@@ -259,7 +279,7 @@ const Caja = () => {
             <div className="modal-content">
               <div className="modal-header">
                 <h5 className="modal-title">Venta Confirmada</h5>
-                <button type="button" className="close" data-dismiss="modal" aria-label="Close" onClick={handleCloseModal}>
+                <button type="button" className="close" data-dismiss="modal" aria-label="Close" onClick={() => setModalOpen(false)}>
                   <span aria-hidden="true">&times;</span>
                 </button>
               </div>
@@ -270,7 +290,6 @@ const Caja = () => {
           </div>
         </div>
       )}
-
     </div>
   );
 };

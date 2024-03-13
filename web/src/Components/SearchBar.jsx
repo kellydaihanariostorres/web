@@ -1,5 +1,7 @@
-import { useState } from "react";
+
 import { FaSearch } from "react-icons/fa";
+import React, { useState, useEffect } from 'react';
+
 
 import "./SearchBars.css";
 
@@ -26,6 +28,11 @@ const SearchBar = ({ setResults }) => {
     setInput(value);
     fetchData(value);
   };
+
+  useEffect(() => {
+    // Limpiar el campo de búsqueda cuando cambian los resultados
+    setInput("");
+  }, [setResults]);
 
   return (
     <div className="input-wrapper">
