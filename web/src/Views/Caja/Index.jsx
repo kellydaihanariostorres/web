@@ -4,6 +4,9 @@ import Venta from './Venta';
 import RegistroClienteModal from './RegistroClienteModal';
 import Logo_sistema from './logo_sistema.jpg';
 import SearchComponent from './SearchComponent';
+import ListaClientes from './Listcliente';
+
+
 
 const Caja = () => {
   const [fechaCompra, setFechaCompra] = useState('');
@@ -18,6 +21,8 @@ const Caja = () => {
   const [clienteId, setClienteId] = useState(null);
   const [updateComponent, setUpdateComponent] = useState(false);
   const [empleadoId, setEmpleadoId] = useState('');
+  const [buscarClienteModalOpen, setBuscarClienteModalOpen] = useState(false); 
+  const [clienteSeleccionado, setClienteSeleccionado] = useState(null);
 
   useEffect(() => {
     if (productList.length > 0) {
@@ -41,7 +46,7 @@ const Caja = () => {
 
   const handleSuggestionClick = (suggestion) => {
     if (clienteId && empleadoId) {
-      const updatedProductList = [...productList, suggestion];
+      const updatedProductList = [...productList, { ...suggestion, cantidad: 1 }];
       setProductList(updatedProductList);
     } else {
       alert('Debe seleccionar un cliente y un empleado antes de agregar un producto');
@@ -85,7 +90,8 @@ const Caja = () => {
           total: ventaConfirmada.total,
           idProducto: producto.idProducto,
           clienteId: ventaConfirmada.idCliente,
-          empleadoId: ventaConfirmada.idEmpleado
+          empleadoId: ventaConfirmada.idEmpleado,
+          cantidad: producto.cantidad // Agregar cantidad al objeto de venta
         };
 
         const response = await fetch('https://localhost:7284/api/factura', {
@@ -163,9 +169,20 @@ const Caja = () => {
     setRegistroClienteModalOpen(false);
   };
 
+  const handleOpenBuscarClienteModal = () => {
+    setBuscarClienteModalOpen(true); // Aquí establecemos el estado para abrir la ventana emergente de búsqueda de clientes
+  };
+
+  const handleClienteClick = (clienteId) => {
+    // Aquí puedes manejar la lógica cuando se selecciona un cliente
+    setClienteSeleccionado(clienteId);
+    setClienteId(clienteId);
+  };
+
   return (
     <div>
-      <button className="btn btn-primary" onClick={handleOpenRegistroClienteModal} style={{ borderRadius: '45px', borderColor: '#440000', background: '#440000', marginTop: '16px', marginLeft: 'auto', marginRight: '1160px' }}>Registrar Cliente</button>
+      <button className="btn btn-primary" onClick={handleOpenRegistroClienteModal} style={{ borderRadius: '45px', borderColor: '#440000', background: '#440000', marginTop: '16px',  marginRight: '1160px', }}>Registrar Cliente</button>
+      <button className="btn btn-primary" onClick={handleOpenBuscarClienteModal} style={{ borderRadius: '45px', borderColor: '#440000', background: '#440000', marginTop: '16px',  }}>Buscar Cliente</button>
       <div style={{
         height: '40px',
         borderRadius: '45px',
@@ -176,6 +193,9 @@ const Caja = () => {
         right: 0,
         top: '-40px',
       }}>
+
+
+      
         <SearchComponent
           productList={productList}
           handleSuggestionClick={handleSuggestionClick}
@@ -202,6 +222,26 @@ const Caja = () => {
                 </div>
                 <div className="modal-footer">
                   <button type="button" className="btn btn-secondary" onClick={handleCloseModal}>Cerrar</button>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+        {buscarClienteModalOpen && (
+          <div className="modal" tabIndex="-1" role="dialog" style={{ display: 'block', backgroundColor: 'rgba(0, 0, 0, 0.5)' }}>
+            <div className="modal-dialog" role="document">
+              <div className="modal-content">
+                <div className="modal-header">
+                  <h5 className="modal-title">Buscar Cliente</h5>
+                  <button type="button" className="close" aria-label="Close" onClick={() => setBuscarClienteModalOpen(false)}>
+                    <span aria-hidden="true">&times;</span>
+                  </button>
+                </div>
+                <div className="modal-body">
+                 <ListaClientes onClienteClick={handleClienteClick} />
+                </div>
+                <div className="modal-footer">
+                  <button type="button" className="btn btn-secondary" onClick={() => setBuscarClienteModalOpen(false)}>Cerrar</button>
                 </div>
               </div>
             </div>
@@ -239,6 +279,7 @@ const Caja = () => {
                   <th style={{ background: 'var(--color-text)', color: 'black' }}>ID</th>
                   <th style={{ background: 'var(--color-text)', color: 'black' }}>Nombre</th>
                   <th style={{ background: 'var(--color-text)', color: 'black' }}>Precio Unitario</th>
+                  <th style={{ background: 'var(--color-text)', color: 'black' }}>Cantidad</th> {/* Agregar la columna de cantidad */}
                 </tr>
               </thead>
               <tbody id="productTableBody" style={{ background: 'var(--color-text)' }}>
@@ -247,6 +288,13 @@ const Caja = () => {
                     <td>{product.idProducto}</td>
                     <td>{product.nombreProducto}</td>
                     <td>{product.precioProducto}</td>
+                    <td>
+                      <input type="number" value={product.cantidad} onChange={(e) => {
+                        const updatedProductList = [...productList];
+                        updatedProductList[index].cantidad = parseInt(e.target.value);
+                        setProductList(updatedProductList);
+                      }} />
+                    </td>
                     <td>
                       <button className="btn btn-danger" onClick={() => handleDeleteProduct(index)}>Eliminar</button>
                     </td>

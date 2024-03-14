@@ -14,6 +14,7 @@ const Venta = ({ venta, clienteId, empleadoId }) => {
             subtotal: parseFloat(subtotal), // Convertir a número de punto flotante
             total: parseFloat(total), // Convertir a número de punto flotante
             idProducto: producto.idProducto,
+            cantidad: producto.cantidad, // Agregar cantidad
             clienteId: clienteId,
             empleadoId: empleadoId
           };
@@ -60,6 +61,7 @@ const Venta = ({ venta, clienteId, empleadoId }) => {
       {productList.map((producto) => (
         <div key={producto.idProducto}>
           <p>ID del Producto: {producto.idProducto}</p>
+          <p>Cantidad: {producto.cantidad}</p> {/* Mostrar cantidad */}
           {/* Agrega aquí otros detalles del producto si es necesario */}
         </div>
       ))}

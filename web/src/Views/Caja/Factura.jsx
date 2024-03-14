@@ -11,11 +11,13 @@ const ManageFacturas = () => {
   const [facturas, setFacturas] = useState([]);
   const [idFactura, setIdFactura] = useState('');
   const [fechaCompra, setFechaCompra] = useState('');
-  const [ivaCompra, setIvaCompra] = useState(0);
+  const [cantidad, setCantidad] = useState(0);
+  const [ivaCompra, setIvaCompra] = useState(0.18);
   const [subtotal, setSubtotal] = useState(0);
   const [total, setTotal] = useState(0);
   const [idProducto, setIdProducto] = useState('');
   const [clienteId, setClienteId] = useState('');
+  const [empleadoId, setEmpleadoId] = useState('');
   const [title, setTitle] = useState('');
   const [operation, setOperation] = useState(1);
   const [searchText, setSearchText] = useState('');
@@ -27,9 +29,9 @@ const ManageFacturas = () => {
     getFacturas(pageNumber, pageSize);
   }, [pageNumber, pageSize]);
 
-  const getFacturas = async (pageNumber, pageSize) => {
+  const getFacturas = async () => {
     try {
-      const response = await axios.get(`${apiUrl}?page=${pageNumber}&size=${pageSize}`);
+      const response = await axios.get(apiUrl);
       setFacturas(response.data);
       setTotalPages(Math.ceil(response.data.length / pageSize));
     } catch (error) {
@@ -45,26 +47,30 @@ const ManageFacturas = () => {
     setPageNumber((prevPageNumber) => Math.max(prevPageNumber - 1, 1));
   };
 
-  const openModal = (op, idFactura, fechaCompra, ivaCompra, subtotal, total, idProducto, clienteId) => {
+  const openModal = (op, factura) => {
     setOperation(op);
-    setIdFactura(idFactura);
+    setIdFactura(factura.idFactura);
 
     if (op === 1) {
       setTitle('Registrar factura');
       setFechaCompra('');
-      setIvaCompra(0);
+      setCantidad(0);
+      setIvaCompra(0.18);
       setSubtotal(0);
       setTotal(0);
       setIdProducto('');
       setClienteId('');
+      setEmpleadoId('');
     } else if (op === 2) {
       setTitle('Editar factura');
-      setFechaCompra(fechaCompra);
-      setIvaCompra(ivaCompra);
-      setSubtotal(subtotal);
-      setTotal(total);
-      setIdProducto(idProducto);
-      setClienteId(clienteId);
+      setFechaCompra(factura.fechaCompra);
+      setCantidad(factura.cantidad);
+      setIvaCompra(factura.ivaCompra);
+      setSubtotal(factura.subtotal);
+      setTotal(factura.total);
+      setIdProducto(factura.idProducto);
+      setClienteId(factura.clienteId);
+      setEmpleadoId(factura.empleadoId);
     }
 
     document.getElementById('modalFacturas').addEventListener('shown.bs.modal', function () {
@@ -78,12 +84,14 @@ const ManageFacturas = () => {
       isNaN(ivaCompra) ||
       isNaN(subtotal) ||
       isNaN(total) ||
+      cantidad === '' ||
       idProducto.trim() === '' ||
-      clienteId.trim() === ''
+      clienteId.trim() === '' ||
+      empleadoId.trim() === ''
     ) {
       show_alerta('Completa todos los campos', 'warning');
     } else {
-      const parametros = { fechaCompra, ivaCompra, subtotal, total, idProducto, clienteId };
+      const parametros = { fechaCompra, cantidad, ivaCompra, subtotal, total, idProducto, clienteId, empleadoId };
       const metodo = operation === 1 ? 'POST' : 'PUT';
       enviarSolicitud(metodo, parametros);
     }
@@ -100,11 +108,13 @@ const ManageFacturas = () => {
       getFacturas();
       setIdFactura('');
       setFechaCompra('');
-      setIvaCompra(0);
+      setCantidad(0);
+      setIvaCompra(0.18);
       setSubtotal(0);
       setTotal(0);
       setIdProducto('');
       setClienteId('');
+      setEmpleadoId('');
     } catch (error) {
       show_alerta('Error de solicitud', 'error');
       console.error(error);
@@ -144,11 +154,13 @@ const ManageFacturas = () => {
           getFacturas();
           setIdFactura('');
           setFechaCompra('');
-          setIvaCompra(0);
+          setCantidad(0);
+          setIvaCompra(0.18);
           setSubtotal(0);
           setTotal(0);
           setIdProducto('');
           setClienteId('');
+          setEmpleadoId('');
         }
       } else {
         show_alerta('La factura no fue eliminada', 'info');
@@ -197,6 +209,9 @@ const ManageFacturas = () => {
                     Fecha de Compra
                   </th>
                   <th className='table-header' style={{ background: '#440000', color: 'white' }}>
+                    Cantidad
+                  </th>
+                  <th className='table-header' style={{ background: '#440000', color: 'white' }}>
                     IVA Compra
                   </th>
                   <th className='table-header' style={{ background: '#440000', color: 'white' }}>
@@ -211,6 +226,9 @@ const ManageFacturas = () => {
                   <th className='table-header' style={{ background: '#440000', color: 'white' }}>
                     Cliente ID
                   </th>
+                  <th className='table-header' style={{ background: '#440000', color: 'white' }}>
+                    Empleado ID
+                  </th>
                   <th className='table-header' style={{ background: '#440000', color: 'white' }}></th>
                 </tr>
               </thead>
@@ -222,11 +240,13 @@ const ManageFacturas = () => {
                     <td style={{ background: '#dadada' }}>{i + 1}</td>
                     <td style={{ background: '#dadada' }}>{factura.idFactura}</td>
                     <td style={{ background: '#dadada' }}>{factura.fechaCompra}</td>
+                    <td style={{ background: '#dadada' }}>{factura.cantidad}</td>
                     <td style={{ background: '#dadada' }}>{factura.ivaCompra}</td>
                     <td style={{ background: '#dadada' }}>{factura.subtotal}</td>
                     <td style={{ background: '#dadada' }}>{factura.total}</td>
                     <td style={{ background: '#dadada' }}>{factura.idProducto}</td>
                     <td style={{ background: '#dadada' }}>{factura.clienteId}</td>
+                    <td style={{ background: '#dadada' }}>{factura.empleadoId}</td>
                     <td style={{ background: '#dadada' }}>
                       &nbsp;
                       <button
@@ -278,6 +298,19 @@ const ManageFacturas = () => {
                   className='form-control'
                   value={fechaCompra}
                   onChange={(e) => setFechaCompra(e.target.value)}
+                />
+              </div>
+              <div className='input-group mb-3'>
+                <span className='input-group-text'>
+                  <i className='fa-solid fa-cubes'></i>
+                </span>
+                <input
+                  type='text'
+                  id='cantidad'
+                  className='form-control'
+                  placeholder='Cantidad'
+                  value={cantidad}
+                  onChange={(e) => setCantidad(e.target.value)}
                 />
               </div>
               <div className='input-group mb-3'>
@@ -345,6 +378,19 @@ const ManageFacturas = () => {
                   onChange={(e) => setClienteId(e.target.value)}
                 />
               </div>
+              <div className='input-group mb-3'>
+                <span className='input-group-text'>
+                  <i className='fa-solid fa-user'></i>
+                </span>
+                <input
+                  type='text'
+                  id='empleadoId'
+                  className='form-control'
+                  placeholder='Empleado ID'
+                  value={empleadoId}
+                  onChange={(e) => setEmpleadoId(e.target.value)}
+                />
+              </div>
             </div>
             <div className='modal-footer'>
               <button
@@ -372,4 +418,3 @@ const ManageFacturas = () => {
 };
 
 export default ManageFacturas;
-
