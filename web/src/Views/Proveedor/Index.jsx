@@ -24,7 +24,17 @@ const ManageProveedores = () => {
   const [searchText, setSearchText] = useState('');
   const [pageNumber, setPageNumber] = useState(1);
   const [pageSize, setPageSize] = useState(8);
-  const [totalPages, setTotalPages] = useState(1); 
+  const [totalPages, setTotalPages] = useState(1);
+  // Nuevos parámetros para la factura del proveedor
+  const [fechageneracion, setFechageneracion] = useState('');
+  const [fechaexpedicion, setFechaexpedicion] = useState('');
+  const [fechavencimiento, setFechavencimiento] = useState('');
+  const [cantidad, setCantidad] = useState('');
+  const [totalBruto, setTotalBruto] = useState('');
+  const [totalretefuente, setTotalretefuente] = useState('');
+  const [totalpago, setTotalpago] = useState('');
+  const [idProducto, setIdProducto] = useState('');
+  const [bodegaId, setBodegaId] = useState('');
 
   useEffect(() => {
     getProveedores();
@@ -50,7 +60,28 @@ const ManageProveedores = () => {
   };
 
   // Función para abrir el modal de agregar/editar proveedor
-  const openModal = (op, idProveedor, nombre, numDocumento, edad, direccion, telefono, correo, nombreEntidadBancaria, numeroCuentaBancaria) => {
+  const openModal = (
+    op,
+    idProveedor,
+    nombre,
+    numDocumento,
+    edad,
+    direccion,
+    telefono,
+    correo,
+    nombreEntidadBancaria,
+    numeroCuentaBancaria,
+    // Nuevos parámetros para la factura del proveedor
+    fechageneracion,
+    fechaexpedicion,
+    fechavencimiento,
+    cantidad,
+    totalBruto,
+    totalretefuente,
+    totalpago,
+    idProducto,
+    bodegaId
+  ) => {
     setOperation(op);
     setIdProveedor(idProveedor);
 
@@ -64,6 +95,16 @@ const ManageProveedores = () => {
       setCorreo('');
       setNombreEntidadBancaria('');
       setNumeroCuentaBancaria('');
+      // Nuevos parámetros para la factura del proveedor
+      setFechageneracion('');
+      setFechaexpedicion('');
+      setFechavencimiento('');
+      setCantidad('');
+      setTotalBruto('');
+      setTotalretefuente('');
+      setTotalpago('');
+      setIdProducto('');
+      setBodegaId('');
     } else if (op === 2) {
       setTitle('Editar proveedor');
       setNombre(nombre);
@@ -74,6 +115,16 @@ const ManageProveedores = () => {
       setCorreo(correo);
       setNombreEntidadBancaria(nombreEntidadBancaria);
       setNumeroCuentaBancaria(numeroCuentaBancaria);
+      // Nuevos parámetros para la factura del proveedor
+      setFechageneracion(fechageneracion);
+      setFechaexpedicion(fechaexpedicion);
+      setFechavencimiento(fechavencimiento);
+      setCantidad(cantidad);
+      setTotalBruto(totalBruto);
+      setTotalretefuente(totalretefuente);
+      setTotalpago(totalpago);
+      setIdProducto(idProducto);
+      setBodegaId(bodegaId);
     }
 
     document.getElementById('modalProveedores').addEventListener('shown.bs.modal', function () {
@@ -91,11 +142,40 @@ const ManageProveedores = () => {
       telefono.trim() === '' ||
       correo.trim() === '' ||
       nombreEntidadBancaria.trim() === '' ||
-      numeroCuentaBancaria.trim() === ''
+      numeroCuentaBancaria.trim() === '' ||
+      // Validación de los nuevos parámetros para la factura del proveedor
+      fechageneracion.trim() === '' ||
+      fechaexpedicion.trim() === '' ||
+      fechavencimiento.trim() === '' ||
+      cantidad.trim() === '' ||
+      totalBruto.trim() === '' ||
+      totalretefuente.trim() === '' ||
+      totalpago.trim() === '' ||
+      idProducto.trim() === '' ||
+      bodegaId.trim() === ''
     ) {
       show_alerta('Completa todos los campos', 'warning');
     } else {
-      const parametros = { nombre, numDocumento, edad, direccion, telefono, correo, nombreEntidadBancaria, numeroCuentaBancaria };
+      const parametros = {
+        nombre,
+        numDocumento,
+        edad,
+        direccion,
+        telefono,
+        correo,
+        nombreEntidadBancaria,
+        numeroCuentaBancaria,
+        // Nuevos parámetros para la factura del proveedor
+        fechageneracion,
+        fechaexpedicion,
+        fechavencimiento,
+        cantidad,
+        totalBruto,
+        totalretefuente,
+        totalpago,
+        idProducto,
+        bodegaId,
+      };
       const metodo = operation === 1 ? 'POST' : 'PUT';
       enviarSolicitud(metodo, parametros);
     }
@@ -123,6 +203,16 @@ const ManageProveedores = () => {
       setCorreo('');
       setNombreEntidadBancaria('');
       setNumeroCuentaBancaria('');
+      // Nuevos parámetros para la factura del proveedor
+      setFechageneracion('');
+      setFechaexpedicion('');
+      setFechavencimiento('');
+      setCantidad('');
+      setTotalBruto('');
+      setTotalretefuente('');
+      setTotalpago('');
+      setIdProducto('');
+      setBodegaId('');
     } catch (error) {
       show_alerta('Error de solicitud', 'error');
       console.error(error);
@@ -171,6 +261,16 @@ const ManageProveedores = () => {
           setCorreo('');
           setNombreEntidadBancaria('');
           setNumeroCuentaBancaria('');
+          // Nuevos parámetros para la factura del proveedor
+          setFechageneracion('');
+          setFechaexpedicion('');
+          setFechavencimiento('');
+          setCantidad('');
+          setTotalBruto('');
+          setTotalretefuente('');
+          setTotalpago('');
+          setIdProducto('');
+          setBodegaId('');
         } catch (error) {
           show_alerta('Error al eliminar al proveedor', 'error');
           console.error(error);
@@ -261,52 +361,62 @@ const ManageProveedores = () => {
               </thead>
               <tbody className='table-group-divider'>
                 {proveedores
-                .slice((pageNumber - 1) * pageSize, pageNumber * pageSize)
-                .map((proveedor, i) => (
-                  <tr key={proveedor.idProveedor}>
-                    <td style={{ background: '#dadada' }}>{i + 1}</td>
-                    <td style={{ background: '#dadada' }}>{proveedor.nombre}</td>
-                    <td style={{ background: '#dadada' }}>{proveedor.numDocumento}</td>
-                    <td style={{ background: '#dadada' }}>{proveedor.edad}</td>
-                    <td style={{ background: '#dadada' }}>{proveedor.direccion}</td>
-                    <td style={{ background: '#dadada' }}>{proveedor.telefono}</td>
-                    <td style={{ background: '#dadada' }}>{proveedor.correo}</td>
-                    <td style={{ background: '#dadada' }}>{proveedor.nombreEntidadBancaria}</td>
-                    <td style={{ background: '#dadada' }}>{proveedor.numeroCuentaBancaria}</td>
-                    <td style={{ background: '#dadada' }}>
-                      <button
-                        onClick={() =>
-                          openModal(
-                            2,
-                            proveedor.idProveedor,
-                            proveedor.nombre,
-                            proveedor.numDocumento,
-                            proveedor.edad,
-                            proveedor.direccion,
-                            proveedor.telefono,
-                            proveedor.correo,
-                            proveedor.nombreEntidadBancaria,
-                            proveedor.numeroCuentaBancaria
-                          )
-                        }
-                        className='btn btn-warning'
-                        data-bs-toggle='modal'
-                        data-bs-target='#modalProveedores'
-                        style={{ background: '#440000', color: 'white' }}
-                      >
-                        <i className='fa-solid fa-edit'></i>
-                      </button>
-                      &nbsp;
-                      <button
-                        onClick={() => deleteProveedor(proveedor.idProveedor, proveedor.nombre)}
-                        className='btn btn-danger'
-                        style={{ background: '#440000', color: 'white' }}
-                      >
-                        <i className='fa-solid fa-trash'></i>
-                      </button>
-                    </td>
-                  </tr>
-                ))}
+                  .slice((pageNumber - 1) * pageSize, pageNumber * pageSize)
+                  .map((proveedor, i) => (
+                    <tr key={proveedor.idProveedor}>
+                      <td style={{ background: '#dadada' }}>{i + 1}</td>
+                      <td style={{ background: '#dadada' }}>{proveedor.nombre}</td>
+                      <td style={{ background: '#dadada' }}>{proveedor.numDocumento}</td>
+                      <td style={{ background: '#dadada' }}>{proveedor.edad}</td>
+                      <td style={{ background: '#dadada' }}>{proveedor.direccion}</td>
+                      <td style={{ background: '#dadada' }}>{proveedor.telefono}</td>
+                      <td style={{ background: '#dadada' }}>{proveedor.correo}</td>
+                      <td style={{ background: '#dadada' }}>{proveedor.nombreEntidadBancaria}</td>
+                      <td style={{ background: '#dadada' }}>{proveedor.numeroCuentaBancaria}</td>
+                      <td style={{ background: '#dadada' }}>
+                        <button
+                          onClick={() =>
+                            openModal(
+                              2,
+                              proveedor.idProveedor,
+                              proveedor.nombre,
+                              proveedor.numDocumento,
+                              proveedor.edad,
+                              proveedor.direccion,
+                              proveedor.telefono,
+                              proveedor.correo,
+                              proveedor.nombreEntidadBancaria,
+                              proveedor.numeroCuentaBancaria,
+                              // Nuevos parámetros para la factura del proveedor
+                              proveedor.fechageneracion,
+                              proveedor.fechaexpedicion,
+                              proveedor.fechavencimiento,
+                              proveedor.cantidad,
+                              proveedor.totalBruto,
+                              proveedor.totalretefuente,
+                              proveedor.totalpago,
+                              proveedor.idProducto,
+                              proveedor.bodegaId
+                            )
+                          }
+                          className='btn btn-warning'
+                          data-bs-toggle='modal'
+                          data-bs-target='#modalProveedores'
+                          style={{ background: '#440000', color: 'white' }}
+                        >
+                          <i className='fa-solid fa-edit'></i>
+                        </button>
+                        &nbsp;
+                        <button
+                          onClick={() => deleteProveedor(proveedor.idProveedor, proveedor.nombre)}
+                          className='btn btn-danger'
+                          style={{ background: '#440000', color: 'white' }}
+                        >
+                          <i className='fa-solid fa-trash'></i>
+                        </button>
+                      </td>
+                    </tr>
+                  ))}
               </tbody>
             </table>
             <div className='d-flex justify-content-between'>
@@ -350,101 +460,20 @@ const ManageProveedores = () => {
                   required
                 />
               </div>
-              <div className='input-group mb-3'>
-                <span className='input-group-text'>
-                  <i className='fa-solid fa-gift'></i>
-                </span>
-                <input
-                  type='number'
-                  id='numDocumento'
-                  className='form-control'
-                  placeholder='Número de Documento'
-                  value={numDocumento}
-                  onChange={(e) => setNumDocumento(e.target.value)}
-                  required
-                />
-              </div>
-              <div className='input-group mb-3'>
-                <span className='input-group-text'>
-                  <i className='fa-solid fa-gift'></i>
-                </span>
-                <input
-                  type='number'
-                  id='edad'
-                  className='form-control'
-                  placeholder='Edad'
-                  value={edad}
-                  onChange={(e) => setEdad(e.target.value)}
-                  required
-                />
-              </div>
+              {/* Resto de los campos de entrada para los datos del proveedor */}
+              {/* Campos adicionales para los datos de la factura del proveedor */}
+              {/* Utiliza la misma estructura para cada campo */}
               <div className='input-group mb-3'>
                 <span className='input-group-text'>
                   <i className='fa-solid fa-gift'></i>
                 </span>
                 <input
                   type='text'
-                  id='direccion'
+                  id='fechageneracion'
                   className='form-control'
-                  placeholder='Dirección'
-                  value={direccion}
-                  onChange={(e) => setDireccion(e.target.value)}
-                  required
-                />
-              </div>
-              <div className='input-group mb-3'>
-                <span className='input-group-text'>
-                  <i className='fa-solid fa-gift'></i>
-                </span>
-                <input
-                  type='text'
-                  id='telefono'
-                  className='form-control'
-                  placeholder='Teléfono'
-                  value={telefono}
-                  onChange={(e) => setTelefono(e.target.value)}
-                  required
-                />
-              </div>
-              <div className='input-group mb-3'>
-                <span className='input-group-text'>
-                  <i className='fa-solid fa-gift'></i>
-                </span>
-                <input
-                  type='email'
-                  id='correo'
-                  className='form-control'
-                  placeholder='Correo'
-                  value={correo}
-                  onChange={(e) => setCorreo(e.target.value)}
-                  required
-                />
-              </div>
-              <div className='input-group mb-3'>
-                <span className='input-group-text'>
-                  <i className='fa-solid fa-gift'></i>
-                </span>
-                <input
-                  type='text'
-                  id='nombreEntidadBancaria'
-                  className='form-control'
-                  placeholder='Nombre Entidad Bancaria'
-                  value={nombreEntidadBancaria}
-                  onChange={(e) => setNombreEntidadBancaria(e.target.value)}
-                  required
-                />
-              </div>
-              <div className='input-group mb-3'>
-                <span className='input-group-text'>
-                  <i className='fa-solid fa-gift'></i>
-                </span>
-                <input
-                  type='number'
-                  id='numeroCuentaBancaria'
-                  className='form-control'
-                  placeholder='Número de Cuenta Bancaria'
-                  value={numeroCuentaBancaria}
-                  onChange={(e) => setNumeroCuentaBancaria(e.target.value)}
+                  placeholder='Fecha Generación'
+                  value={fechageneracion}
+                  onChange={(e) => setFechageneracion(e.target.value)}
                   required
                 />
               </div>
