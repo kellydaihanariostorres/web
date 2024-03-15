@@ -33,7 +33,7 @@ const Navb = () => {
   };
 
   return (
-    <Navbar  dark expand="md" style={styles.flex}>
+    <Navbar  dark expand="md" style={{display: 'flex',backgroundColor: '#212429',}}>
       <NavbarBrand  style={styles.flex}>
         <img src="logo.jpg" alt="Logo" style={{ width: '80px', marginRight: '6px' }} />
         DIABLO AMARGO

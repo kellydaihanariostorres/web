@@ -1,7 +1,8 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 
 const Venta = ({ venta, clienteId, empleadoId }) => {
   const { fechaCompra, ivaCompra, subtotal, total, productList } = venta;
+  const [ventaExitosa, setVentaExitosa] = useState(false);
 
   useEffect(() => {
     const enviarVenta = async () => {
@@ -10,11 +11,11 @@ const Venta = ({ venta, clienteId, empleadoId }) => {
         for (const producto of productList) {
           const ventaData = {
             fechaCompra: new Date(fechaCompra).toISOString(),
-            ivaCompra: parseFloat(ivaCompra), // Convertir a número de punto flotante
-            subtotal: parseFloat(subtotal), // Convertir a número de punto flotante
-            total: parseFloat(total), // Convertir a número de punto flotante
+            ivaCompra: parseFloat(ivaCompra),
+            subtotal: parseFloat(subtotal),
+            total: parseFloat(total),
             idProducto: producto.idProducto,
-            cantidad: producto.cantidad, // Agregar cantidad
+            cantidad: producto.cantidad,
             clienteId: clienteId,
             empleadoId: empleadoId
           };
@@ -37,6 +38,7 @@ const Venta = ({ venta, clienteId, empleadoId }) => {
 
         if (ventaExitosa) {
           console.log('La venta se ha registrado correctamente.');
+          setVentaExitosa(true); // Indicar que la venta fue exitosa
         } else {
           alert('Hubo un error al registrar la venta. Por favor, inténtelo de nuevo.');
         }
@@ -49,22 +51,32 @@ const Venta = ({ venta, clienteId, empleadoId }) => {
     enviarVenta();
   }, [venta, clienteId, empleadoId]);
 
+  // Función para limpiar el formato de factura y mantener el ID del empleado
+  const limpiarFormatoFactura = () => {
+    setVentaExitosa(false); // Reiniciar el estado de venta exitosa
+    // Limpiar otros elementos del formato de factura si es necesario
+  };
+
   return (
     <div>
+      {ventaExitosa && (
+        <div className="alert alert-success" role="alert">
+          La venta se ha registrado correctamente.
+        </div>
+      )}
       <h3>Factura</h3>
-      <p>ID Empleado: {empleadoId}</p>
       <p>Fecha de Compra: {fechaCompra}</p>
+      <p>ID Empleado: {empleadoId}</p>
       <p>ID del Cliente: {clienteId}</p>
-      <p>IVA: {ivaCompra}</p>
-      <p>Subtotal: {subtotal}</p>
-      <p>Total: {total}</p>
       {productList.map((producto) => (
         <div key={producto.idProducto}>
           <p>ID del Producto: {producto.idProducto}</p>
-          <p>Cantidad: {producto.cantidad}</p> {/* Mostrar cantidad */}
-          {/* Agrega aquí otros detalles del producto si es necesario */}
+          <p>Cantidad: {producto.cantidad}</p>
         </div>
       ))}
+      <p>IVA: {ivaCompra}</p>
+      <p>Subtotal: {subtotal}</p>
+      <p>Total: {total}</p>
     </div>
   );
 };

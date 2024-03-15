@@ -199,10 +199,13 @@ const ManageClientes = () => {
                 }}
               />
             </div>
+            <DivAdd>
+              <h1 style={{ background: '#440000', borderColor: '#440000', color: 'white', width: '100%', marginLeft: '100px' }}></h1>
+            </DivAdd>
           </div>
         </div>
       </div>
-      <div className='row mt-3'>
+      <div className='row mt-3' >
         <div className='col-12 col-lg-8 offset-0 offset-lg-2 mx-auto text-center' style={{ width: '100%' }}>
           <DivTable col='6' off='3'>
             <table className='table table-bordered'>

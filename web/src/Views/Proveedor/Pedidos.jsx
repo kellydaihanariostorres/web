@@ -21,6 +21,11 @@ const Caja = () => {
   const [empleadoId, setEmpleadoId] = useState('');
   const [buscarClienteModalOpen, setBuscarClienteModalOpen] = useState(false);
   const [clienteSeleccionado, setClienteSeleccionado] = useState(null);
+  const [buscarBodegaModalOpen, setBuscarBodegaModalOpen] = useState(false);
+  const [idBodega, setIdBodega] = useState(null);
+
+
+
 
   useEffect(() => {
     if (productList.length > 0) {
@@ -174,10 +179,23 @@ const Caja = () => {
     setIdProveedor(idProveedor);
   };
 
+  const handleOpenBuscarBodegaModal = () => {
+    setBuscarBodegaModalOpen(true);
+  };
+  
+
   return (
-    <div>
-      <button className="btn btn-primary" onClick={handleOpenRegistroClienteModal} style={{ borderRadius: '45px', borderColor: '#440000', background: '#440000', marginTop: '16px',  marginRight: '1160px' }}>Buscar Bodega</button>
-      <button className="btn btn-primary" onClick={handleOpenBuscarClienteModal} style={{ borderRadius: '45px', borderColor: '#440000', background: '#440000', marginTop: '16px' }}>Buscar Proveedor</button>
+    <div  className="container-fluid">
+      <div style={{ marginLeft: '30px' }}>
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-start' }}>
+          <div style={{ marginRight: '20px' }}>
+            <button className="btn btn-primary" onClick={handleOpenRegistroClienteModal} style={{ borderRadius: '45px', borderColor: '#440000', background: '#440000', marginTop: '16px' }}>Registrar Cliente</button>
+          </div>
+          <div>
+            <button className="btn btn-primary" onClick={handleOpenBuscarClienteModal} style={{ borderRadius: '45px', borderColor: '#440000', background: '#440000', marginTop: '16px' }}>Buscar Cliente</button>
+          </div>
+        </div>
+      </div>
       <div style={{
         height: '40px',
         borderRadius: '45px',
@@ -186,8 +204,11 @@ const Caja = () => {
         marginLeft: 'auto',
         position: 'absolute',
         right: 0,
-        top: '-40px',
+        top: '-20px',
       }}>
+
+
+      
         <SearchComponent
           productList={productList}
           handleSuggestionClick={handleSuggestionClick}
@@ -197,22 +218,40 @@ const Caja = () => {
           style={{ zIndex: 9999 }}
         />
       </div>
-
-      
-
-      <div className="col-12" style={{ backgroundColor: 'white', marginLeft: 'auto', marginRight: 'auto', marginTop: '16px', maxWidth: 'calc(100% - 150px)', position: 'relative' }}>
+      <div className="container-fluid" style={{ paddingLeft: '0', paddingRight: '0' }}>
+      <div className="col-12" style={{ backgroundColor: 'white', marginLeft: 'auto', marginRight: 'auto', marginTop: '16px', paddingLeft: '0', paddingRight: '0', position: 'relative' }}>
+        {registroClienteModalOpen && (
+          <div className="modal" tabIndex="-1" role="dialog" style={{ display: 'block', backgroundColor: 'rgba(0, 0, 0, 0.5)' }}>
+            <div className="modal-dialog" role="document">
+              <div className="modal-content">
+                <div className="modal-header">
+                  <h5 className="modal-title">Registrar Cliente</h5>
+                  <button type="button" className="close" aria-label="Close" onClick={handleCloseModal}>
+                    <span aria-hidden="true">&times;</span>
+                  </button>
+                </div>
+                <div className="modal-body">
+                  <RegistroClienteModal handleClienteGuardado={handleClienteGuardado} />
+                </div>
+                <div className="modal-footer">
+                  <button type="button" className="btn btn-secondary" onClick={handleCloseModal}>Cerrar</button>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
         {buscarClienteModalOpen && (
           <div className="modal" tabIndex="-1" role="dialog" style={{ display: 'block', backgroundColor: 'rgba(0, 0, 0, 0.5)' }}>
             <div className="modal-dialog" role="document">
               <div className="modal-content">
                 <div className="modal-header">
-                  <h5 className="modal-title">Buscar proveedor</h5>
+                  <h5 className="modal-title">Buscar Cliente</h5>
                   <button type="button" className="close" aria-label="Close" onClick={() => setBuscarClienteModalOpen(false)}>
                     <span aria-hidden="true">&times;</span>
                   </button>
                 </div>
                 <div className="modal-body">
-                  <ListProveedor onClienteClick={handleClienteClick} />
+                 <ListaClientes onClienteClick={handleClienteClick} />
                 </div>
                 <div className="modal-footer">
                   <button type="button" className="btn btn-secondary" onClick={() => setBuscarClienteModalOpen(false)}>Cerrar</button>
@@ -222,7 +261,8 @@ const Caja = () => {
           </div>
         )}
 
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '10px', marginLeft: '10px', marginRight: '10px' }}>
+
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '10px', marginLeft: '10px', marginRight: '10px', }}>
           <div style={{ color: 'black' }}>
             <div style={{ marginBottom: '10px' }}>Empresa: Diablo Rojo</div>
             <div>Dirección: Calle 23 #45 - 67</div>
@@ -236,7 +276,7 @@ const Caja = () => {
           Fecha de Compra: {getDate()}
         </div>
         <div style={{ top: '10px', right: '10px', color: 'black', marginLeft: '10px' }}>
-          ID cliente: {idProveedor}
+          ID cliente: {clienteId}
         </div>
         <div style={{ top: '10px', right: '10px', color: 'black', marginLeft: '10px' }}>
           ID Empleado: <input type="text" value={empleadoId} onChange={(e) => setEmpleadoId(e.target.value)} />
@@ -252,8 +292,7 @@ const Caja = () => {
                   <th style={{ background: 'var(--color-text)', color: 'black' }}>ID</th>
                   <th style={{ background: 'var(--color-text)', color: 'black' }}>Nombre</th>
                   <th style={{ background: 'var(--color-text)', color: 'black' }}>Precio Unitario</th>
-                  <th style={{ background: 'var(--color-text)', color: 'black' }}>Cantidad</th>
-                  <th style={{ background: 'var(--color-text)', color: 'black' }}>Eliminar</th>
+                  <th style={{ background: 'var(--color-text)', color: 'black' }}>Cantidad</th> {/* Agregar la columna de cantidad */}
                 </tr>
               </thead>
               <tbody id="productTableBody" style={{ background: 'var(--color-text)' }}>
@@ -280,21 +319,30 @@ const Caja = () => {
         </div>
 
       </div>
-      <a className="btn btn-secondary" role="button" id="cancelBtn" href="#!" onClick={handleCancel} style={{ borderRadius: '45px', borderColor: '#440000', background: '#440000', marginTop: '16px', marginLeft: '76px' }}>Cancelar</a>
-      <button className="btn btn-primary" id="confirmBtn" type="button" onClick={handleConfirm} style={{ borderRadius: '45px', borderColor: '#440000', background: '#440000', marginTop: '96px' }}>Confirmar</button>
-      <div style={{ marginTop: '10px', textAlign: 'right', marginRight: '16px' }}>
-        <div style={{ display: 'inline-block', background: 'white', padding: '10px', marginRight: '10px' }}>
-          <h5 style={{ marginBottom: '0' }}>Subtotal: {subtotal}</h5>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '10px', marginLeft: '10px', marginRight: '10px' }}>
+        <div style={{ display: 'flex', alignItems: 'center' }}>
+          <a className="btn btn-secondary" role="button" id="cancelBtn" href="#!" onClick={handleCancel} style={{ borderRadius: '45px', borderColor: '#440000', background: '#440000', marginTop: '16px', marginRight: '10px' }}>Cancelar</a>
+          <button className="btn btn-primary" id="confirmBtn" type="button" onClick={handleConfirm} style={{ borderRadius: '45px', borderColor: '#440000', background: '#440000', marginTop: '16px' }}>Confirmar</button>
         </div>
+        <div style={{ display: 'flex', alignItems: 'center' }}>
+          <div style={{ display: 'inline-block', background: 'white', padding: '10px', marginRight: '10px' }}>
+            <h5 style={{ marginBottom: '0' }}>Subtotal: {subtotal}</h5>
+          </div>
 
-        <div style={{ display: 'inline-block', background: 'white', padding: '10px', marginRight: '10px' }}>
-          <h5 style={{ marginBottom: '0' }}>IVA: {ivaCompra}</h5>
-        </div>
+          <div style={{ display: 'inline-block', background: 'white', padding: '10px', marginRight: '10px' }}>
+            <h5 style={{ marginBottom: '0' }}>IVA: {ivaCompra}</h5>
+          </div>
 
-        <div style={{ display: 'inline-block', background: 'white', padding: '10px' }}>
-          <h5 style={{ marginBottom: '0' }}>Total: {total}</h5>
+          <div style={{ display: 'inline-block', background: 'white', padding: '10px' }}>
+            <h5 style={{ marginBottom: '0' }}>Total: {total}</h5>
+          </div>
         </div>
       </div>
+
+
+
+
+
       {modalOpen && (
         <div className="modal" tabIndex="-1" role="dialog" style={{ display: 'block', backgroundColor: 'rgba(0, 0, 0, 0.5)' }}>
           <div className="modal-dialog" role="document">
@@ -306,12 +354,13 @@ const Caja = () => {
                 </button>
               </div>
               <div className="modal-body">
-                <Venta venta={ventaConfirmada} clienteId={idProveedor} empleadoId={empleadoId} />
+                <Venta venta={ventaConfirmada} clienteId={clienteId} empleadoId={empleadoId} />
               </div>
             </div>
           </div>
         </div>
       )}
+    </div>
     </div>
   );
 };

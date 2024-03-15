@@ -2,6 +2,8 @@ import React, { useState } from 'react';
 import axios from 'axios';
 import '../Views/Login.css';
 import storage from '../Storage/storage';
+import '../../public/logo.jpg';
+import { Colors } from 'chart.js';
 
 const Login = () => {
   const [userName, setUserName] = useState('');
@@ -40,16 +42,19 @@ const Login = () => {
   };
 
   return (
-    <div className="container-fluid d-flex flex-column h-100 bg-dark text-white">
+    <div className="full-height d-flex justify-content-center align-items-center text-white">
       <div className="row mt-5 flex-grow-1">
         <div className="col-md-4 offset-md-4">
-          <div className="card border">
-            <div className="card-header bg-danger text-white text-center">Iniciar Sesión</div>
-            <div className="card-body bg-danger">
+          <div className="card ">
+            <div className="card-header text-white text-center">Iniciar Sesión</div>
+            <img src='../../public/logo.jpg' alt="Imagen Descriptiva" className="logo-img mt-3"/>
+            <div className="card-body ">
               {error && <div className="alert alert-danger">{error}</div>} {/* Mostrar el mensaje de error si existe */}
               <form onSubmit={login}>
-                <input type="text" className="form-control mb-3" placeholder="Nombre de usuario" value={userName} onChange={(e) => setUserName(e.target.value)} />
-                <input type="password" className="form-control mb-3" placeholder="Contraseña" value={password} onChange={(e) => setPassword(e.target.value)} />
+                <h7 className= 'text'>Usuario</h7>
+                <input type="text" className="form-control mb-3" placeholder="Nombre de usuario" value={userName} onChange={(e) => setUserName(e.target.value)}  style={{ backgroundColor: '#1a1a1a', color: '#ffffff', border: '1px solid #1a1a1a',boxShadow: '0px 1px 0px 0px #ffffff',}}/>
+                <h7 className= 'text'>Contraseña</h7>
+                <input type="password" className="form-control mb-3" placeholder="Contraseña" value={password} onChange={(e) => setPassword(e.target.value)}  style={{ backgroundColor: '#1a1a1a', color: '#ffffff', border: '1px solid #1a1a1a',boxShadow: '0px 1px 0px 0px #ffffff',}}/>
                 <button type="submit" className="btn btn-primary btn-block">Iniciar Sesión</button>
               </form>
             </div>
