@@ -1,7 +1,7 @@
 import React, { useEffect } from 'react';
 
-const Venta = ({ venta, clienteId, empleadoId }) => {
-  const { fechaCompra, ivaCompra, subtotal, total, productList } = venta;
+const Venta = ({ venta }) => {
+  const { fechaCompra, ivaCompra, subtotal, total, productList, idProveedor, idBodega } = venta;
 
   useEffect(() => {
     const enviarVenta = async () => {
@@ -14,12 +14,12 @@ const Venta = ({ venta, clienteId, empleadoId }) => {
             subtotal: parseFloat(subtotal), // Convertir a número de punto flotante
             total: parseFloat(total), // Convertir a número de punto flotante
             idProducto: producto.idProducto,
-            cantidad: producto.cantidad, // Agregar cantidad
-            clienteId: clienteId,
-            empleadoId: empleadoId
+            idProveedor: idProveedor,
+            cantidad: producto.cantidad,
+            idBodega: idBodega
           };
 
-          const response = await fetch('https://localhost:7284/api/factura', {
+          const response = await fetch('https://localhost:7284/api/facturaproveedor', {
             method: 'POST',
             body: JSON.stringify(ventaData),
             headers: {
@@ -47,17 +47,17 @@ const Venta = ({ venta, clienteId, empleadoId }) => {
     };
 
     enviarVenta();
-  }, [venta, clienteId, empleadoId]);
+  }, [venta]);
 
   return (
     <div>
       <h3>Factura</h3>
-      <p>ID Empleado: {empleadoId}</p>
       <p>Fecha de Compra: {fechaCompra}</p>
-      <p>ID del Cliente: {clienteId}</p>
       <p>IVA: {ivaCompra}</p>
       <p>Subtotal: {subtotal}</p>
       <p>Total: {total}</p>
+      <p>ID Proveedor: {idProveedor}</p>
+      <p>ID Bodega: {idBodega}</p>
       {productList.map((producto) => (
         <div key={producto.idProducto}>
           <p>ID del Producto: {producto.idProducto}</p>

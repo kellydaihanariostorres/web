@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 
-const ManageBodegas = () => {
+const ManageBodegas = ({ onBodegaSeleccionada }) => {
   const apiUrl = 'https://localhost:7284/api/bodegas'; // Cambiar la URL para obtener bodegas
   const [bodegas, setBodegas] = useState([]); // Cambiar nombres de estado y variables
   const [searchText, setSearchText] = useState('');
@@ -32,6 +32,11 @@ const ManageBodegas = () => {
     }
   };
 
+  const handleBodegaClick = (id) => {
+    // Llamar a la función onBodegaSeleccionada con el ID de la bodega seleccionada
+    onBodegaSeleccionada(id);
+  };
+
   return (
     <div className='container'>
       <div className='row'>
@@ -56,6 +61,7 @@ const ManageBodegas = () => {
                 <th>Estado</th>
                 <th>Dirección</th>
                 <th>Ciudad</th>
+                <th>Acción</th>
               </tr>
             </thead>
             <tbody>
@@ -66,6 +72,9 @@ const ManageBodegas = () => {
                   <td>{bodega.estado}</td>
                   <td>{bodega.direccion}</td>
                   <td>{bodega.ciudad}</td>
+                  <td>
+                    <button onClick={() => handleBodegaClick(bodega.bodegaId)}>Seleccionar</button>
+                  </td>
                 </tr>
               ))}
             </tbody>
