@@ -1,13 +1,12 @@
 import React, { useEffect, useState } from 'react';
-import DivAdd from '../../Components/DivAdd';
-import DivTable from '../../Components/DivTable';
-import { show_alerta } from '../../functions';
 import axios from 'axios';
 import Swal from 'sweetalert2';
 import withReactContent from 'sweetalert2-react-content';
+import DivTable from '../../Components/DivTable';
+import { show_alerta } from '../../functions';
 
 const ManageInventarios = () => {
-  const apiUrl = 'https://localhost:7284/api/inventarios';
+  const apiUrl = 'https://localhost:7284/api/inventario';
   const [inventarios, setInventarios] = useState([]);
   const [id, setId] = useState('');
   const [nombreProducto, setNombreProducto] = useState('');
@@ -22,10 +21,10 @@ const ManageInventarios = () => {
   const [searchText, setSearchText] = useState('');
   const [pageNumber, setPageNumber] = useState(1);
   const [pageSize, setPageSize] = useState(8);
-  const [totalPages, setTotalPages] = useState(1); 
+  const [totalPages, setTotalPages] = useState(1);
 
   useEffect(() => {
-    getInventarios(pageNumber, pageSize);
+    getInventarios();
   }, [pageNumber, pageSize]);
 
   const getInventarios = async () => {
@@ -70,9 +69,7 @@ const ManageInventarios = () => {
       setClasificacionProducto(clasificacionProducto);
     }
 
-    document.getElementById('modalInventarios').addEventListener('shown.bs.modal', function () {
-      document.getElementById('nombreProducto').focus();
-    });
+    document.getElementById('nombreProducto').focus();
   };
 
   const validar = () => {
@@ -87,7 +84,7 @@ const ManageInventarios = () => {
     ) {
       show_alerta('Completa todos los campos', 'warning');
     } else {
-      const parametros = { nombreProducto, idProducto, idFactura, precioProducto, cantidadProducto, marcaProducto, clasificacionProducto };
+      const parametros = { idProducto, nombreProducto, precioProducto, marcaProducto, clasificacionProducto };
       const metodo = operation === 1 ? 'POST' : 'PUT';
       enviarSolicitud(metodo, parametros);
     }
@@ -96,13 +93,12 @@ const ManageInventarios = () => {
   const enviarSolicitud = async (metodo, parametros) => {
     const idParam = id || '';
     try {
-      const response = await axios[metodo.toLowerCase()](
+      await axios[metodo.toLowerCase()](
         idParam ? `${apiUrl}/${idParam}` : apiUrl,
         parametros
       );
-      const tipo = response.data[0];
-      const msj = response.data[1];
-      show_alerta(msj, tipo);
+      const msj = operation === 1 ? 'Inventario registrado exitosamente' : 'Inventario actualizado exitosamente';
+      show_alerta(msj, 'success');
       getInventarios();
       setId('');
       setNombreProducto('');
@@ -151,14 +147,6 @@ const ManageInventarios = () => {
           console.error(error);
         } finally {
           getInventarios();
-          setId('');
-          setNombreProducto('');
-          setIdProducto('');
-          setIdFactura('');
-          setPrecioProducto('');
-          setCantidadProducto('');
-          setMarcaProducto('');
-          setClasificacionProducto('');
         }
       } else {
         show_alerta('El inventario no fue eliminado', 'info');
@@ -175,7 +163,7 @@ const ManageInventarios = () => {
         <div className='col-md-4 offset-md-4'>
           <div style={{ display: 'flex', alignItems: 'center' }}>
             <div style={{ display: 'flex', alignItems: 'center' }}>
-              <div className='input-group mb-3'>
+              <div className='input-group mb-3'  >
                 <input
                   type='text'
                   className='form-control'
@@ -184,15 +172,25 @@ const ManageInventarios = () => {
                   aria-describedby='button-addon2'
                   onChange={handleSearch}
                   value={searchText}
-                  style={{ height: '40px', borderRadius: '45px', marginRight: '100px', width: '500px', marginLeft: 'auto', position: 'absolute', right: 0 }}
+                  style={{
+                    height: '40px',
+                    borderRadius: '45px',
+                    marginRight: '100px',
+                    width: '500px',
+                    marginLeft: 'auto',
+                    position: 'absolute',
+                    right: 0,
+                  }}
                 />
               </div>
             </div>
+          
+            
           </div>
         </div>
       </div>
       <div className='row mt-3'>
-        <div className='col-12 col-lg-8 offset-0 offset-lg-2 mx-auto text-center' style={{ width: '100%' }}>
+        <div className='col-12 col-lg-8 offset-0 offset-lg-2 mx-auto text-center' style={{ width: '100%', marginTop: '30px' }}>
           <DivTable col='6' off='3'>
             <table className='table table-bordered'>
               <thead>
@@ -401,4 +399,3 @@ const ManageInventarios = () => {
 };
 
 export default ManageInventarios;
-

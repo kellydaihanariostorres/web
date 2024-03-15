@@ -33,6 +33,12 @@ const Caja = () => {
     calcularTotal();
     calcularIVA();
   }, [subtotal]);
+  
+  useEffect(() => {
+    if (ventaConfirmada) {
+      enviarVenta(ventaConfirmada);
+    }
+  }, [ventaConfirmada]);
 
   const getCurrentDate = () => {
     const date = new Date();
@@ -70,7 +76,6 @@ const Caja = () => {
         total: total,
       };
       setVentaConfirmada(ventaConfirmada);
-      enviarVenta(ventaConfirmada);
     } else {
       alert('Debe seleccionar al menos un producto, un cliente y un empleado antes de confirmar la venta');
     }

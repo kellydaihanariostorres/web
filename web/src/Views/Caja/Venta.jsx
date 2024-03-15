@@ -51,11 +51,14 @@ const Venta = ({ venta, clienteId, empleadoId }) => {
     enviarVenta();
   }, [venta, clienteId, empleadoId]);
 
-  // Función para limpiar el formato de factura y mantener el ID del empleado
-  const limpiarFormatoFactura = () => {
-    setVentaExitosa(false); // Reiniciar el estado de venta exitosa
-    // Limpiar otros elementos del formato de factura si es necesario
-  };
+  // Función para limpiar el 
+  // Dentro del componente Venta
+const limpiarFormatoFactura = () => {
+  setVentaExitosa(false); // Reiniciar el estado de venta exitosa
+  // Limpiar otros elementos del formato de factura si es necesario
+  setVentaConfirmada(null); // Reiniciar la venta confirmada
+};
+
 
   return (
     <div>

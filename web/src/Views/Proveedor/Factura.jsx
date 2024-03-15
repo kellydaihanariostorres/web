@@ -180,7 +180,7 @@ const ManageFacturaProveedores = () => {
       <div className='row justify-content-center'>
         <div className='col-md-4 offset-md-4'>
           <div style={{ display: 'flex', alignItems: 'center' }}>
-            <div className='input-group mb-3'>
+            <div className='input-group mb-3' style={{ marginLeft: 'auto', marginRight: '20px', }}>
               <input
                 type='text'
                 className='form-control'
@@ -189,15 +189,7 @@ const ManageFacturaProveedores = () => {
                 aria-describedby='button-addon2'
                 onChange={handleSearch}
                 value={searchText}
-                style={{
-                  height: '40px',
-                  borderRadius: '45px',
-                  marginRight: '100px',
-                  width: '500px',
-                  marginLeft: 'auto',
-                  position: 'absolute',
-                  right: 0,
-                }}
+                style={{ height: '40px', borderRadius: '45px', marginRight: '100px', width: '500px', marginLeft: 'auto', position: 'absolute', right: 0 }}
               />
             </div>
           </div>
@@ -254,28 +246,7 @@ const ManageFacturaProveedores = () => {
                       <td style={{ background: '#dadada' }}>{factura.idProveedor}</td>
                       <td style={{ background: '#dadada' }}>{factura.bodegaId}</td>
                       <td style={{ background: '#dadada' }}>
-                        <button
-                          onClick={() =>
-                            openModal(
-                              2,
-                              factura.idFacturaProveedor,
-                              factura.fechageneracion,
-                              factura.fechaexpedicion,
-                              factura.fechavencimiento,
-                              factura.totalBruto,
-                              factura.totalretefuente,
-                              factura.totalpago,
-                              factura.idProveedor,
-                              factura.bodegaId
-                            )
-                          }
-                          className='btn btn-warning'
-                          data-bs-toggle='modal'
-                          data-bs-target='#modalFacturas'
-                          style={{ background: '#440000', color: 'white' }}
-                        >
-                          <i className='fa-solid fa-edit'></i>
-                        </button>
+                        
                         &nbsp;
                         <button
                           onClick={() => deleteFactura(factura.idFacturaProveedor, factura.fechageneracion)}
