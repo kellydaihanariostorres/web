@@ -18,11 +18,12 @@ const ManageFacturaProveedores = () => {
   const [totalpago, setTotalpago] = useState('');
   const [idProveedor, setIdProveedor] = useState('');
   const [bodegaId, setBodegaId] = useState('');
+  const [cantidad, setCantidad] = useState('');
   const [title, setTitle] = useState('');
   const [operation, setOperation] = useState(1);
   const [searchText, setSearchText] = useState('');
   const [pageNumber, setPageNumber] = useState(1);
-  const [pageSize, setPageSize] = useState(8);
+  const [pageSize, setPageSize] = useState(5);
   const [totalPages, setTotalPages] = useState(1); 
 
   useEffect(() => {
@@ -87,11 +88,12 @@ const ManageFacturaProveedores = () => {
       totalretefuente.trim() === '' ||
       totalpago.trim() === '' ||
       idProveedor.trim() === '' ||
-      bodegaId.trim() === ''
+      bodegaId.trim() === '' ||
+      cantidad.trim() === ''
     ) {
       show_alerta('Completa todos los campos', 'warning');
     } else {
-      const parametros = { fechageneracion, fechaexpedicion, fechavencimiento, totalBruto, totalretefuente, totalpago, idProveedor, bodegaId };
+      const parametros = { fechageneracion, fechaexpedicion, fechavencimiento, totalBruto, totalretefuente, totalpago, idProveedor, bodegaId, cantidad };
       const metodo = operation === 1 ? 'POST' : 'PUT';
       enviarSolicitud(metodo, parametros);
     }
@@ -117,6 +119,7 @@ const ManageFacturaProveedores = () => {
       setTotalpago('');
       setIdProveedor('');
       setBodegaId('');
+      setCantidad('');
     } catch (error) {
       show_alerta('Error de solicitud', 'error');
       console.error(error);
@@ -165,6 +168,7 @@ const ManageFacturaProveedores = () => {
           setTotalpago('');
           setIdProveedor('');
           setBodegaId('');
+          setCantidad('');
         }
       } else {
         show_alerta('La factura no fue eliminada', 'info');
@@ -223,6 +227,9 @@ const ManageFacturaProveedores = () => {
                     Total Pago
                   </th>
                   <th className='table-header' style={{ background: '#440000', color: 'white' }}>
+                    Cantidad
+                  </th>
+                  <th className='table-header' style={{ background: '#440000', color: 'white' }}>
                     ID Proveedor
                   </th>
                   <th className='table-header' style={{ background: '#440000', color: 'white' }}>
@@ -243,6 +250,7 @@ const ManageFacturaProveedores = () => {
                       <td style={{ background: '#dadada' }}>{factura.totalBruto}</td>
                       <td style={{ background: '#dadada' }}>{factura.totalretefuente}</td>
                       <td style={{ background: '#dadada' }}>{factura.totalpago}</td>
+                      <td style={{ background: '#dadada' }}>{factura.cantidad}</td>
                       <td style={{ background: '#dadada' }}>{factura.idProveedor}</td>
                       <td style={{ background: '#dadada' }}>{factura.bodegaId}</td>
                       <td style={{ background: '#dadada' }}>
@@ -389,6 +397,19 @@ const ManageFacturaProveedores = () => {
                   placeholder='Bodega ID'
                   value={bodegaId}
                   onChange={(e) => setBodegaId(e.target.value)}
+                />
+              </div>
+              <div className='input-group mb-3'>
+                <span className='input-group-text'>
+                  <i className='fa-solid fa-cube'></i>
+                </span>
+                <input
+                  type='number'
+                  id='cantidad'
+                  className='form-control'
+                  placeholder='Cantidad'
+                  value={cantidad}
+                  onChange={(e) => setCantidad(e.target.value)}
                 />
               </div>
             </div>

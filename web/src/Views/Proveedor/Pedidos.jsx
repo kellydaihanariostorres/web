@@ -6,12 +6,13 @@ import ListProveedor from './listproveedore';
 import ListBodega from './ListBodega';
 import DatePicker from 'react-datepicker';
 import 'react-datepicker/dist/react-datepicker.css';
+import Venta from './Pedidoventa';
 
 const Caja = () => {
-  const [fechaCompra, setFechaCompra] = useState('');
-  const [subtotal, setSubtotal] = useState(0);
-  const [ivaCompra, setIvaCompra] = useState(0);
-  const [total, setTotal] = useState(0);
+  const [fechaCompra, setFechaCompra] = useState(new Date());
+  const [totalBruto, setTotalBruto] = useState(0);
+  const [totalRetefuente, setTotalRetefuente] = useState(0);
+  const [totalPago, setTotalPago] = useState(0);
   const [productList, setProductList] = useState([]);
   const [ventaConfirmada, setVentaConfirmada] = useState(null);
   const [modalOpen, setModalOpen] = useState(false);
@@ -22,21 +23,27 @@ const Caja = () => {
   const [buscarClienteModalOpen, setBuscarClienteModalOpen] = useState(false);
   const [clienteSeleccionado, setClienteSeleccionado] = useState(null);
   const [buscarBodegaModalOpen, setBuscarBodegaModalOpen] = useState(false);
-  const [idBodega, setIdBodega] = useState(null);
+  const [bodegaId, setBodegaId] = useState(null);
   const [fechaExpedicion, setFechaExpedicion] = useState(new Date());
   const [fechaVencimiento, setFechaVencimiento] = useState(new Date());
   const [bodegas, setBodegas] = useState([]);
 
   useEffect(() => {
     if (productList.length > 0) {
-      calcularSubtotal(productList);
+      calcularTotalBruto(productList);
     }
   }, [productList]);
 
   useEffect(() => {
-    calcularTotal();
-    calcularIVA();
-  }, [subtotal]);
+    calcularTotalPago();
+    calcularTotalRetefuente();
+  }, [totalBruto]);
+
+  useEffect(() => {
+    if (ventaConfirmada) {
+      enviarVenta(ventaConfirmada);
+    }
+  }, [ventaConfirmada]);
 
   const getCurrentDate = () => {
     const date = new Date();
@@ -48,11 +55,11 @@ const Caja = () => {
   };
 
   const handleSuggestionClick = (suggestion) => {
-    if (idProveedor) {
+    if (idProveedor && bodegaId) {
       const updatedProductList = [...productList, { ...suggestion, cantidad: 1 }];
       setProductList(updatedProductList);
     } else {
-      alert('Debe seleccionar un proveedor antes de agregar un producto');
+      alert('Debe seleccionar un proveedor y una bodega antes de agregar un producto');
     }
   };
 
@@ -63,35 +70,40 @@ const Caja = () => {
   };
 
   const handleConfirm = () => {
-    if (productList.length > 0 && idProveedor && idBodega) {
+    if (productList.length > 0 && idProveedor && bodegaId) {
       const ventaConfirmada = {
-        fechaCompra: new Date().toISOString(),
+        fechaCompra: getCurrentDate(), // Cambia esto al formato requerido por tu API
+        fechaExpedicion: fechaExpedicion, // No es necesario cambiarla aquí si ya estás obteniendo la fecha en el formato correcto
+        fechaVencimiento: fechaVencimiento, // No es necesario cambiarla aquí si ya estás obteniendo la fecha en el formato correcto
         productList: productList,
         idProveedor: idProveedor,
-        idBodega: idBodega,
-        subtotal: subtotal,
-        ivaCompra: ivaCompra,
-        total: total,
+        bodegaId: bodegaId,
+        totalBruto: totalBruto,
+        totalRetefuente: totalRetefuente,
+        totalPago: totalPago,
       };
       setVentaConfirmada(ventaConfirmada);
-      enviarVenta(ventaConfirmada);
     } else {
       alert('Debe seleccionar al menos un producto, un proveedor y una bodega antes de confirmar la venta');
     }
   };
-
+  
+  
   const enviarVenta = async (ventaConfirmada) => {
     try {
       let ventaExitosa = true;
       for (const producto of ventaConfirmada.productList) {
         const ventaData = {
-          fechaCompra: ventaConfirmada.fechaCompra,
-          ivaCompra: ventaConfirmada.ivaCompra,
-          subtotal: ventaConfirmada.subtotal,
-          total: ventaConfirmada.total,
+          fechaCompra: fechaCompra.toISOString(), // Cambia esto al formato requerido por tu API
+          fechaExpedicion: fechaExpedicion.toISOString(), // Cambia esto al formato requerido por tu API
+          fechaVencimiento: fechaVencimiento.toISOString(), // Cambia esto al formato requerido por tu API
+          cantidad: producto.cantidad,
+          totalBruto: totalBruto,
+          totalRetefuente: totalRetefuente,
+          totalPago: totalPago,
+          idProveedor: idProveedor,
+          bodegaId: bodegaId,
           idProducto: producto.idProducto,
-          idProveedor: ventaConfirmada.idProveedor,
-          cantidad: producto.cantidad
         };
 
         const response = await fetch('https://localhost:7284/api/facturaproveedor', {
@@ -106,6 +118,7 @@ const Caja = () => {
         if (!response.ok) {
           ventaExitosa = false;
           const errorData = await response.json();
+          console.log(errorData);
           console.error('Hubo un error al registrar la venta:', errorData.message);
           break;
         }
@@ -123,30 +136,22 @@ const Caja = () => {
     }
   };
 
-  const calcularSubtotal = (updatedProductList) => {
+  const calcularTotalBruto = (updatedProductList) => {
     let total = 0;
     updatedProductList.forEach((producto) => {
       total += parseFloat(producto.precioProducto);
     });
-    setSubtotal(total);
+    setTotalBruto(total);
   };
 
-  const calcularIVA = () => {
-    const iva = subtotal * 0.19;
-    setIvaCompra(iva);
+  const calcularTotalRetefuente = () => {
+    const retefuente = totalBruto * 0.05; // Suponiendo que el iva es el 5% del totalBruto
+    setTotalRetefuente(retefuente);
   };
 
-  const calcularTotal = () => {
-    const totalVenta = subtotal + ivaCompra;
-    setTotal(totalVenta);
-  };
-
-  const handleCancel = () => {
-    setProductList([]);
-    setIdProveedor(null);
-    setSubtotal(0);
-    setIvaCompra(0);
-    setTotal(0);
+  const calcularTotalPago = () => {
+    const totalPago = totalBruto + totalRetefuente;
+    setTotalPago(totalPago);
   };
 
   const getDate = () => {
@@ -181,16 +186,22 @@ const Caja = () => {
   const handleOpenBuscarBodegaModal = () => {
     setBuscarBodegaModalOpen(true);
   };
+
   const handleProveedorClick = (idProveedor) => {
     setIdProveedor(idProveedor);
     handleCloseModal();
   };
+
   const handleProveedorSeleccionado = (idProveedor) => {
     setIdProveedor(idProveedor);
   };
- 
+
   const handleBodegaSeleccionada = (idBodega) => {
-    setIdBodega(idBodega);
+    setBodegaId(idBodega);
+  };
+  
+  const handleCancel = () => {
+    // Implementa el manejo de la cancelación si es necesario
   };
   
   return (
@@ -292,7 +303,7 @@ const Caja = () => {
             ID Proveedor: {idProveedor}
           </div>
           <div style={{ top: '10px', right: '10px', color: 'black', marginLeft: '10px' }}>
-            ID Bodega: {idBodega}
+            ID Bodega: {bodegaId}
           </div>
           <hr style={{ margin: '10px 0' }} />
           <div id="productList" className="mt-5" style={{ overflow: 'auto', maxHeight: '300px' }}>
@@ -336,17 +347,17 @@ const Caja = () => {
           </div>
           <div style={{ display: 'flex', alignItems: 'center' }}>
             <div style={{ display: 'inline-block', background: 'white', padding: '10px', marginRight: '10px' }}>
-              <h5 style={{ marginBottom: '0' }}>total Bruto: {subtotal}</h5>
+              <h5 style={{ marginBottom: '0' }}>Total Bruto: {totalBruto}</h5>
             </div>
             <div style={{ display: 'inline-block', background: 'white', padding: '10px', marginRight: '10px' }}>
-              <h5 style={{ marginBottom: '0' }}>Retefuente: {ivaCompra}</h5>
+              <h5 style={{ marginBottom: '0' }}>Retefuente: {totalRetefuente}</h5>
             </div>
             <div style={{ display: 'inline-block', background: 'white', padding: '10px' }}>
-              <h5 style={{ marginBottom: '0' }}>total: {total}</h5>
+              <h5 style={{ marginBottom: '0' }}>Total: {totalPago}</h5>
             </div>
           </div>
         </div>
-        {modalOpen && (
+        {modalOpen && ventaConfirmada && (  // Agrega esta verificación
           <div className="modal" tabIndex="-1" role="dialog" style={{ display: 'block', backgroundColor: 'rgba(0, 0, 0, 0.5)' }}>
             <div className="modal-dialog" role="document">
               <div className="modal-content">
@@ -363,6 +374,7 @@ const Caja = () => {
             </div>
           </div>
         )}
+
       </div>
     </div>
   );

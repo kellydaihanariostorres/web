@@ -84,7 +84,7 @@ const ManageInventarios = () => {
     ) {
       show_alerta('Completa todos los campos', 'warning');
     } else {
-      const parametros = { idProducto, nombreProducto, precioProducto, marcaProducto, clasificacionProducto };
+      const parametros = { idProducto, nombreProducto, precioProducto, marcaProducto, clasificacionProducto, cantidadProducto };
       const metodo = operation === 1 ? 'POST' : 'PUT';
       enviarSolicitud(metodo, parametros);
     }
@@ -221,10 +221,10 @@ const ManageInventarios = () => {
                   .slice((pageNumber - 1) * pageSize, pageNumber * pageSize)
                   .map((inventario, i) => (
                     <tr key={inventario.id}>
-                      <td style={{ background: '#dadada' }}>{i + 1}</td>
+                       <td style={{ background: '#dadada' }}>{i + 1}</td>
                       <td style={{ background: '#dadada' }}>{inventario.nombreProducto}</td>
                       <td style={{ background: '#dadada' }}>{inventario.precioProducto}</td>
-                      <td style={{ background: '#dadada' }}>{inventario.cantidadProducto}</td>
+                      <td style={{ background: '#dadada' }}>{inventario.cantidad}</td>
                       <td style={{ background: '#dadada' }}>{inventario.marcaProducto}</td>
                       <td style={{ background: '#dadada' }}>{inventario.clasificacionProducto}</td>
                       <td style={{ background: '#dadada' }}>

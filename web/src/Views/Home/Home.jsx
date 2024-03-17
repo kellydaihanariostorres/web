@@ -9,7 +9,7 @@ function Home() {
 
   return (
     <div style={{ textAlign: 'center' }}>
-      <h1 style={titleStyle}>Bienvenido, espero que tenga un bonito día</h1>
+      <h1 style={titleStyle}>Bienvenido a nuestro sistema de licores</h1>
     </div>
   );
 }
