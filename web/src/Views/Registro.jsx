@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import axios from 'axios';
 import { show_alerta } from '../functions';
 
-const ManageUsuarios = () => {
+const Registro = () => {
   const apiUrl = 'https://localhost:7284/api/authentication';
   const [firstName, setFirstName] = useState('');
   const [lastName, setLastName] = useState('');
@@ -10,29 +10,19 @@ const ManageUsuarios = () => {
   const [password, setPassword] = useState('');
   const [email, setEmail] = useState('');
   const [phoneNumber, setPhoneNumber] = useState('');
-  const [selectedRoles, setSelectedRoles] = useState([]);
+  const [selectedRole, setSelectedRole] = useState('');
   const roles = ['Bodega', 'Caja', 'Administrador'];
 
-  const handleRoleChange = (role) => {
-    const index = selectedRoles.indexOf(role);
-    if (index === -1) {
-      setSelectedRoles([...selectedRoles, role]);
-    } else {
-      setSelectedRoles(selectedRoles.filter((r) => r !== role));
-    }
-  };
   const validarPassword = () => {
-    if (password.length < 9) {
+    if (password.length < 10) {
       show_alerta('La contraseña debe tener al menos 10 caracteres', 'warning');
       return false;
     }
     // Puedes agregar más validaciones aquí, como caracteres especiales, mayúsculas, etc.
     return true;
   };
-  
 
   const validar = async () => {
-    console.log('Validar password');
     if (
       firstName.trim() === '' ||
       lastName.trim() === '' ||
@@ -40,7 +30,7 @@ const ManageUsuarios = () => {
       password.trim() === '' ||
       email.trim() === '' ||
       phoneNumber.trim() === '' ||
-      selectedRoles.length === 0 ||
+      selectedRole === '' ||
       !validarPassword()
     ) {
       show_alerta('Completa todos los campos correctamente', 'warning');
@@ -52,7 +42,7 @@ const ManageUsuarios = () => {
         Password: password,
         Email: email,
         PhoneNumber: phoneNumber,
-        roles: selectedRoles
+        Roles: [selectedRole] // Enviar el rol como un arreglo con un solo elemento
       };
       try {
         const response = await axios.post(apiUrl, parametros);
@@ -74,78 +64,88 @@ const ManageUsuarios = () => {
     setPassword('');
     setEmail('');
     setPhoneNumber('');
-    setSelectedRoles([]);
+    setSelectedRole('');
   };
 
   return (
-    <div>
+    <div className="container">
       <h2>Registrar Usuario</h2>
-      <div>
+      <div className="form-group">
+        <label>Nombre:</label>
         <input
           type='text'
+          className="form-control"
           placeholder='Nombre'
           value={firstName}
           onChange={(e) => setFirstName(e.target.value)}
         />
       </div>
-      <div>
+      <div className="form-group">
+        <label>Apellido:</label>
         <input
           type='text'
+          className="form-control"
           placeholder='Apellido'
           value={lastName}
           onChange={(e) => setLastName(e.target.value)}
         />
       </div>
-      <div>
+      <div className="form-group">
+        <label>Nombre de usuario:</label>
         <input
           type='text'
+          className="form-control"
           placeholder='Nombre de usuario'
           value={userName}
           onChange={(e) => setUserName(e.target.value)}
         />
       </div>
-      <div>
+      <div className="form-group">
+        <label>Contraseña:</label>
         <input
           type='password'
+          className="form-control"
           placeholder='Contraseña'
           value={password}
           onChange={(e) => setPassword(e.target.value)}
         />
       </div>
-      <div>
+      <div className="form-group">
+        <label>Email:</label>
         <input
           type='email'
+          className="form-control"
           placeholder='Email'
           value={email}
           onChange={(e) => setEmail(e.target.value)}
         />
       </div>
-      <div>
+      <div className="form-group">
+        <label>Teléfono:</label>
         <input
           type='text'
+          className="form-control"
           placeholder='Teléfono'
           value={phoneNumber}
           onChange={(e) => setPhoneNumber(e.target.value)}
         />
       </div>
-      <div>
-        <h3>Roles:</h3>
-        {roles.map((role) => (
-          <div key={role}>
-            <label>
-              <input
-                type='checkbox'
-                checked={selectedRoles.includes(role)}
-                onChange={() => handleRoleChange(role)}
-              />{' '}
-              {role}
-            </label>
-          </div>
-        ))}
+      <div className="form-group">
+        <label>Rol:</label>
+        <select
+          className="form-control"
+          value={selectedRole}
+          onChange={(e) => setSelectedRole(e.target.value)}
+        >
+          <option value="">Seleccionar rol</option>
+          {roles.map((role) => (
+            <option key={role} value={role}>{role}</option>
+          ))}
+        </select>
       </div>
-      <button onClick={validar}>Registrar</button>
+      <button onClick={validar} className="btn btn-primary">Registrar</button>
     </div>
   );
 };
 
-export default ManageUsuarios;
+export default Registro;
