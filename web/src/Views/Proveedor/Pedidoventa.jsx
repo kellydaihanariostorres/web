@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 
 const Venta = ({ venta }) => {
   const { fechaCompra, fechaExpedicion, fechaVencimiento, totalBruto, totalRetefuente, totalPago, productList, idProveedor, bodegaId } = venta;
-
+  
   useEffect(() => {
     const enviarVenta = async () => {
       try {
@@ -41,7 +41,7 @@ const Venta = ({ venta }) => {
 
           if (ventaExitosa) {
             console.log('La venta se ha registrado correctamente.');
-            setVentaExitosa(true);
+            actualizarInventario(productList);
           } else {
             alert('Hubo un error al registrar la venta. Por favor, inténtelo de nuevo.');
           }
@@ -57,13 +57,52 @@ const Venta = ({ venta }) => {
     enviarVenta();
   }, [venta]);
 
-  const [ventaExitosa, setVentaExitosa] = useState(false);
-
-  const limpiarFormatoFactura = () => {
-    setVentaExitosa(false); // Reiniciar el estado de venta exitosa
-    // Limpiar otros elementos del formato de factura si es necesario
-    // setVentaConfirmada(null); // Reiniciar la venta confirmada (Comentado para evitar error)
+  const actualizarInventario = async (productosVendidos) => {
+    try {
+      for (const producto of productosVendidos) {
+        // Obtener el producto del inventario para obtener la cantidad actual
+        const response = await fetch(`https://localhost:7284/api/productos/${producto.idProducto}`);
+        if (!response.ok) {
+          const errorData = await response.json();
+          console.error(errorData);
+          console.error('Hubo un error al obtener el producto del inventario:', errorData.message);
+          return; // Salir de la función si hay un error
+        }
+        const productoInventario = await response.json();
+  
+        // Restar la cantidad vendida de la cantidad actual en el inventario
+        const nuevaCantidad = productoInventario.cantidad + producto.cantidad;
+  
+        // Actualizar el inventario con la nueva cantidad
+        const updateResponse = await fetch(`https://localhost:7284/api/productos/${producto.idProducto}`, {
+          method: 'PUT',
+          body: JSON.stringify({
+            ...productoInventario, // Mantener otros datos del producto intactos
+            cantidad: nuevaCantidad
+          }),
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          timeout: 10000
+        });
+  
+        if (!updateResponse.ok) {
+          const errorData = await updateResponse.json();
+          console.error(errorData);
+          console.error('Hubo un error al actualizar el inventario:', errorData.message);
+          return; // Salir de la función si hay un error
+        }
+      }
+      console.log('El inventario se ha actualizado correctamente.');
+    } catch (error) {
+      console.error('Error al actualizar el inventario:', error);
+      alert('Hubo un error al actualizar el inventario. Por favor, inténtelo de nuevo.');
+    }
   };
+  
+  
+
+  const [ventaExitosa, setVentaExitosa] = useState(false);
 
   return (
     <div>
@@ -75,7 +114,6 @@ const Venta = ({ venta }) => {
       <h3>Factura</h3>
       <p>Fecha de Compra: {fechaCompra}</p>
       <p>Fecha de Expedición: {fechaExpedicion instanceof Date ? fechaExpedicion.toLocaleDateString() : ''}</p>
-      {/* Corrección: Mostrar la fecha de vencimiento proporcionada en la solicitud */}
       <p>Fecha de Vencimiento: {fechaVencimiento instanceof Date ? fechaVencimiento.toLocaleDateString() : ''}</p>
       <p>Total Bruto: {totalBruto}</p>
       <p>Total Retefuente: {totalRetefuente}</p>
@@ -85,7 +123,6 @@ const Venta = ({ venta }) => {
       {productList && productList.length > 0 && productList.map((producto) => (
         <div key={producto.idProducto}>
           <p>ID del Producto: {producto.idProducto}</p>
-          {/* Corrección: Mostrar la cantidad de producto proporcionada en la solicitud */}
           <p>Cantidad: {producto.cantidad}</p>
         </div>
       ))}

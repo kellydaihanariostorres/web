@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import axios from 'axios'; // Importar axios para realizar solicitudes HTTP
 
 const Venta = ({ venta, clienteId, empleadoId }) => {
   const { fechaCompra, ivaCompra, subtotal, total, productList } = venta;
@@ -32,6 +33,7 @@ const Venta = ({ venta, clienteId, empleadoId }) => {
           if (!response.ok) {
             ventaExitosa = false;
             const errorData = await response.json();
+            console.error(errorData);
             console.error('Hubo un error al registrar la venta:', errorData.message);
           }
         }
@@ -39,6 +41,8 @@ const Venta = ({ venta, clienteId, empleadoId }) => {
         if (ventaExitosa) {
           console.log('La venta se ha registrado correctamente.');
           setVentaExitosa(true); // Indicar que la venta fue exitosa
+          // Restar la cantidad vendida del inventario después de registrar la venta exitosamente
+          await actualizarInventario(productList);
         } else {
           alert('Hubo un error al registrar la venta. Por favor, inténtelo de nuevo.');
         }
@@ -51,14 +55,49 @@ const Venta = ({ venta, clienteId, empleadoId }) => {
     enviarVenta();
   }, [venta, clienteId, empleadoId]);
 
-  // Función para limpiar el 
-  // Dentro del componente Venta
-const limpiarFormatoFactura = () => {
-  setVentaExitosa(false); // Reiniciar el estado de venta exitosa
-  // Limpiar otros elementos del formato de factura si es necesario
-  setVentaConfirmada(null); // Reiniciar la venta confirmada
-};
-
+  // Función para restar la cantidad del inventario de un producto vendido
+  const actualizarInventario = async (productosVendidos) => {
+    try {
+      for (const producto of productosVendidos) {
+        // Obtener el producto del inventario para obtener la cantidad actual
+        const response = await fetch(`https://localhost:7284/api/productos/${producto.idProducto}`);
+        if (!response.ok) {
+          const errorData = await response.json();
+          console.error(errorData);
+          console.error('Hubo un error al obtener el producto del inventario:', errorData.message);
+          return; // Salir de la función si hay un error
+        }
+        const productoInventario = await response.json();
+  
+        // Restar la cantidad vendida de la cantidad actual en el inventario
+        const nuevaCantidad = productoInventario.cantidad - producto.cantidad;
+  
+        // Actualizar el inventario con la nueva cantidad
+        const updateResponse = await fetch(`https://localhost:7284/api/productos/${producto.idProducto}`, {
+          method: 'PUT',
+          body: JSON.stringify({
+            ...productoInventario, // Mantener otros datos del producto intactos
+            cantidad: nuevaCantidad
+          }),
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          timeout: 10000
+        });
+  
+        if (!updateResponse.ok) {
+          const errorData = await updateResponse.json();
+          console.error(errorData);
+          console.error('Hubo un error al actualizar el inventario:', errorData.message);
+          return; // Salir de la función si hay un error
+        }
+      }
+      console.log('El inventario se ha actualizado correctamente.');
+    } catch (error) {
+      console.error('Error al actualizar el inventario:', error);
+      alert('Hubo un error al actualizar el inventario. Por favor, inténtelo de nuevo.');
+    }
+  };
 
   return (
     <div>
