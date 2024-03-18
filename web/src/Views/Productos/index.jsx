@@ -20,6 +20,7 @@ const ManageProductos = () => {
   const [pageNumber, setPageNumber] = useState(1);
   const [pageSize, setPageSize] = useState(8);
   const [totalPages, setTotalPages] = useState(1); 
+  const [cantidad, setCantidad] = useState(1);
 
   useEffect(() => {
     getProductos();
@@ -43,7 +44,7 @@ const ManageProductos = () => {
     setPageNumber((prevPageNumber) => Math.max(prevPageNumber - 1, 1));
   };
 
-  const openModal = (op, id, nombre, precio, marca, clasificacion) => {
+  const openModal = (op, id, nombre, precio, marca, clasificacion, cantidad) => {
     setOperation(op);
     setIdProducto(id);
 
@@ -51,12 +52,14 @@ const ManageProductos = () => {
       setTitle('Registrar producto');
       setNombreProducto('');
       setPrecioProducto('');
+      setCantidad(1);
       setMarcaProducto('');
       setClasificacionProducto('');
     } else if (op === 2) {
       setTitle('Editar producto');
       setNombreProducto(nombre);
       setPrecioProducto(precio);
+      setCantidad(cantidad);
       setMarcaProducto(marca);
       setClasificacionProducto(clasificacion);
     }
@@ -70,12 +73,13 @@ const ManageProductos = () => {
     if (
       nombreProducto.trim() === '' ||
       precioProducto.trim() === '' ||
+      cantidad === '' ||
       marcaProducto.trim() === '' ||
       clasificacionProducto.trim() === ''
     ) {
       show_alerta('Completa todos los campos', 'warning');
     } else {
-      const parametros = { nombreProducto, precioProducto, marcaProducto, clasificacionProducto };
+      const parametros = { nombreProducto, precioProducto, marcaProducto, clasificacionProducto, cantidad };
       const metodo = operation === 1 ? 'POST' : 'PUT';
       enviarSolicitud(metodo, parametros, idProducto);
     }
@@ -107,6 +111,7 @@ const ManageProductos = () => {
       setPrecioProducto('');
       setMarcaProducto('');
       setClasificacionProducto('');
+      setCantidad(1);
     } catch (error) {
       show_alerta('Error de solicitud', 'error');
       console.error(error);
@@ -184,7 +189,7 @@ const ManageProductos = () => {
             </div>
             <DivAdd>
               <button
-                type="button" class="btn btn-danger"
+                type="button" 
                 onClick={() => openModal(1)}
                 data-bs-toggle='modal'
                 data-bs-target='#modalProductos'
@@ -240,7 +245,8 @@ const ManageProductos = () => {
                               producto.nombreProducto,
                               producto.precioProducto,
                               producto.marcaProducto,
-                              producto.clasificacionProducto
+                              producto.clasificacionProducto,
+                              producto.cantidad
                             )
                           }
                           className='btn btn-warning'
@@ -327,6 +333,19 @@ const ManageProductos = () => {
                   placeholder='Marca'
                   value={marcaProducto}
                   onChange={(e) => setMarcaProducto(e.target.value)}
+                />
+              </div>
+              <div className='input-group mb-3'>
+                <span className='input-group-text'>
+                  <i className='fa-solid fa-gift'></i>
+                </span>
+                <input
+                  type='number'
+                  id='cantidadProducto'
+                  className='form-control'
+                  placeholder='Cantidad'
+                  value={cantidad}
+                  onChange={(e) => setCantidad(e.target.value)}
                 />
               </div>
               <div className='input-group mb-3'>

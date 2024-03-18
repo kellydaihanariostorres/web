@@ -70,11 +70,6 @@ const SideBar = () => {
                   </NavLink>
                 </li>
                 <li className='nav-item'>
-                  <NavLink to='/administradorv/caja' className='text-white rounded py-2 w-100 d-inline-block px-2'><FaIcons.FaBarcode className='me-2'/>
-                    CAJA
-                  </NavLink>
-                </li>
-                <li className='nav-item'>
                   <NavLink to='/administradorv/bodega' className='text-white rounded py-2 w-100 d-inline-block px-2'><FaIcons.FaArchway className='me-2'/>
                     BODEGAS
                   </NavLink>
@@ -92,11 +87,6 @@ const SideBar = () => {
                 <li className='nav-item'>
                   <NavLink to='/administradorv/facturaproveedor' className='text-white rounded py-2 w-100 d-inline-block px-2'><FaIcons.FaClipboard className='me-2'/>
                     FACTURAS PROVEEDOR
-                  </NavLink>
-                </li>
-                <li className='nav-item'>
-                  <NavLink to='/administradorv/pedido' className='text-white rounded py-2 w-100 d-inline-block px-2'><FaIcons.FaClipboard className='me-2'/>
-                    PEDIDOS
                   </NavLink>
                 </li>
                 <li className='nav-item'>
