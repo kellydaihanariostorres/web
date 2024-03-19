@@ -184,9 +184,9 @@ const Caja = () => {
   };
 
   return (
-    <div  className="container-fluid">
+    <div  className="container-fluid" style={{ marginTop: '200px' }}>
       <div style={{ marginLeft: '30px' }}>
-        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-start' }}>
+      <div style={{ display: 'flex', alignItems: 'center' }}>
           <div style={{ marginRight: '20px' }}>
             <button className="btn btn-primary" onClick={handleOpenRegistroClienteModal} style={{ borderRadius: '45px', borderColor: '#440000', background: '#440000', marginTop: '16px' }}>Registrar Cliente</button>
           </div>

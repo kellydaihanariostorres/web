@@ -1,0 +1,18 @@
+/* Set the background color for the body */
+body {
+    
+    margin: 0;
+    padding: 0;
+  }
+  
+  /* Set the container to take up the full height of the viewport */
+  .container-fluid {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+  }
+  
+  /* Set the content area to grow and take up remaining space */
+  .content {
+    flex-grow: 1;
+  }
