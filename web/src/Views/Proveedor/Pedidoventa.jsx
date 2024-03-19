@@ -70,7 +70,7 @@ const Venta = ({ venta }) => {
         }
         const productoInventario = await response.json();
   
-        // Restar la cantidad vendida de la cantidad actual en el inventario
+        // Sumar la cantidad vendida de la cantidad actual en el inventario
         const nuevaCantidad = productoInventario.cantidad + producto.cantidad;
   
         // Actualizar el inventario con la nueva cantidad

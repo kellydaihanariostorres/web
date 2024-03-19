@@ -20,7 +20,7 @@ const ManageClientes = () => {
   const [operation, setOperation] = useState(1);
   const [searchText, setSearchText] = useState('');
   const [pageNumber, setPageNumber] = useState(1);
-  const [pageSize, setPageSize] = useState(8);
+  const [pageSize, setPageSize] = useState(5);
   const [totalPages, setTotalPages] = useState(1);
 
   useEffect(() => {
@@ -38,11 +38,11 @@ const ManageClientes = () => {
   };
 
   const handleNextPage = () => {
-    setPageNumber((prevPageNumber) => Math.min(prevPageNumber + 1, totalPages));
+    setPageNumber(prevPageNumber => Math.min(prevPageNumber + 1, totalPages));
   };
 
   const handlePreviousPage = () => {
-    setPageNumber((prevPageNumber) => Math.max(prevPageNumber - 1, 1));
+    setPageNumber(prevPageNumber => Math.max(prevPageNumber - 1, 1));
   };
 
   const openModal = (op, id, nombre, apellido, edad, tipoDocumento, numDocumento, correo) => {
@@ -76,9 +76,9 @@ const ManageClientes = () => {
     if (
       nombre.trim() === '' ||
       apellido.trim() === '' ||
-      String(edad).trim() === '' ||
+      edad.trim() === '' ||
       tipoDocumento.trim() === '' ||
-      String(numDocumento).trim() === '' || // Convertir a string antes de llamar a trim()
+      numDocumento.trim() === '' ||
       correo.trim() === ''
     ) {
       show_alerta('Completa todos los campos', 'warning');
@@ -89,14 +89,14 @@ const ManageClientes = () => {
     }
   };
 
-  const handleSearch = (e) => {
+  const handleSearch = e => {
     const text = e.target.value;
     setSearchText(text);
     if (text.trim() === '') {
       setPageNumber(1);
       getClientes();
     } else {
-      const filteredClientes = clientes.filter((cliente) =>
+      const filteredClientes = clientes.filter(cliente =>
         cliente.nombre.toLowerCase().includes(text.toLowerCase())
       );
       setClientes(filteredClientes);
@@ -110,15 +110,12 @@ const ManageClientes = () => {
         clienteIdParam ? `${apiUrl}/${clienteIdParam}` : apiUrl,
         parametros
       );
-      const tipo = response.data[0];
-      const msj = response.data[1];
+
+      console.log('Respuesta del servidor:', response.data);
+      const [tipo, msj] = response.data;
       show_alerta(msj, tipo);
-
-      if (tipo === 'success') {
-        // Si la solicitud es exitosa, recargar la lista completa de clientes
-        getClientes();
-      }
-
+      // Si la solicitud es exitosa, recargar la lista completa de clientes
+      getClientes();
       // Reiniciamos los campos del formulario después de agregar o editar el cliente
       setClienteId('');
       setNombre('');
@@ -142,21 +139,13 @@ const ManageClientes = () => {
       showCancelButton: true,
       confirmButtonText: 'Sí, eliminar',
       cancelButtonText: 'Cancelar',
-    }).then(async (result) => {
+    }).then(async result => {
       if (result.isConfirmed) {
         try {
           await axios.delete(`${apiUrl}/${clienteId}`);
           show_alerta('Cliente eliminado exitosamente', 'success');
-  
           // Actualizar el estado 'clientes' después de eliminar un cliente
-          const clientesFiltrados = clientes.filter((cliente) => cliente.clienteId !== clienteId);
-          setClientes(clientesFiltrados);
-  
-        } catch (error) {
-          show_alerta('Error al eliminar al cliente', 'error');
-          console.error(error);
-        } finally {
-          // Restablecemos los campos del formulario después de eliminar el cliente
+          getClientes();
           setClienteId('');
           setNombre('');
           setApellido('');
@@ -164,16 +153,18 @@ const ManageClientes = () => {
           setTipoDocumento('');
           setNumDocumento('');
           setCorreo('');
+        } catch (error) {
+          show_alerta('Error al eliminar al cliente', 'error');
+          console.error(error);
         }
       } else {
         show_alerta('El cliente no fue eliminado', 'info');
       }
     });
   };
-  
+
   const showPreviousButton = pageNumber > 1;
   const showNextButton = pageNumber < totalPages;
-
   return (
     <div className='container-fluid'>
       <div className='row justify-content-center'>

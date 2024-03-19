@@ -21,8 +21,10 @@ const ManageProveedores = () => {
   const [operation, setOperation] = useState(1);
   const [searchText, setSearchText] = useState('');
   const [pageNumber, setPageNumber] = useState(1);
-  const [pageSize, setPageSize] = useState(8);
+  const [pageSize, setPageSize] = useState(5);
   const [totalPages, setTotalPages] = useState(1); 
+  const [direccion, setDireccion] = useState('');
+
 
   useEffect(() => {
     getProveedores();
@@ -46,7 +48,7 @@ const ManageProveedores = () => {
     setPageNumber((prevPageNumber) => Math.max(prevPageNumber - 1, 1));
   };
 
-  const openModal = (op, id, nombre, numDocumento, edad, telefono, correo, nombreEntidadBancaria, numeroCuentaBancaria) => {
+  const openModal = (op, id, nombre, numDocumento, edad, telefono, correo,direccion, nombreEntidadBancaria, numeroCuentaBancaria) => {
     setOperation(op);
     setIdProveedor(id);
 
@@ -57,6 +59,7 @@ const ManageProveedores = () => {
       setEdad('');
       setTelefono('');
       setCorreo('');
+      setDireccion('')
       setNombreEntidadBancaria('');
       setNumeroCuentaBancaria('');
     } else if (op === 2) {
@@ -66,6 +69,7 @@ const ManageProveedores = () => {
       setEdad(edad);
       setTelefono(telefono);
       setCorreo(correo);
+      setDireccion(direccion)
       setNombreEntidadBancaria(nombreEntidadBancaria);
       setNumeroCuentaBancaria(numeroCuentaBancaria);
     }
@@ -82,12 +86,13 @@ const ManageProveedores = () => {
       String(edad).trim() === '' ||
       telefono.trim() === '' ||
       correo.trim() === '' ||
+      direccion.trim() === '' ||
       String(nombreEntidadBancaria).trim() === '' ||
       String(numeroCuentaBancaria).trim() === ''
     ) {
       show_alerta('Completa todos los campos', 'warning');
     } else {
-      const parametros = { nombre, numDocumento, edad, telefono, correo, nombreEntidadBancaria, numeroCuentaBancaria };
+      const parametros = { nombre, numDocumento, edad, telefono, correo, direccion,nombreEntidadBancaria, numeroCuentaBancaria };
       const metodo = operation === 1 ? 'POST' : 'PUT';
       enviarSolicitud(metodo, parametros);
     }
@@ -104,9 +109,7 @@ const ManageProveedores = () => {
       const msj = response.data[1];
       show_alerta(msj, tipo);
 
-
       getProveedores();
-
 
       setIdProveedor('');
       setNombre('');
@@ -114,6 +117,7 @@ const ManageProveedores = () => {
       setEdad('');
       setTelefono('');
       setCorreo('');
+      setDireccion('')
       setNombreEntidadBancaria('');
       setNumeroCuentaBancaria('');
     } catch (error) {
@@ -150,17 +154,18 @@ const ManageProveedores = () => {
         try {
           await axios.delete(`${apiUrl}/${idProveedor}`);
           show_alerta('Proveedor eliminado exitosamente', 'success');
+          getProveedores();
         } catch (error) {
           show_alerta('Error al eliminar al proveedor', 'error');
           console.error(error);
         } finally {
-          getProveedores();
           setIdProveedor('');
           setNombre('');
           setNumDocumento('');
           setEdad('');
           setTelefono('');
           setCorreo('');
+          setDireccion('')
           setNombreEntidadBancaria('');
           setNumeroCuentaBancaria('');
         }
@@ -235,6 +240,9 @@ const ManageProveedores = () => {
                     Correo
                   </th>
                   <th className='table-header' style={{ background: '#440000', color: 'white' }}>
+                    Direccion
+                  </th>
+                  <th className='table-header' style={{ background: '#440000', color: 'white' }}>
                     Entidad Bancaria
                   </th>
                   <th className='table-header' style={{ background: '#440000', color: 'white' }}>
@@ -254,6 +262,7 @@ const ManageProveedores = () => {
                       <td style={{ background: '#dadada' }}>{proveedor.edad}</td>
                       <td style={{ background: '#dadada' }}>{proveedor.telefono}</td>
                       <td style={{ background: '#dadada' }}>{proveedor.correo}</td>
+                      <td style={{ background: '#dadada' }}>{proveedor.direccion}</td>
                       <td style={{ background: '#dadada' }}>{proveedor.nombreEntidadBancaria}</td>
                       <td style={{ background: '#dadada' }}>{proveedor.numeroCuentaBancaria}</td>
                       <td style={{ background: '#dadada' }}>
@@ -267,6 +276,7 @@ const ManageProveedores = () => {
                               proveedor.edad,
                               proveedor.telefono,
                               proveedor.correo,
+                              proveedor.direccion,
                               proveedor.nombreEntidadBancaria,
                               proveedor.numeroCuentaBancaria
                             )
@@ -292,15 +302,19 @@ const ManageProveedores = () => {
               </tbody>
             </table>
             <div className='d-flex justify-content-between'>
-              <button onClick={handlePreviousPage} disabled={pageNumber === 1} style={{ background: '#440000', borderColor: '#440000', color: 'white' }}>
-                Anterior
-              </button>
+              {pageNumber > 1 && (
+                <button onClick={handlePreviousPage} style={{ background: '#440000', borderColor: '#440000', color: 'white' }}>
+                  Anterior
+                </button>
+              )}
               <span>
-                Página {pageNumber} de {pageSize}
+                Página {pageNumber} de {totalPages}
               </span>
-              <button onClick={handleNextPage} disabled={pageNumber === totalPages} style={{ background: '#440000', borderColor: '#440000', color: 'white' }}>
-                Siguiente
-              </button>
+              {proveedores.length > pageSize && pageNumber < totalPages && (
+                <button onClick={handleNextPage} style={{ background: '#440000', borderColor: '#440000', color: 'white' }}>
+                  Siguiente
+                </button>
+              )}
             </div>
           </DivTable>
         </div>
@@ -377,6 +391,20 @@ const ManageProveedores = () => {
                   placeholder='Correo'
                   value={correo}
                   onChange={(e) => setCorreo(e.target.value)}
+                />
+              </div>
+
+              <div className='input-group mb-3'>
+                <span className='input-group-text'>
+                  <i className='fa-solid fa-gift'></i>
+                </span>
+                <input
+                  type='text'
+                  id='direccion'
+                  className='form-control'
+                  placeholder='Dirección'
+                  value={direccion}
+                  onChange={(e) => setDireccion(e.target.value)}
                 />
               </div>
               <div className='input-group mb-3'>

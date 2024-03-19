@@ -23,7 +23,7 @@ const ManageEmpleados = () => {
   const [operation, setOperation] = useState(1);
   const [searchText, setSearchText] = useState('');
   const [pageNumber, setPageNumber] = useState(1);
-  const [pageSize, setPageSize] = useState(8);
+  const [pageSize, setPageSize] = useState(5);
   const [totalPages, setTotalPages] = useState(1);
 
   useEffect(() => {
@@ -105,11 +105,14 @@ const ManageEmpleados = () => {
         empleadoIdParam ? `${apiUrl}/${empleadoIdParam}` : apiUrl,
         parametros
       );
+  
+      console.log('Respuesta del servidor:', response.data);
       const tipo = response.data[0];
       const msj = response.data[1];
       show_alerta(msj, tipo);
       // Si la operación fue exitosa o no, actualizar el estado de 'empleados'
       getEmpleados();
+      
       // Restablecer estados para preparar el formulario para una nueva entrada
       setEmpleadoId('');
       setNombre('');
@@ -125,21 +128,7 @@ const ManageEmpleados = () => {
       console.error(error);
     }
   };
-
-  const handleSearch = (e) => {
-    const text = e.target.value;
-    setSearchText(text);
-    if (text.trim() === '') {
-      setPageNumber(1);
-      getEmpleados();
-    } else {
-      const filteredEmpleados = empleados.filter((empleado) =>
-        empleado.nombre.toLowerCase().includes(text.toLowerCase())
-      );
-      setEmpleados(filteredEmpleados);
-    }
-  };
-
+  
   const deleteEmpleado = (empleadoId, nombre) => {
     const MySwal = withReactContent(Swal);
     MySwal.fire({
@@ -175,6 +164,22 @@ const ManageEmpleados = () => {
       }
     });
   };
+  
+  const handleSearch = (e) => {
+    const text = e.target.value;
+    setSearchText(text);
+    if (text.trim() === '') {
+      setPageNumber(1);
+      getEmpleados();
+    } else {
+      const filteredEmpleados = empleados.filter((empleado) =>
+        empleado.nombre.toLowerCase().includes(text.toLowerCase())
+      );
+      setEmpleados(filteredEmpleados);
+    }
+  };
+
+ 
 
   const showPreviousButton = pageNumber > 1;
   const showNextButton = pageNumber < totalPages;

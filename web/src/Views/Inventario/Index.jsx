@@ -228,35 +228,8 @@ const ManageInventarios = () => {
                       <td style={{ background: '#dadada' }}>{inventario.marcaProducto}</td>
                       <td style={{ background: '#dadada' }}>{inventario.clasificacionProducto}</td>
                       <td style={{ background: '#dadada' }}>
-                        <button
-                          onClick={() =>
-                            openModal(
-                              2,
-                              inventario.id,
-                              inventario.nombreProducto,
-                              inventario.idProducto,
-                              inventario.idFactura,
-                              inventario.precioProducto,
-                              inventario.cantidadProducto,
-                              inventario.marcaProducto,
-                              inventario.clasificacionProducto
-                            )
-                          }
-                          className='btn btn-warning'
-                          data-bs-toggle='modal'
-                          data-bs-target='#modalInventarios'
-                          style={{ background: '#440000', color: 'white' }}
-                        >
-                          <i className='fa-solid fa-edit'></i>
-                        </button>
-                        &nbsp;
-                        <button
-                          onClick={() => deleteInventario(inventario.id, inventario.nombreProducto)}
-                          className='btn btn-danger'
-                          style={{ background: '#440000', color: 'white' }}
-                        >
-                          <i className='fa-solid fa-trash'></i>
-                        </button>
+                        
+                        
                       </td>
                     </tr>
                   ))}

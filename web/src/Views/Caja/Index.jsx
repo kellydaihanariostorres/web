@@ -216,6 +216,9 @@ const Caja = () => {
           setSearchText={setSearchText}
           style={{ zIndex: 9999 }}
         />
+        <div>
+            <button className="btn btn-primary" onClick={handleOpenBuscarClienteModal} style={{ borderRadius: '45px', borderColor: '#440000', background: '#440000', marginTop: '16px' }}>Buscar Cliente</button>
+        </div>
       </div>
       <div className="container-fluid" style={{ paddingLeft: '0', paddingRight: '0' }}>
       <div className="col-12" style={{ backgroundColor: 'white', marginLeft: 'auto', marginRight: 'auto', marginTop: '16px', paddingLeft: '0', paddingRight: '0', position: 'relative' }}>

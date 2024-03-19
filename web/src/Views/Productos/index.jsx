@@ -18,7 +18,7 @@ const ManageProductos = () => {
   const [operation, setOperation] = useState(1);
   const [searchText, setSearchText] = useState('');
   const [pageNumber, setPageNumber] = useState(1);
-  const [pageSize, setPageSize] = useState(8);
+  const [pageSize, setPageSize] = useState(5);
   const [totalPages, setTotalPages] = useState(1); 
   const [cantidad, setCantidad] = useState(1);
 

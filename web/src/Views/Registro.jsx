@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import axios from 'axios';
 import { show_alerta } from '../functions';
+import '../Views/Registr.css';
 
 const Registro = () => {
   const apiUrl = 'https://localhost:7284/api/authentication';
@@ -42,8 +43,9 @@ const Registro = () => {
         Password: password,
         Email: email,
         PhoneNumber: phoneNumber,
-        Roles: [selectedRole] // Enviar el rol como un arreglo con un solo elemento
+        roles: [selectedRole] // Aquí envías los roles como un arreglo con un solo elemento
       };
+      
       try {
         const response = await axios.post(apiUrl, parametros);
         const tipo = response.data[0];
@@ -68,7 +70,7 @@ const Registro = () => {
   };
 
   return (
-    <div className="container">
+    <div className="container  custom-container">
       <h2>Registrar Usuario</h2>
       <div className="form-group">
         <label>Nombre:</label>
