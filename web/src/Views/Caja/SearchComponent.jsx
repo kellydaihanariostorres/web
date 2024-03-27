@@ -18,7 +18,7 @@ const SearchComponent = ({ handleSuggestionClick }) => {
     },
     search: {
       height: '100vh',
-      width: '100vw',
+      
     }
   };
 
