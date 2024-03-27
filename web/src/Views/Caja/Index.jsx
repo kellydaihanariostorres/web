@@ -1,23 +1,51 @@
-
-import React, { useState } from "react";
-import RegistroCliente from "./BusquedCliente"; // Importa el componente RegistroCliente
+import React, { useState, useEffect } from "react";
+import axios from "axios";
 
 function EnterpriseInfo() {
-  const [buscarCliente, setBuscarCliente] = useState(false); // Estado para controlar si se está buscando un cliente existente o no
-  const [clienteExistente, setClienteExistente] = useState(false); // Estado para controlar si se ha encontrado un cliente existente
-  const [numeroDocumento, setNumeroDocumento] = useState(""); // Estado para almacenar el número de documento ingresado
-  const [clienteRegistrado, setClienteRegistrado] = useState(false); // Estado para controlar si el cliente ha sido registrado
+  const [buscarCliente, setBuscarCliente] = useState(false);
+  const [clienteExistente, setClienteExistente] = useState(false);
+  const [numeroDocumento, setNumeroDocumento] = useState("");
+  const [clientes, setClientes] = useState([]);
+  const [error, setError] = useState(null);
+
+  useEffect(() => {
+    const fetchClientes = async () => {
+      try {
+        const response = await axios.get("https://localhost:7284/api/clientes");
+        setClientes(response.data);
+        console.log("Clientes cargados:", response.data); // Verificar los clientes cargados en la consola
+      } catch (error) {
+        console.error("Error al obtener clientes:", error);
+        setError("Error al obtener clientes");
+      }
+    };
+    fetchClientes();
+  }, []);
 
   const handleInputChange = (event) => {
     setNumeroDocumento(event.target.value);
   };
 
-  const handleBuscarCliente = async () => {
-    // Aquí debes realizar la lógica de búsqueda del cliente en una base de datos real
-    // En esta simulación, simplemente verificamos si el campo de número de documento está vacío
-    const clienteExiste = Math.random() < 0.5; // Simulación aleatoria de resultado de búsqueda
-    setClienteExistente(clienteExiste);
+  const handleBuscarCliente = () => {
+    const clienteEncontrado = clientes.find(
+      (cliente) => cliente.numDocumento === parseInt(numeroDocumento.trim())
+    );
+    console.log("Cliente encontrado:", clienteEncontrado);
+    if (clienteEncontrado) {
+      setClienteExistente(true);
+    } else {
+      setClienteExistente(false);
+    }
     setBuscarCliente(true);
+  };
+  
+  
+  
+  
+
+  const handleCancelarRegistro = () => {
+    setBuscarCliente(false);
+    setNumeroDocumento("");
   };
 
   return (
@@ -41,56 +69,42 @@ function EnterpriseInfo() {
           </div>
           <div className="col-6">
             <h1>Informacion del cliente</h1>
-            {buscarCliente ? (
-              clienteExistente ? (
-                <>
-                  <div className="mb-3">
-                    <label className="form-label" htmlFor="numeroDocumento">
-                      Número de documento:
-                    </label>
-                    <input
-                      type="text"
-                      className="form-control"
-                      value={numeroDocumento}
-                      onChange={handleInputChange}
-                      placeholder="Ingrese el número de documento"
-                      aria-label="Número de documento"
-                      name="numeroDocumento"
-                      id="numeroDocumento"
-                      readOnly
-                    />
-                  </div>
-                  <p className="text-success mt-2">Cliente existente. No es necesario registrarlo.</p>
-                </>
-              ) : (
-                <RegistroCliente
-                  numeroDocumento={numeroDocumento}
-                  onClienteRegistrado={setClienteRegistrado}
-                />
-              )
-            ) : (
-              <div className="mb-3">
-                <label className="form-label" htmlFor="numeroDocumento">
-                  Número de documento:
-                </label>
-                <input
-                  type="text"
-                  className="form-control"
-                  value={numeroDocumento}
-                  onChange={handleInputChange}
-                  placeholder="Ingrese el número de documento"
-                  aria-label="Número de documento"
-                  name="numeroDocumento"
-                  id="numeroDocumento"
-                />
-              </div>
+            {buscarCliente && clienteExistente && (
+              <>
+                <div className="mb-3">
+                  <label className="form-label" htmlFor="numeroDocumento">
+                    Número de documento:
+                  </label>
+                  <p>{numeroDocumento}</p>
+                </div>
+                <p className="text-success mt-2">Cliente encontrado.</p>
+              </>
             )}
           </div>
         </div>
-        {!clienteExistente && !clienteRegistrado && !buscarCliente && (
+        {!buscarCliente && (
           <div className="d-grid">
-            <button type="button" className="btn btn-primary" onClick={handleBuscarCliente}>
+            <input
+              type="text"
+              className="form-control"
+              value={numeroDocumento}
+              onChange={handleInputChange}
+              placeholder="Ingrese el número de documento"
+              aria-label="Número de documento"
+              name="numeroDocumento"
+              id="numeroDocumento"
+            />
+            <button type="button" className="btn btn-primary mt-2" onClick={handleBuscarCliente}>
               Buscar Cliente
+            </button>
+            {error && <p className="text-danger">{error}</p>}
+          </div>
+        )}
+        {buscarCliente && !clienteExistente && (
+          <div className="d-grid">
+            <p className="text-danger mt-2">Cliente no encontrado. Por favor, registre al cliente.</p>
+            <button type="button" className="btn btn-primary mt-2" onClick={handleCancelarRegistro}>
+              Cancelar
             </button>
           </div>
         )}
