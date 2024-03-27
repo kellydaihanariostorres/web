@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
+import RegistroCliente from "./BusquedCliente"; // Importa el componente de registro de cliente
 
 function EnterpriseInfo() {
   const [buscarCliente, setBuscarCliente] = useState(false);
@@ -7,6 +8,7 @@ function EnterpriseInfo() {
   const [numeroDocumento, setNumeroDocumento] = useState("");
   const [clientes, setClientes] = useState([]);
   const [error, setError] = useState(null);
+  const [mostrarFormularioRegistro, setMostrarFormularioRegistro] = useState(false);
 
   useEffect(() => {
     const fetchClientes = async () => {
@@ -35,17 +37,15 @@ function EnterpriseInfo() {
       setClienteExistente(true);
     } else {
       setClienteExistente(false);
+      setMostrarFormularioRegistro(true); // Mostrar el formulario de registro si no se encuentra el cliente
     }
     setBuscarCliente(true);
   };
-  
-  
-  
-  
 
   const handleCancelarRegistro = () => {
     setBuscarCliente(false);
     setNumeroDocumento("");
+    setMostrarFormularioRegistro(false); // Ocultar el formulario de registro al cancelar
   };
 
   return (
@@ -80,6 +80,12 @@ function EnterpriseInfo() {
                 <p className="text-success mt-2">Cliente encontrado.</p>
               </>
             )}
+            {mostrarFormularioRegistro && (
+              <RegistroCliente
+                numeroDocumento={numeroDocumento}
+                onClienteRegistrado={() => setMostrarFormularioRegistro(false)} // Ocultar el formulario al registrar el cliente
+              />
+            )}
           </div>
         </div>
         {!buscarCliente && (
@@ -100,7 +106,7 @@ function EnterpriseInfo() {
             {error && <p className="text-danger">{error}</p>}
           </div>
         )}
-        {buscarCliente && !clienteExistente && (
+        {buscarCliente && !clienteExistente && !mostrarFormularioRegistro && (
           <div className="d-grid">
             <p className="text-danger mt-2">Cliente no encontrado. Por favor, registre al cliente.</p>
             <button type="button" className="btn btn-primary mt-2" onClick={handleCancelarRegistro}>
