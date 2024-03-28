@@ -10,6 +10,9 @@ function EnterpriseInfo() {
   const [error, setError] = useState(null);
   const [mostrarFormularioRegistro, setMostrarFormularioRegistro] = useState(false);
   const [clienteRegistrado, setClienteRegistrado] = useState(null);
+  const [fechaActual, setFechaActual] = useState("");
+  const [empleados, setEmpleados] = useState([]);
+  const [empleadoSeleccionado, setEmpleadoSeleccionado] = useState(""); // Estado para el empleado seleccionado
 
   useEffect(() => {
     const fetchClientes = async () => {
@@ -22,7 +25,25 @@ function EnterpriseInfo() {
         setError("Error al obtener clientes");
       }
     };
+
+    const fetchEmpleados = async () => {
+      try {
+        const response = await axios.get("https://localhost:7284/api/empleados");
+        setEmpleados(response.data);
+        console.log("Empleados cargados:", response.data);
+      } catch (error) {
+        console.error("Error al obtener empleados:", error);
+        setError("Error al obtener empleados");
+      }
+    };
+
     fetchClientes();
+    fetchEmpleados();
+
+    // Obtener la fecha actual al cargar el componente
+    const fecha = new Date();
+    const fechaFormateada = `${fecha.getDate()}/${fecha.getMonth() + 1}/${fecha.getFullYear()}`;
+    setFechaActual(fechaFormateada);
   }, [buscarCliente]);
 
   const handleInputChange = (event) => {
@@ -55,6 +76,10 @@ function EnterpriseInfo() {
     setMostrarFormularioRegistro(false);
     setClienteRegistrado(cliente);
   };
+  
+  const handleEmpleadoChange = (event) => {
+    setEmpleadoSeleccionado(event.target.value);
+  };
 
   return (
     <>
@@ -73,7 +98,20 @@ function EnterpriseInfo() {
         <div className="row">
           <div className="col-6">
             <h1>Informacion de factura</h1>
+            <p>Fecha actual: {fechaActual}</p> 
+            <p>Direccion: Calle 57 </p> 
+            <p>Telefono:3142678354</p> 
+            <div>
+              <label htmlFor="empleado">Empleado:</label>
+              <select id="empleado" value={empleadoSeleccionado} onChange={handleEmpleadoChange}>
+                <option value="">Seleccionar empleado</option>
+                {empleados.map((empleado) => (
+                  <option key={empleado.empleadoId} value={empleado.empleadoId}>{empleado.nombre}</option>
+                ))}
+              </select>
+            </div>
           </div>
+
           <div className="col-6">
             <h1>Informacion del cliente</h1>
             {clienteRegistrado && (

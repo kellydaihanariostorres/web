@@ -65,6 +65,8 @@ const RegistroCliente = ({ numeroDocumento, onClienteRegistrado }) => {
             <input
               type="text"
               name="nombre"
+              className="form-control"
+              placeholder="Ingrese el Nombre"
               value={cliente.nombre}
               onChange={handleInputChange}
               required
@@ -75,6 +77,8 @@ const RegistroCliente = ({ numeroDocumento, onClienteRegistrado }) => {
             <input
               type="text"
               name="apellido"
+              className="form-control"
+              placeholder="Ingrese el Apellido"
               value={cliente.apellido}
               onChange={handleInputChange}
               required
@@ -85,6 +89,8 @@ const RegistroCliente = ({ numeroDocumento, onClienteRegistrado }) => {
             <input
               type="number"
               name="edad"
+              className="form-control"
+              placeholder="Ingrese la Edad"
               value={cliente.edad}
               onChange={handleInputChange}
               required
@@ -95,6 +101,8 @@ const RegistroCliente = ({ numeroDocumento, onClienteRegistrado }) => {
             <input
               type="text"
               name="tipoDocumento"
+              className="form-control"
+              placeholder="Ingrese el Tipo  de documento"
               value={cliente.tipoDocumento}
               onChange={handleInputChange}
               required
@@ -105,6 +113,8 @@ const RegistroCliente = ({ numeroDocumento, onClienteRegistrado }) => {
             <input
               type="text"
               name="numDocumento"
+              className="form-control"
+              placeholder="Ingrese el número de documento"
               value={cliente.numDocumento}
               onChange={handleInputChange}
               required
@@ -115,12 +125,14 @@ const RegistroCliente = ({ numeroDocumento, onClienteRegistrado }) => {
             <input
               type="email"
               name="correo"
+              className="form-control"
+              placeholder="Ingrese el correo"
               value={cliente.correo}
               onChange={handleInputChange}
               required
             />
           </label>
-          <button type="button" onClick={handleFormSubmit} disabled={loading}>
+          <button type="button" className="btn btn-primary mt-2" onClick={handleFormSubmit} disabled={loading}>
             {loading ? "Registrando..." : "Registrar"}
           </button>
 
