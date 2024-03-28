@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
-import RegistroCliente from "./BusquedCliente"; // Importa el componente de registro de cliente
+import RegistroCliente from "./BusquedCliente";
 
 function EnterpriseInfo() {
   const [buscarCliente, setBuscarCliente] = useState(false);
@@ -9,20 +9,21 @@ function EnterpriseInfo() {
   const [clientes, setClientes] = useState([]);
   const [error, setError] = useState(null);
   const [mostrarFormularioRegistro, setMostrarFormularioRegistro] = useState(false);
+  const [clienteRegistrado, setClienteRegistrado] = useState(null);
 
   useEffect(() => {
     const fetchClientes = async () => {
       try {
         const response = await axios.get("https://localhost:7284/api/clientes");
         setClientes(response.data);
-        console.log("Clientes cargados:", response.data); // Verificar los clientes cargados en la consola
+        console.log("Clientes cargados:", response.data);
       } catch (error) {
         console.error("Error al obtener clientes:", error);
         setError("Error al obtener clientes");
       }
     };
     fetchClientes();
-  }, []);
+  }, [buscarCliente]);
 
   const handleInputChange = (event) => {
     setNumeroDocumento(event.target.value);
@@ -35,9 +36,10 @@ function EnterpriseInfo() {
     console.log("Cliente encontrado:", clienteEncontrado);
     if (clienteEncontrado) {
       setClienteExistente(true);
+      setClienteRegistrado(clienteEncontrado); // Almacenar los datos del cliente encontrado
     } else {
       setClienteExistente(false);
-      setMostrarFormularioRegistro(true); // Mostrar el formulario de registro si no se encuentra el cliente
+      setMostrarFormularioRegistro(true);
     }
     setBuscarCliente(true);
   };
@@ -45,7 +47,13 @@ function EnterpriseInfo() {
   const handleCancelarRegistro = () => {
     setBuscarCliente(false);
     setNumeroDocumento("");
-    setMostrarFormularioRegistro(false); // Ocultar el formulario de registro al cancelar
+    setMostrarFormularioRegistro(false);
+  };
+
+  const handleClienteRegistrado = (cliente) => {
+    setBuscarCliente(true);
+    setMostrarFormularioRegistro(false);
+    setClienteRegistrado(cliente);
   };
 
   return (
@@ -65,25 +73,20 @@ function EnterpriseInfo() {
         <div className="row">
           <div className="col-6">
             <h1>Informacion de factura</h1>
-            {/* Resto del código */}
           </div>
           <div className="col-6">
             <h1>Informacion del cliente</h1>
-            {buscarCliente && clienteExistente && (
-              <>
-                <div className="mb-3">
-                  <label className="form-label" htmlFor="numeroDocumento">
-                    Número de documento:
-                  </label>
-                  <p>{numeroDocumento}</p>
-                </div>
-                <p className="text-success mt-2">Cliente encontrado.</p>
-              </>
+            {clienteRegistrado && (
+              <div>
+                <p className="text-success">Cliente registrado exitosamente.</p>
+                <p>Número de documento: {clienteRegistrado.numDocumento}</p>
+                <p>ID: {clienteRegistrado.clienteId}</p>
+              </div>
             )}
             {mostrarFormularioRegistro && (
               <RegistroCliente
                 numeroDocumento={numeroDocumento}
-                onClienteRegistrado={() => setMostrarFormularioRegistro(false)} // Ocultar el formulario al registrar el cliente
+                onClienteRegistrado={handleClienteRegistrado}
               />
             )}
           </div>
@@ -106,7 +109,7 @@ function EnterpriseInfo() {
             {error && <p className="text-danger">{error}</p>}
           </div>
         )}
-        {buscarCliente && !clienteExistente && !mostrarFormularioRegistro && (
+        {!clienteExistente && mostrarFormularioRegistro && ( // Mostrar mensaje solo si no se encontró el cliente y se debe registrar
           <div className="d-grid">
             <p className="text-danger mt-2">Cliente no encontrado. Por favor, registre al cliente.</p>
             <button type="button" className="btn btn-primary mt-2" onClick={handleCancelarRegistro}>
