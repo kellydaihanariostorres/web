@@ -6,6 +6,7 @@ import axios from 'axios';
 import Swal from 'sweetalert2';
 import withReactContent from 'sweetalert2-react-content';
 
+
 const ManageClientes = () => {
   const apiUrl = 'https://localhost:7284/api/clientes';
   const [clientes, setClientes] = useState([]);

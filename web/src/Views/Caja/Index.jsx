@@ -1,6 +1,9 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
 import RegistroCliente from "./BusquedCliente";
+import Swal from 'sweetalert2';
+import withReactContent from 'sweetalert2-react-content';
+import Detallefactura from './Detallefactura';
 
 function EnterpriseInfo() {
   const [buscarCliente, setBuscarCliente] = useState(false);
@@ -13,6 +16,7 @@ function EnterpriseInfo() {
   const [fechaActual, setFechaActual] = useState("");
   const [empleados, setEmpleados] = useState([]);
   const [empleadoSeleccionado, setEmpleadoSeleccionado] = useState(""); // Estado para el empleado seleccionado
+  const MySwal = withReactContent(Swal);
 
   useEffect(() => {
     const fetchClientes = async () => {
@@ -47,8 +51,58 @@ function EnterpriseInfo() {
   }, [buscarCliente]);
 
   const handleInputChange = (event) => {
-    setNumeroDocumento(event.target.value);
+    const input = event.target.value;
+    // Expresión regular para permitir solo números
+    const onlyNumbers = /^[0-9\b]+$/;
+    if (input === "" || onlyNumbers.test(input)) {
+      setNumeroDocumento(input);
+    }
   };
+  
+
+  const crearFactura = async () => {
+    try {
+      if (!clienteRegistrado || !empleadoSeleccionado) {
+        MySwal.fire({
+          icon: 'warning',
+          title: '¡Atención!',
+          text: 'Por favor, selecciona un cliente y un empleado antes de crear la factura.',
+        });
+        return;
+      }
+  
+      // Generar una factura temporal con valores temporales
+      const facturaTemporal = {
+        idFactura: "64b512e7-46ae-4989-a049-a446118099c4",
+        fechaCompra: new Date().toISOString(),
+        ivaCompra: 1, // Valor temporal
+        subtotal: 1, // Valor temporal
+        total: 1, // Valor temporal
+        clienteId: clienteRegistrado.clienteId,
+        empleadoId: empleadoSeleccionado
+      };
+  
+      // Enviar la factura temporal al servidor para su creación
+      const response = await axios.post("https://localhost:7284/api/factura", facturaTemporal);
+  
+      // Si la creación de la factura fue exitosa, puedes hacer algo con la respuesta si es necesario
+      console.log("Factura creada:", response.data);
+      MySwal.fire({
+        icon: 'success',
+        title: 'Factura creada exitosamente',
+        text: 'La factura se ha creado con éxito.',
+      });
+    } catch (error) {
+      console.error("Error al crear la factura:", error);
+      MySwal.fire({
+        icon: 'error',
+        title: 'Error al crear la factura',
+        text: 'Hubo un error al crear la factura. Por favor, inténtalo de nuevo.',
+      });
+    }
+  };
+  
+  
 
   const handleBuscarCliente = () => {
     const clienteEncontrado = clientes.find(
@@ -81,6 +135,12 @@ function EnterpriseInfo() {
     setEmpleadoSeleccionado(event.target.value);
   };
 
+  const handleCancelarCliente = () => {
+    setClienteRegistrado(null);
+    setBuscarCliente(false); // Esto vuelve a mostrar la sección de buscar cliente
+  };
+  
+
   return (
     <>
       <form
@@ -89,21 +149,33 @@ function EnterpriseInfo() {
           width: "100%",
           minHeight: "80vh",
           height: "auto",
-          display: "flex",
           justifyContent: "center",
-          padding: "15px",
-          alignItems: "center"
+          padding: "-135px",
+          alignItems: "center",
+         
         }}
       >
-        <div className="row">
-          <div className="col-6">
-            <h1>Informacion de factura</h1>
-            <p>Fecha actual: {fechaActual}</p> 
-            <p>Direccion: Calle 57 </p> 
-            <p>Telefono:3142678354</p> 
-            <div>
-              <label htmlFor="empleado">Empleado:</label>
-              <select id="empleado" value={empleadoSeleccionado} onChange={handleEmpleadoChange}>
+        <div className="row" style={{border: "1px solid white", boxShadow: "0 0 10px rgba(0, 0, 0, 0.5)", backgroundColor: "white" }} >
+        <div className="col-md-6 mb-3">
+          <h1>Informacion de factura</h1>
+          <div className="row">
+            <div className="col-md-6">
+              <p>Fecha actual:</p>
+              <p style={{ backgroundColor: "white", borderRadius: "10px", padding: "10px", border: "1px solid black"}}>{fechaActual}</p>
+            </div>
+            <div className="col-md-6">
+              <p>Direccion:</p>
+              <p style={{ backgroundColor: "white", borderRadius: "10px", padding: "10px", border: "1px solid black"}}>Calle 57</p>
+            </div>
+          </div>
+          <div className="row">
+            <div className="col-md-6">
+              <p>Telefono:</p>
+              <p style={{ backgroundColor: "white", borderRadius: "10px", padding: "10px",border: "1px solid black" }}>3142678354</p>
+            </div>
+            <div className="col-md-6">
+              <p>Empleado:</p>
+              <select id="empleado" value={empleadoSeleccionado} onChange={handleEmpleadoChange} style={{ backgroundColor: "white", borderRadius: "10px", padding: "10px" }}>
                 <option value="">Seleccionar empleado</option>
                 {empleados.map((empleado) => (
                   <option key={empleado.empleadoId} value={empleado.empleadoId}>{empleado.nombre}</option>
@@ -111,14 +183,21 @@ function EnterpriseInfo() {
               </select>
             </div>
           </div>
+        </div>
 
-          <div className="col-6">
+
+          <div className="col-md-6 mb-3">
             <h1>Informacion del cliente</h1>
             {clienteRegistrado && (
               <div>
-                <p className="text-success">Cliente registrado exitosamente.</p>
-                <p>Número de documento: {clienteRegistrado.numDocumento}</p>
-                <p>ID: {clienteRegistrado.clienteId}</p>
+                <p className="text-success">Cliente existente.</p>
+                <p>Número de documento: </p>
+                <p style={{ backgroundColor: "white", borderRadius: "10px", padding: "10px",border: "1px solid black" }}>{clienteRegistrado.numDocumento}</p>
+                <button type="button" className="btn btn-primary mt-2" onClick={handleCancelarCliente}>
+                  Quitar Cliente
+                </button>
+
+                
               </div>
             )}
             {mostrarFormularioRegistro && (
@@ -127,34 +206,45 @@ function EnterpriseInfo() {
                 onClienteRegistrado={handleClienteRegistrado}
               />
             )}
+
+            {!buscarCliente && (
+              <div className="d-grid">
+                <p>Buscar cliente</p>
+                <input
+                  type="text"
+                  className="form-control"
+                  value={numeroDocumento}
+                  onChange={handleInputChange}
+                  placeholder="Ingrese el número de documento"
+                  aria-label="Número de documento"
+                  name="numeroDocumento"
+                  id="numeroDocumento"
+                  style={{  border: "1px solid black"}}
+                />
+
+                <button type="button" className="btn btn-primary mt-2" onClick={handleBuscarCliente}>
+                  Buscar Cliente
+                </button>
+                {error && <p className="text-danger">{error}</p>}
+              </div>
+            )}
+
+            {!clienteExistente && mostrarFormularioRegistro && ( // Mostrar mensaje solo si no se encontró el cliente y se debe registrar
+              <div className="d-grid">
+                <p className="text-danger mt-2">Cliente no encontrado. Por favor, registre al cliente.</p>
+                <button type="button" className="btn btn-primary mt-2" onClick={handleCancelarRegistro}>
+                  Cancelar
+                </button>
+              </div>
+            )}
           </div>
         </div>
-        {!buscarCliente && (
-          <div className="d-grid">
-            <input
-              type="text"
-              className="form-control"
-              value={numeroDocumento}
-              onChange={handleInputChange}
-              placeholder="Ingrese el número de documento"
-              aria-label="Número de documento"
-              name="numeroDocumento"
-              id="numeroDocumento"
-            />
-            <button type="button" className="btn btn-primary mt-2" onClick={handleBuscarCliente}>
-              Buscar Cliente
+        
+          <div>
+            <button type="button" className="btn btn-primary mt-2" onClick={crearFactura}>
+              Comensar Factura
             </button>
-            {error && <p className="text-danger">{error}</p>}
-          </div>
-        )}
-        {!clienteExistente && mostrarFormularioRegistro && ( // Mostrar mensaje solo si no se encontró el cliente y se debe registrar
-          <div className="d-grid">
-            <p className="text-danger mt-2">Cliente no encontrado. Por favor, registre al cliente.</p>
-            <button type="button" className="btn btn-primary mt-2" onClick={handleCancelarRegistro}>
-              Cancelar
-            </button>
-          </div>
-        )}
+          </div>     
       </form>
     </>
   );
