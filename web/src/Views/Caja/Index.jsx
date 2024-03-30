@@ -18,6 +18,7 @@ function EnterpriseInfo() {
   const [empleados, setEmpleados] = useState([]);
   const [empleadoSeleccionado, setEmpleadoSeleccionado] = useState(""); 
   const [mostrarDetalleFactura, setMostrarDetalleFactura] = useState(false);  
+  const [idFacturaCreada, setIdFacturaCreada] = useState("");
   const MySwal = withReactContent(Swal);
  
 
@@ -97,6 +98,7 @@ function EnterpriseInfo() {
         text: 'Puede comenzar su factura.',
       });
 
+      setIdFacturaCreada(response.data.idFactura);
       setMostrarDetalleFactura(true);
       
     } catch (error) {
@@ -254,7 +256,7 @@ function EnterpriseInfo() {
             {mostrarDetalleFactura && (
                 // Mostrar la vista de detalle de factura si se activa el estado
                 <div style={{ border: "1px solid white", backgroundColor: "white", boxShadow: "0 0 10px rgba(0, 0, 0, 0.5)", padding: '-5vh', }}>
-                    <Detallefactura />
+                    <Detallefactura idFactura={idFacturaCreada} />
                 </div>
             )}
         </div>
