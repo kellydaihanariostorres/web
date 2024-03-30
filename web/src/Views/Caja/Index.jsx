@@ -19,6 +19,7 @@ function EnterpriseInfo() {
   const [empleadoSeleccionado, setEmpleadoSeleccionado] = useState(""); 
   const [mostrarDetalleFactura, setMostrarDetalleFactura] = useState(false);  
   const [idFacturaCreada, setIdFacturaCreada] = useState("");
+  const [mostrarBotones, setMostrarBotones] = useState(true); 
   const MySwal = withReactContent(Swal);
  
 
@@ -100,6 +101,7 @@ function EnterpriseInfo() {
 
       setIdFacturaCreada(response.data.idFactura);
       setMostrarDetalleFactura(true);
+      setMostrarBotones(false);
       
     } catch (error) {
       console.error("Error al crear la factura:", error);
@@ -148,6 +150,8 @@ function EnterpriseInfo() {
     setClienteRegistrado(null);
     setBuscarCliente(false); // Esto vuelve a mostrar la sección de buscar cliente
   };
+
+  
 
   
   
@@ -204,9 +208,11 @@ function EnterpriseInfo() {
                 <p className="text-success">Cliente existente.</p>
                 <p>Número de documento: </p>
                 <p style={{ backgroundColor: "white", borderRadius: "10px", padding: "10px",border: "1px solid black" }}>{clienteRegistrado.numDocumento}</p>
-                <button type="button" className="btn btn-primary mt-2" onClick={handleCancelarCliente}>
-                  Quitar Cliente
-                </button>
+                {mostrarBotones && ( // Ocultar el botón "Quitar Cliente" cuando mostrarBotones sea falso
+                  <button type="button" className="btn btn-primary mt-2" onClick={handleCancelarCliente}>
+                    Quitar Cliente
+                  </button>
+                )}
 
                 
               </div>
@@ -231,6 +237,7 @@ function EnterpriseInfo() {
                   name="numeroDocumento"
                   id="numeroDocumento"
                   style={{  border: "1px solid black"}}
+                 
                 />
 
                 <button type="button" className="btn btn-primary mt-2" onClick={handleBuscarCliente}>
@@ -252,7 +259,7 @@ function EnterpriseInfo() {
         </div>
 
         
-        <div style={{ padding: '10px', width: '107%', marginLeft: '-3%', margin: "0 auto"  }}>
+        <div style={{ padding: '10px', width: '104%', marginLeft: '-2%', margin: "0 auto"  }}>
             {mostrarDetalleFactura && (
                 // Mostrar la vista de detalle de factura si se activa el estado
                 <div style={{ border: "1px solid white", backgroundColor: "white", boxShadow: "0 0 10px rgba(0, 0, 0, 0.5)", padding: '-5vh', }}>
@@ -261,11 +268,13 @@ function EnterpriseInfo() {
             )}
         </div>
  
+        {mostrarBotones && ( // Mostrar los botones solo si mostrarBotones es verdadero
           <div>
             <button type="button" className="btn btn-primary mt-2" onClick={crearFactura}>
-              Comensar Factura
+              Comenzar Factura
             </button>
-          </div>     
+          </div>
+        )}     
       </form>
     </>
   );

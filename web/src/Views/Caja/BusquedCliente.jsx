@@ -93,8 +93,8 @@ const RegistroCliente = ({ numeroDocumento, onClienteRegistrado }) => {
         <h2>Registro de Cliente</h2>
         <form onSubmit={handleFormSubmit}>
           <div className="row mb-3">
-            <div className="col">
-              <label htmlFor="nombre" className="form-label">Nombre:</label>
+            <div className="col"  style={{ padding: '-60vh', margin: "0 auto", marginBottom: "10px", display: "inline-block" }}>
+              <label htmlFor="nombre" className="form-label"style={{  marginBottom: "-10px" }}>Nombre:</label>
               <input
                 type="text"
                 name="nombre"
@@ -104,10 +104,11 @@ const RegistroCliente = ({ numeroDocumento, onClienteRegistrado }) => {
                 value={cliente.nombre}
                 onChange={handleInputChange}
                 required
+                
               />
             </div>
-            <div className="col">
-              <label htmlFor="apellido" className="form-label">Apellido:</label>
+            <div className="col"  style={{ padding: '-60vh', margin: "0 auto", marginBottom: "10px", display: "inline-block" }}>
+              <label htmlFor="apellido" className="form-label"style={{  marginBottom: "-10px" }}>Apellido:</label>
               <input
                 type="text"
                 name="apellido"
@@ -117,12 +118,13 @@ const RegistroCliente = ({ numeroDocumento, onClienteRegistrado }) => {
                 value={cliente.apellido}
                 onChange={handleInputChange}
                 required
+                
               />
             </div>
           </div>
           <div className="row mb-3">
-            <div className="col">
-              <label htmlFor="edad" className="form-label">Edad:</label>
+            <div className="col"style={{ padding: '-60vh', margin: "0 auto", marginBottom: "10px", display: "inline-block" }}>
+              <label htmlFor="edad" className="form-label"style={{  marginBottom: "-10px" }}>Edad:</label>
               <input
                 type="text"
                 name="edad"
@@ -134,8 +136,8 @@ const RegistroCliente = ({ numeroDocumento, onClienteRegistrado }) => {
                 required
               />
             </div>
-            <div className="col">
-              <label htmlFor="tipoDocumento" className="form-label">Tipo de Documento:</label>
+            <div className="col"style={{ padding: '-60vh', margin: "0 auto", marginBottom: "10px", display: "inline-block" }}>
+              <label htmlFor="tipoDocumento" className="form-label"style={{  marginBottom: "-10px" }}>Tipo de Documento:</label>
               <input
                 type="text"
                 name="tipoDocumento"
@@ -150,8 +152,8 @@ const RegistroCliente = ({ numeroDocumento, onClienteRegistrado }) => {
             </div>
           </div>
           <div className="row mb-3">
-            <div className="col">
-              <label htmlFor="numDocumento" className="form-label">Número de Documento:</label>
+            <div className="col"style={{ padding: '-60vh', margin: "0 auto", marginBottom: "10px", display: "inline-block" }}>
+              <label htmlFor="numDocumento" className="form-label"style={{  marginBottom: "-10px" }}>Número de Documento:</label>
               <input
                 type="text"
                 name="numDocumento"
@@ -163,8 +165,8 @@ const RegistroCliente = ({ numeroDocumento, onClienteRegistrado }) => {
                 required
               />
             </div>
-            <div className="col">
-              <label htmlFor="correo" className="form-label">Correo Electrónico:</label>
+            <div className="col"style={{ padding: '-60vh', margin: "0 auto", marginBottom: "10px", display: "inline-block" }}>
+              <label htmlFor="correo" className="form-label" style={{  marginBottom: "-10px" }}>Correo Electrónico:</label>
               <input
                 type="email"
                 name="correo"

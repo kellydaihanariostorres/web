@@ -127,7 +127,15 @@ const CrearFacturaComponent = ({ idFactura }) => {
             </div>
             
             <div> 
-                <button onClick={handleImprimirFactura}>Imprimir Factura</button>
+                <button onClick={handleImprimirFactura} style={{
+                    backgroundColor: "green",
+                    borderRadius: "50px",
+                    color: "white",
+                    padding: "10px 20px",
+                    border: "none",
+                    cursor: "pointer"
+                    }}>Imprimir Factura
+                </button>
             </div>
         </div>
     );

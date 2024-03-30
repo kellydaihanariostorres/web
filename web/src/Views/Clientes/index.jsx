@@ -21,16 +21,17 @@ const ManageClientes = () => {
   const [operation, setOperation] = useState(1);
   const [searchText, setSearchText] = useState('');
   const [pageNumber, setPageNumber] = useState(1);
-  const [pageSize, setPageSize] = useState(5);
+  const [pageSize, setPageSize] = useState(7);
   const [totalPages, setTotalPages] = useState(1);
+  const [cacheKey, setCacheKey] = useState('');
 
   useEffect(() => {
     getClientes();
-  }, [pageNumber, pageSize]);
+  }, [pageNumber, pageSize,cacheKey]);
 
   const getClientes = async () => {
     try {
-      const response = await axios.get(apiUrl);
+      const response = await axios.get(`${apiUrl}?cacheKey=${cacheKey}&forceRefresh=${Date.now()}`);
       setClientes(response.data);
       setTotalPages(Math.ceil(response.data.length / pageSize));
     } catch (error) {
@@ -117,6 +118,7 @@ const ManageClientes = () => {
       show_alerta(msj, tipo);
       // Si la solicitud es exitosa, recargar la lista completa de clientes
       getClientes();
+      setCacheKey(Date.now().toString());
       // Reiniciamos los campos del formulario después de agregar o editar el cliente
       setClienteId('');
       setNombre('');
@@ -145,8 +147,11 @@ const ManageClientes = () => {
         try {
           await axios.delete(`${apiUrl}/${clienteId}`);
           show_alerta('Cliente eliminado exitosamente', 'success');
-          // Actualizar el estado 'clientes' después de eliminar un cliente
-          getClientes();
+           // Actualizar el estado 'clientes' después de eliminar un cliente
+            setClientes(clientes.filter(cliente => cliente.clienteId !== clienteId));
+            // Generar una nueva clave de caché para forzar la actualización de los datos
+            setCacheKey(Date.now().toString());
+
           setClienteId('');
           setNombre('');
           setApellido('');
