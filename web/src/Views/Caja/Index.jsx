@@ -5,6 +5,7 @@ import Swal from 'sweetalert2';
 import withReactContent from 'sweetalert2-react-content';
 import Detallefactura from './Detallefactura';
 
+
 function EnterpriseInfo() {
   const [buscarCliente, setBuscarCliente] = useState(false);
   const [clienteExistente, setClienteExistente] = useState(false);
@@ -15,8 +16,11 @@ function EnterpriseInfo() {
   const [clienteRegistrado, setClienteRegistrado] = useState(null);
   const [fechaActual, setFechaActual] = useState("");
   const [empleados, setEmpleados] = useState([]);
-  const [empleadoSeleccionado, setEmpleadoSeleccionado] = useState(""); // Estado para el empleado seleccionado
+  const [empleadoSeleccionado, setEmpleadoSeleccionado] = useState(""); 
+  const [mostrarDetalleFactura, setMostrarDetalleFactura] = useState(false);  
   const MySwal = withReactContent(Swal);
+ 
+
 
   useEffect(() => {
     const fetchClientes = async () => {
@@ -89,9 +93,12 @@ function EnterpriseInfo() {
       console.log("Factura creada:", response.data);
       MySwal.fire({
         icon: 'success',
-        title: 'Factura creada exitosamente',
-        text: 'La factura se ha creado con éxito.',
+        title: 'creado exitosamente',
+        text: 'Puede comenzar su factura.',
       });
+
+      setMostrarDetalleFactura(true);
+      
     } catch (error) {
       console.error("Error al crear la factura:", error);
       MySwal.fire({
@@ -139,6 +146,8 @@ function EnterpriseInfo() {
     setClienteRegistrado(null);
     setBuscarCliente(false); // Esto vuelve a mostrar la sección de buscar cliente
   };
+
+  
   
 
   return (
@@ -239,7 +248,17 @@ function EnterpriseInfo() {
             )}
           </div>
         </div>
+
         
+        <div style={{ padding: '10px', width: '107%', marginLeft: '-3%', margin: "0 auto"  }}>
+            {mostrarDetalleFactura && (
+                // Mostrar la vista de detalle de factura si se activa el estado
+                <div style={{ border: "1px solid white", backgroundColor: "white", boxShadow: "0 0 10px rgba(0, 0, 0, 0.5)", padding: '-5vh', }}>
+                    <Detallefactura />
+                </div>
+            )}
+        </div>
+ 
           <div>
             <button type="button" className="btn btn-primary mt-2" onClick={crearFactura}>
               Comensar Factura

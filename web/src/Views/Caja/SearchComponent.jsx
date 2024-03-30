@@ -8,16 +8,18 @@ const SearchComponent = ({ handleSuggestionClick }) => {
 
   const styles = {
     searchContainer: {
-      padding: '7vh',
-      width: '40%',
+      padding: '-5px',
+      width: '30%',
       display: 'flex',
       flexDirection: 'column',
-      marginLeft: '-20vw',
-      minWidth: '200px',
-      marginTop: '60px'
+      marginLeft: '-250px',
+      minWidth: '500px',
+      marginTop: '10px',
+      height: "auto !important" 
     },
     search: {
-      height: '100vh',
+      height: '1vh',
+      
       
     }
   };
