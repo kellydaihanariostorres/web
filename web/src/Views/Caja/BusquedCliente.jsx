@@ -10,7 +10,8 @@ const RegistroCliente = ({ numeroDocumento, onClienteRegistrado }) => {
     edad: "",
     tipoDocumento: "CC",
     numDocumento: numeroDocumento ? numeroDocumento : "",
-    correo: ""
+    correo: "",
+    estado: "Activo" 
   });
 
   const [loading, setLoading] = useState(false);
@@ -179,7 +180,7 @@ const RegistroCliente = ({ numeroDocumento, onClienteRegistrado }) => {
               />
             </div>
           </div>
-          <button type="submit" className="btn btn-success mt-2" disabled={loading}>
+          <button type="submit" className="btn btn-success mt-2" onClick={handleFormSubmit} disabled={loading}>
             {loading ? "Registrando..." : "Registrar"}
           </button>
         </form>

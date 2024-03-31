@@ -212,19 +212,16 @@ const Registro = () => {
         {errorMessage.firstName && <p className="error-message red-color">{errorMessage.firstName}</p>}
       </div>
       <div className="form-group">
-        <label>Apellido:</label>
-        <input
-          type='text'
-          className="form-control"
-          placeholder='Apellido'
-          value={lastName}
-          onChange={(e) => {
-            const newValue = e.target.value.replace(/[^a-zA-Z\s]/g, "");
-            setLastName(newValue);
-          }}
-        />
-        {errorMessage.lastName && <p className="error-message red-color">{errorMessage.lastName}</p>}
-      </div>
+      <label>Apellido:</label>
+      <input
+        type='text'
+        className="form-control"
+        placeholder='Apellido'
+        value={lastName}
+        onChange={(e) => setLastName(e.target.value)}
+      />
+      {errorMessage.lastName && <p className="error-message red-color">{errorMessage.lastName}</p>}
+    </div>
       <div className="form-group">
         <label>Nombre de usuario:</label>
         <input
@@ -246,7 +243,11 @@ const Registro = () => {
           onChange={(e) => setPassword(e.target.value)}
         />
         {errorMessage.password && <p className="error-message red-color">{errorMessage.password}</p>}
+        {password.length > 0 && password.length < 10 && (
+          <p className="warning-message red-color">La contraseña debe tener al menos 10 caracteres.</p>
+        )}
       </div>
+
       <div className="form-group">
         <label>Email:</label>
         <input

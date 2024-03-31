@@ -33,6 +33,7 @@ const ManageEmpleados = () => {
   const getEmpleados = async () => {
     try {
       const response = await axios.get(apiUrl);
+      const filteredClientes = response.data.filter(empleado => !empleado.eliminado && !localStorage.getItem(`eliminado_${empleado.empleadoId}`));
       setEmpleados(response.data);
       setTotalPages(Math.ceil(response.data.length / pageSize));
     } catch (error) {

@@ -6,7 +6,6 @@ import axios from 'axios';
 import Swal from 'sweetalert2';
 import withReactContent from 'sweetalert2-react-content';
 
-
 const ManageClientes = () => {
   const apiUrl = 'https://localhost:7284/api/clientes';
   const [clientes, setClientes] = useState([]);
@@ -24,6 +23,39 @@ const ManageClientes = () => {
   const [pageSize, setPageSize] = useState(7);
   const [totalPages, setTotalPages] = useState(1);
   const [cacheKey, setCacheKey] = useState('');
+  const [estado, setEstado] = useState('');
+  const [showSuccessMessage, setShowSuccessMessage] = useState(false);
+  const [errorMessage, setErrorMessage] = useState({});
+  const [generalErrorMessage, setGeneralErrorMessage] = useState('');
+ 
+  const [cliente, setCliente] = useState({
+    clienteId: '',
+    nombre: '',
+    apellido: '',
+    edad: '',
+    tipoDocumento: ' CC',
+    numDocumento: '',
+    correo: '',
+    estado: ''
+  });
+
+  const handleInputChange = (event) => {
+    const { name, value } = event.target;
+    let newValue = value;
+  
+    if (name === "nombre" || name === "apellido") {
+      newValue = value.replace(/[^a-zA-Z\s]/g, "");
+    } else if (name === "edad" || name === "numDocumento") {
+      newValue = value.replace(/\D/g, "");
+    }
+  
+    // Actualizar el estado del cliente con el nuevo valor
+    setCliente({
+      ...cliente,
+      [name]: newValue
+    });
+  };
+  
 
   useEffect(() => {
     getClientes();
@@ -40,7 +72,6 @@ const ManageClientes = () => {
     }
   };
 
-
   const handleNextPage = () => {
     setPageNumber(prevPageNumber => Math.min(prevPageNumber + 1, totalPages));
   };
@@ -49,50 +80,111 @@ const ManageClientes = () => {
     setPageNumber(prevPageNumber => Math.max(prevPageNumber - 1, 1));
   };
 
-  const openModal = (op, id, nombre, apellido, edad, tipoDocumento, numDocumento, correo) => {
+  const openModal = (op, id, nombre, apellido, edad, tipoDocumento, numDocumento, correo,estado) => {
     setOperation(op);
     setClienteId(id);
-
+  
     if (op === 1) {
       setTitle('Registrar cliente');
-      setNombre('');
-      setApellido('');
-      setEdad('');
-      setTipoDocumento('');
-      setNumDocumento('');
-      setCorreo('');
+      setCliente({
+        ...cliente,
+        nombre: '',
+        apellido: '',
+        edad: '',
+        tipoDocumento: '',
+        numDocumento: '',
+        correo: ''
+      });
     } else if (op === 2) {
       setTitle('Editar cliente');
-      setNombre(nombre);
-      setApellido(apellido);
-      setEdad(edad);
-      setTipoDocumento(tipoDocumento);
-      setNumDocumento(numDocumento);
-      setCorreo(correo);
+      setCliente({
+        ...cliente,
+        nombre,
+        apellido,
+        edad,
+        tipoDocumento,
+        numDocumento,
+        correo
+      });
     }
-
+  
     document.getElementById('modalClientes').addEventListener('shown.bs.modal', function () {
       document.getElementById('nombre').focus();
     });
   };
+  
 
   const validar = () => {
-    if (
-      nombre.trim() === '' ||
-      apellido.trim() === '' ||
-      edad.trim() === '' ||
-      tipoDocumento.trim() === '' ||
-      numDocumento.trim() === '' ||
-      correo.trim() === ''
-    ) {
-      show_alerta('Completa todos los campos', 'warning');
+    const errors = {};
+    let isValid = true;
+  
+    if (cliente.nombre.trim() === '') {
+      isValid = false;
+      errors.nombre = 'Por favor, ingresa tu nombre.';
+    }
+  
+    if (cliente.apellido.trim() === '') {
+      isValid = false;
+      errors.apellido = 'Por favor, ingresa tu apellido.';
+    }
+  
+    if (cliente.edad.toString().trim() === '') {
+      isValid = false;
+      errors.edad = 'Por favor, ingresa tu edad.';
+    }
+  
+    if (cliente.tipoDocumento.trim() === '') {
+      isValid = false;
+      errors.tipoDocumento = 'Por favor, selecciona un tipo de documento.';
+    }
+  
+    if (cliente.numDocumento.toString().trim() === '') {
+      isValid = false;
+      errors.numDocumento = 'Por favor, ingresa tu número de documento.';
+    }
+  
+    if (cliente.correo.trim() === '') {
+      isValid = false;
+      errors.correo = 'Por favor, ingresa tu correo electrónico.';
+    } else if (!isValidEmail(cliente.correo)) {
+      isValid = false;
+      errors.correo = 'Formato de correo electrónico inválido.';
+    }
+  
+    // Actualiza el estado de errorMessage con los errores encontrados
+    setErrorMessage(errors);
+  
+    // Actualiza el estado del mensaje de error general si todos los campos están vacíos
+    if (!isValid && Object.keys(errors).length === 0) {
+      setGeneralErrorMessage('Completa todos los campos correctamente');
     } else {
-      const parametros = { nombre, apellido, edad, tipoDocumento, numDocumento, correo };
+      setGeneralErrorMessage('');
+    }
+  
+    if (isValid) {
+      const parametros = {
+        nombre: cliente.nombre,
+        apellido: cliente.apellido,
+        edad: cliente.edad,
+        tipoDocumento: cliente.tipoDocumento,
+        numDocumento: cliente.numDocumento,
+        correo: cliente.correo,
+        estado: 'Activo'
+      };
+      console.log('Parámetros de solicitud:', parametros);
       const metodo = operation === 1 ? 'POST' : 'PUT';
       enviarSolicitud(metodo, parametros);
     }
   };
-
+  
+  
+  const isValidEmail = (email) => {
+    // Expresión regular para validar el formato de correo electrónico
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    return emailRegex.test(email);
+  };
+  
+  
   const handleSearch = e => {
     const text = e.target.value;
     setSearchText(text);
@@ -101,27 +193,29 @@ const ManageClientes = () => {
       getClientes();
     } else {
       const filteredClientes = clientes.filter(cliente =>
-        cliente.nombre.toLowerCase().includes(text.toLowerCase())
+        cliente.nombre.toLowerCase().includes(text.toLowerCase()) ||
+        cliente.numDocumento.toString().toLowerCase().includes(text.toLowerCase())
       );
       setClientes(filteredClientes);
     }
   };
-
+  
   const enviarSolicitud = async (metodo, parametros) => {
     const clienteIdParam = clienteId || '';
     try {
       const response = await axios[metodo.toLowerCase()](
         clienteIdParam ? `${apiUrl}/${clienteIdParam}` : apiUrl,
-        parametros
+        parametros,
+        { timeout: 15000 }
       );
 
       console.log('Respuesta del servidor:', response.data);
       const [tipo, msj] = response.data;
-      show_alerta(msj, tipo);
-      // Si la solicitud es exitosa, recargar la lista completa de clientes
+
+      show_alerta(`Cliente ${nombre} se a editado exitosamente`, 'success');
+
       getClientes();
       setCacheKey(Date.now().toString());
-      // Reiniciamos los campos del formulario después de agregar o editar el cliente
       setClienteId('');
       setNombre('');
       setApellido('');
@@ -135,54 +229,22 @@ const ManageClientes = () => {
     }
   };
 
-  const deleteCliente = async (clienteId, nombre) => {
-    const MySwal = withReactContent(Swal);
-    MySwal.fire({
-      title: `¿Seguro quieres eliminar al cliente ${nombre}?`,
-      icon: 'question',
-      text: 'No se podrá dar marcha atrás',
-      showCancelButton: true,
-      confirmButtonText: 'Sí, eliminar',
-      cancelButtonText: 'Cancelar',
-    }).then(async result => {
-      if (result.isConfirmed) {
-        try {
-          await axios.delete(`${apiUrl}/${clienteId}`);
-          show_alerta('Cliente eliminado exitosamente', 'success');
-
-          // Marcar el cliente como eliminado en el estado del componente
-          setClientes(clientes.map(cliente => {
-            if (cliente.clienteId === clienteId) {
-              return { ...cliente, eliminado: true };
-            }
-            return cliente;
-          }));
-
-          // Marcar el cliente como eliminado en el localStorage
-          localStorage.setItem(`eliminado_${clienteId}`, 'true');
-
-          // Generar una nueva clave de caché para forzar la actualización de los datos
-          setCacheKey(Date.now().toString());
-
-          setClienteId('');
-          setNombre('');
-          setApellido('');
-          setEdad('');
-          setTipoDocumento('');
-          setNumDocumento('');
-          setCorreo('');
-        } catch (error) {
-          show_alerta('Error al eliminar al cliente', 'error');
-          console.error(error);
-        }
-      } else {
-        show_alerta('El cliente no fue eliminado', 'info');
-      }
-    });
+  const desactivarCliente = async (clienteId, nombre, apellido, edad, tipoDocumento, numDocumento, correo) => {
+    try {
+      const parametros = { nombre, apellido, edad, tipoDocumento, numDocumento, correo, estado: 'Desactivado' };
+      await axios.put(`${apiUrl}/${clienteId}`, parametros);
+      show_alerta(`Cliente ${nombre} eliminada exitosamente`, 'success');
+      getClientes();
+      setCacheKey(Date.now().toString());
+    } catch (error) {
+      show_alerta('Error al desactivar al cliente', 'error');
+      console.error(error);
+    }
   };
 
   const showPreviousButton = pageNumber > 1;
   const showNextButton = pageNumber < totalPages;
+  
   return (
     <div className='container-fluid'>
       <div className='row justify-content-center'>
@@ -205,6 +267,8 @@ const ManageClientes = () => {
                   marginLeft: 'auto',
                   position: 'absolute',
                   right: 0,
+                  padding:'7px',
+                  marginTop:'10px'
                 }}
               />
             </div>
@@ -215,7 +279,7 @@ const ManageClientes = () => {
         </div>
       </div>
       <div className='row mt-3' >
-        <div className='col-12 col-lg-8 offset-0 offset-lg-2 mx-auto text-center' style={{ width: '100%' }}>
+        <div className='col-12 col-lg-8 offset-0 offset-lg-2 mx-auto text-center' style={{ width: '100%',padding:'7px',marginTop:'20px' }}>
           <DivTable col='6' off='3'>
             <table className='table table-bordered'>
               <thead>
@@ -246,6 +310,7 @@ const ManageClientes = () => {
               </thead>
               <tbody className='table-group-divider'>
                 {clientes
+                .filter(cliente => cliente.estado !== 'Desactivado')
                 .slice((pageNumber - 1) * pageSize, pageNumber * pageSize)
                 .map((cliente, i) => (
                   <tr key={cliente.clienteId}>
@@ -279,7 +344,7 @@ const ManageClientes = () => {
                       </button>
                       &nbsp;
                       <button
-                        onClick={() => deleteCliente(cliente.clienteId, cliente.nombre)}
+                        onClick={() => desactivarCliente(cliente.clienteId, cliente.nombre, cliente.apellido, cliente.edad, cliente.tipoDocumento, cliente.numDocumento, cliente.correo)}
                         className='btn btn-danger'
                         style={{ background: '#440000', color: 'white' }}
                       >
@@ -326,10 +391,14 @@ const ManageClientes = () => {
                   id='nombre'
                   className='form-control'
                   placeholder='Nombre'
-                  value={nombre}
-                  onChange={(e) => setNombre(e.target.value)}
-                  required  // Agregar el atributo 'required' para hacer que este campo sea obligatorio
+                  value={cliente.nombre}
+                  onChange={handleInputChange}
+                  name='nombre'
+                  required  
                 />
+                
+                {errorMessage.nombre && <p className="error-message red-color">{errorMessage.nombre}</p>}
+                
               </div>
               <div className='input-group mb-3'>
                 <span className='input-group-text'>
@@ -340,10 +409,12 @@ const ManageClientes = () => {
                   id='apellido'
                   className='form-control'
                   placeholder='Apellido'
-                  value={apellido}
-                  onChange={(e) => setApellido(e.target.value)}
-                  required  // Agregar el atributo 'required' para hacer que este campo sea obligatorio
+                  value={cliente.apellido}
+                  onChange={handleInputChange}
+                  name='apellido'
+                  required  
                 />
+                {errorMessage.apellido && <p className="error-message red-color">{errorMessage.apellido}</p>}
               </div>
               <div className='input-group mb-3'>
                 <span className='input-group-text'>
@@ -354,10 +425,12 @@ const ManageClientes = () => {
                   id='edad'
                   className='form-control'
                   placeholder='Edad'
-                  value={edad}
-                  onChange={(e) => setEdad(e.target.value)}
-                  required  // Agregar el atributo 'required' para hacer que este campo sea obligatorio
+                  value={cliente.edad}
+                  onChange={handleInputChange}
+                  name='edad'
+                  required  
                 />
+                {errorMessage.edad && <p className="error-message red-color">{errorMessage.edad}</p>}
               </div>
               <div className='input-group mb-3'>
                 <span className='input-group-text'>
@@ -368,9 +441,10 @@ const ManageClientes = () => {
                   id='tipoDocumento'
                   className='form-control'
                   placeholder='Tipo de Documento'
-                  value={tipoDocumento}
-                  onChange={(e) => setTipoDocumento(e.target.value)}
-                  required  // Agregar el atributo 'required' para hacer que este campo sea obligatorio
+                  value={cliente.tipoDocumento}
+                  onChange={handleInputChange}
+                  name='tipoDocumento'
+                  disabled 
                 />
               </div>
               <div className='input-group mb-3'>
@@ -382,10 +456,12 @@ const ManageClientes = () => {
                   id='numDocumento'
                   className='form-control'
                   placeholder='Número de Documento'
-                  value={numDocumento}
-                  onChange={(e) => setNumDocumento(e.target.value)}
-                  required  // Agregar el atributo 'required' para hacer que este campo sea obligatorio
+                  value={cliente.numDocumento}
+                  onChange={handleInputChange}
+                  name='numDocumento'
+                  required  
                 />
+                {errorMessage.numDocumento && <p className="error-message red-color">{errorMessage.numDocumento}</p>}
               </div>
               <div className='input-group mb-3'>
                 <span className='input-group-text'>
@@ -396,13 +472,16 @@ const ManageClientes = () => {
                   id='correo'
                   className='form-control'
                   placeholder='Correo'
-                  value={correo}
-                  onChange={(e) => setCorreo(e.target.value)}
-                  required  // Agregar el atributo 'required' para hacer que este campo sea obligatorio
+                  value={cliente.correo}
+                  onChange={handleInputChange}
+                  name='correo'
+                  required  
                 />
+                {errorMessage.correo && <p className="error-message red-color">{errorMessage.correo}</p>}
               </div>
             </div>
             <div className='modal-footer'>
+            {generalErrorMessage && <p className="error-message red-color">{generalErrorMessage}</p>}
               <button type='button' className='btn btn-danger' data-bs-dismiss='modal'>
                 Cerrar
               </button>
@@ -413,6 +492,14 @@ const ManageClientes = () => {
           </div>
         </div>
       </div>
+      {showSuccessMessage && (
+        <Swal
+          title="¡Éxito!"
+          text="El cliente se editó correctamente."
+          icon="success"
+          onClose={() => setShowSuccessMessage(false)}
+        />
+      )}
     </div>
   );
 };
