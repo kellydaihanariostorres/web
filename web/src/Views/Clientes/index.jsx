@@ -32,12 +32,14 @@ const ManageClientes = () => {
   const getClientes = async () => {
     try {
       const response = await axios.get(`${apiUrl}?cacheKey=${cacheKey}&forceRefresh=${Date.now()}`);
-      setClientes(response.data);
-      setTotalPages(Math.ceil(response.data.length / pageSize));
+      const filteredClientes = response.data.filter(cliente => !cliente.eliminado && !localStorage.getItem(`eliminado_${cliente.clienteId}`));
+      setClientes(filteredClientes);
+      setTotalPages(Math.ceil(filteredClientes.length / pageSize));
     } catch (error) {
       console.error(error);
     }
   };
+
 
   const handleNextPage = () => {
     setPageNumber(prevPageNumber => Math.min(prevPageNumber + 1, totalPages));
@@ -147,10 +149,20 @@ const ManageClientes = () => {
         try {
           await axios.delete(`${apiUrl}/${clienteId}`);
           show_alerta('Cliente eliminado exitosamente', 'success');
-           // Actualizar el estado 'clientes' después de eliminar un cliente
-            setClientes(clientes.filter(cliente => cliente.clienteId !== clienteId));
-            // Generar una nueva clave de caché para forzar la actualización de los datos
-            setCacheKey(Date.now().toString());
+
+          // Marcar el cliente como eliminado en el estado del componente
+          setClientes(clientes.map(cliente => {
+            if (cliente.clienteId === clienteId) {
+              return { ...cliente, eliminado: true };
+            }
+            return cliente;
+          }));
+
+          // Marcar el cliente como eliminado en el localStorage
+          localStorage.setItem(`eliminado_${clienteId}`, 'true');
+
+          // Generar una nueva clave de caché para forzar la actualización de los datos
+          setCacheKey(Date.now().toString());
 
           setClienteId('');
           setNombre('');

@@ -1,5 +1,27 @@
 .custom-container {
-    background-color: #bdbdbd; /* Cambia este valor al color que desees */
-    /* Otros estilos opcionales */
-  }
+  background-color: #f0f0f0; /* Cambiar el color de fondo */
+  color: #333; /* Cambiar el color del texto */
+  border: 1px solid #ccc; /* Agregar borde con color */
+  padding: 20px; /* Agregar espacio interno */
+  width:  85%; /* Establecer ancho*/
+  
+}
+
+.containert {
+  background-color: #bdbdbd; /* Cambia este valor al color que desees */
+}
+
+.form-group{
+  padding: 9px;
+}
+
+
+.btnfos-5:hover {
+  border: 1px solid;
+  box-shadow: inset 0 0 20px rgba(3, 214, 14, 0.63), 0 0 20px rgba(255, 255, 255, 0.2);
+  outline-offset: 15px;
+  outline-color: rgba(255, 255, 255, 0);
+  text-shadow: 1px 1px 2px #350606;
+}
+
   
