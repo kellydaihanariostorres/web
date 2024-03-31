@@ -396,9 +396,9 @@ const ManageClientes = () => {
                   name='nombre'
                   required  
                 />
-                
+                <div style={{ position: 'absolute', bottom: '-31px'}}>
                 {errorMessage.nombre && <p className="error-message red-color">{errorMessage.nombre}</p>}
-                
+                </div>
               </div>
               <div className='input-group mb-3'>
                 <span className='input-group-text'>
@@ -414,7 +414,9 @@ const ManageClientes = () => {
                   name='apellido'
                   required  
                 />
+                <div style={{ position: 'absolute', bottom: '-31px'}}>
                 {errorMessage.apellido && <p className="error-message red-color">{errorMessage.apellido}</p>}
+                </div>
               </div>
               <div className='input-group mb-3'>
                 <span className='input-group-text'>
@@ -430,7 +432,9 @@ const ManageClientes = () => {
                   name='edad'
                   required  
                 />
+                <div style={{ position: 'absolute', bottom: '-31px'}}>
                 {errorMessage.edad && <p className="error-message red-color">{errorMessage.edad}</p>}
+                </div>
               </div>
               <div className='input-group mb-3'>
                 <span className='input-group-text'>
@@ -461,7 +465,9 @@ const ManageClientes = () => {
                   name='numDocumento'
                   required  
                 />
+                <div style={{ position: 'absolute', bottom: '-31px'}}>
                 {errorMessage.numDocumento && <p className="error-message red-color">{errorMessage.numDocumento}</p>}
+                </div>
               </div>
               <div className='input-group mb-3'>
                 <span className='input-group-text'>
@@ -477,7 +483,9 @@ const ManageClientes = () => {
                   name='correo'
                   required  
                 />
+                <div style={{ position: 'absolute', bottom: '-31px'}}>
                 {errorMessage.correo && <p className="error-message red-color">{errorMessage.correo}</p>}
+                </div>
               </div>
             </div>
             <div className='modal-footer'>
