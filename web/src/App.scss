@@ -58,7 +58,7 @@ $gray: #383838;
 .sideBar {
   background-color:#212429;
   width: 14rem;
-  height: calc(100vh - 52px); 
+  min-height: calc(100vh - 52px);  
   border-right: 1px solid #302f2f;
   ul{
     list-style: none;

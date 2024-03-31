@@ -1,11 +1,9 @@
-
 import React, { useState } from 'react';
 import axios from 'axios';
-import { show_alerta } from '../functions';
-import '../Views/Registr.css';
 import Swal from 'sweetalert2';
 import withReactContent from 'sweetalert2-react-content';
-import 'animate.css';
+import { show_alerta } from '../functions';
+import '../Views/Registr.css';
 
 const Registro = () => {
   const apiUrl = 'https://localhost:7284/api/authentication';
@@ -16,8 +14,12 @@ const Registro = () => {
   const [email, setEmail] = useState('');
   const [phoneNumber, setPhoneNumber] = useState('');
   const [selectedRole, setSelectedRole] = useState('');
+  const [errorMessage, setErrorMessage] = useState({});
   const roles = ['Bodega', 'Caja', 'Administrador'];
   const MySwal = withReactContent(Swal);
+  const [duplicateEmail, setDuplicateEmail] = useState('');
+  const [duplicateUserName, setDuplicateUserName] = useState('');
+  const [error, setError] = useState(null);
 
   const validarPassword = () => {
     if (password.length < 10) {
@@ -34,66 +36,152 @@ const Registro = () => {
   const validar = async () => {
     // Expresión regular para validar el formato de correo electrónico
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-  
-    // Validar cada campo
-    const result = await Swal.fire({
-      title: 'Validación',
-      html: `
-        <p>${firstName.trim() === '' ? 'Por favor, ingresa tu nombre.' : ''}</p>
-        <p>${lastName.trim() === '' ? 'Por favor, ingresa tu apellido.' : ''}</p>
-        <p>${userName.trim() === '' ? 'Por favor, ingresa un nombre de usuario.' : ''}</p>
-        <p>${password.trim() === '' ? 'Por favor, ingresa una contraseña.' : ''}</p>
-        <p>${email.trim() === '' ? 'Por favor, ingresa tu correo electrónico.' : ''}</p>
-        <p>${!emailRegex.test(email) ? 'Por favor, ingresa un correo electrónico válido.' : ''}</p>
-        <p>${phoneNumber.trim() === '' ? 'Por favor, ingresa tu número de teléfono.' : ''}</p>
-        <p>${isNaN(phoneNumber) ? 'Por favor, ingresa un número de teléfono válido.' : ''}</p>
-        <p>${selectedRole === '' ? 'Por favor, selecciona un rol.' : ''}</p>
-        <p>${!validarPassword() ? 'Por favor, la contraseña debe tener al menos 10 caracteres y cumplir con ciertas reglas.' : ''}</p>
-      `,
-      confirmButtonText: 'Aceptar'
-    });
-  
-    if (result.isConfirmed) {
-      // Si se confirma, continuar con el proceso de registro
-      if (firstName.trim() !== '' && lastName.trim() !== '' && userName.trim() !== '' && password.trim() !== '' &&
-          email.trim() !== '' && emailRegex.test(email) && phoneNumber.trim() !== '' && !isNaN(phoneNumber) &&
-          selectedRole !== '' && validarPassword()) {
-        const parametros = {
-          FirstName: firstName,
-          LastName: lastName,
-          UserName: userName,
-          Password: password,
-          Email: email,
-          PhoneNumber: phoneNumber,
-          roles: [selectedRole]
-        };
-  
-        try {
-          const response = await axios.post(apiUrl, parametros);
-          const tipo = response.data[0];
-          const msj = response.data[1];
-          if (tipo === 'success') {
-            // Si la respuesta es exitosa, mostrar mensaje de éxito con SweetAlert
-            Swal.fire({
-              title: '¡Usuario registrado!',
-              text: msj,
-              icon: 'success',
-              confirmButtonText: 'OK'
-            });
-            resetState();
-          } else {
-            show_alerta(msj, tipo);
-          }
-        } catch (error) {
-          show_alerta('Error de solicitud', 'error');
-          console.error(error);
+    console.log("La función validar se está ejecutando");
+    
+    let isValid = true;
+    const errors = {};
+    const { name, value } = event.target;
+    let newValue = value;
+
+    if (/[^a-zA-Z\s]/.test(firstName)) {
+      isValid = false;
+      newValue = value.replace(/[^a-zA-Z\s]/g, "");
+      errors.firstName = 'Por favor, ingresa solo letras en el nombre.';
+    }
+
+    if (!/^[a-zA-Z]+$/.test(lastName)) {
+      isValid = false;
+      newValue = value.replace(/[^a-zA-Z\s]/g, "");
+      errors.lastName = 'Por favor, ingresa solo letras en el apellido.';
+    }
+
+    if (!/^\d+$/.test(phoneNumber)) {
+      isValid = false;
+      errors.phoneNumber = 'Por favor, ingresa solo números en el teléfono.';
+    }
+
+    if (firstName.trim() === '') {
+      isValid = false;
+      errors.firstName = 'Por favor, ingresa tu nombre.';
+    }
+
+    if (lastName.trim() === '') {
+      isValid = false;
+      errors.lastName = 'Por favor, ingresa tu apellido.';
+    }
+
+    if (userName.trim() === '') {
+      isValid = false;
+      errors.userName = 'Por favor, ingresa un nombre de usuario.';
+    }
+
+    if (password.trim() === '') {
+      isValid = false;
+      errors.password = 'Por favor, ingresa una contraseña.';
+    }
+
+    if (email.trim() === '') {
+      isValid = false;
+      const isValidEmail = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/.test(
+        newValue
+      );
+      if (!isValidEmail && newValue !== "") {
+        setError("El correo electrónico ingresado no es válido.");
+      } else {
+        setError(null);
+      }
+      errors.email = 'Por favor, ingresa tu correo electrónico.';
+    }
+
+    if (!emailRegex.test(email)) {
+      isValid = false;
+      errors.email = 'Por favor, ingresa un correo electrónico válido.';
+    }
+
+    if (phoneNumber.trim() === '') {
+      isValid = false;
+      errors.phoneNumber = 'Por favor, ingresa tu número de teléfono.';
+    }
+
+    if (isNaN(phoneNumber)) {
+      isValid = false;
+      newValue = value.replace(/\D/g, "");
+      errors.phoneNumber = 'Por favor, ingresa un número de teléfono válido.';
+    }
+
+    if (selectedRole === '') {
+      isValid = false;
+      errors.role = 'Por favor, selecciona un rol.';
+    }
+
+    if (!validarPassword()) {
+      isValid = false;
+      errors.password = 'Por favor, la contraseña debe tener al menos 10 caracteres y cumplir con ciertas reglas.';
+    }
+
+    setErrorMessage(errors);
+
+  if (isValid) {
+    const parametros = {
+      FirstName: firstName,
+      LastName: lastName,
+      UserName: userName,
+      Password: password,
+      Email: email,
+      PhoneNumber: phoneNumber,
+      roles: [selectedRole]
+    };
+
+    try {
+      const response = await axios.post(apiUrl, parametros);
+      console.log("Respuesta de la solicitud:", response);
+      const { DuplicateEmail, DuplicateUserName } = response.data;
+      
+     
+      if (DuplicateEmail || DuplicateUserName) {
+        let errorMessage = '';
+        if (DuplicateEmail) {
+          errorMessage = DuplicateEmail[0];
+        } else {
+          errorMessage = DuplicateUserName[0];
         }
+        // Mostrar mensaje de error
+        Swal.fire({
+          title: 'Error Existente',
+          text: errorMessage,
+          icon: 'error',
+          confirmButtonText: 'OK'
+        });
+        return;
+      } else {
+        // Si la respuesta es exitosa, mostrar mensaje de éxito con SweetAlert
+        Swal.fire({
+          title: '¡Usuario registrado!',
+          text: response.data[1],
+          icon: 'success',
+          confirmButtonText: 'OK'
+        });
+        resetState();
+        console.log(response.data);
+        return;
+      }
+    } catch (error) {
+      // Manejar errores de solicitud
+      if (error.response && error.response.status === 400) {
+        const { data } = error.response;
+        Swal.fire({
+          title: 'Error Usuario existente',
+          icon: 'error',
+          confirmButtonText: 'OK'
+        });
+      } else {
+        // Manejar otros errores de solicitud
+        show_alerta('Error de solicitud', 'error');
+        console.error(error);
       }
     }
-  };
-  
-
-  
+  }
+};
 
   const resetState = () => {
     setFirstName('');
@@ -103,6 +191,7 @@ const Registro = () => {
     setEmail('');
     setPhoneNumber('');
     setSelectedRole('');
+    setErrorMessage({});
   };
 
   return (
@@ -115,8 +204,12 @@ const Registro = () => {
           className="form-control"
           placeholder='Nombre'
           value={firstName}
-          onChange={(e) => setFirstName(e.target.value)}
+          onChange={(e) => {
+            const newValue = e.target.value.replace(/[^a-zA-Z\s]/g, "");
+            setFirstName(newValue);
+          }}
         />
+        {errorMessage.firstName && <p className="error-message red-color">{errorMessage.firstName}</p>}
       </div>
       <div className="form-group">
         <label>Apellido:</label>
@@ -125,8 +218,12 @@ const Registro = () => {
           className="form-control"
           placeholder='Apellido'
           value={lastName}
-          onChange={(e) => setLastName(e.target.value)}
+          onChange={(e) => {
+            const newValue = e.target.value.replace(/[^a-zA-Z\s]/g, "");
+            setLastName(newValue);
+          }}
         />
+        {errorMessage.lastName && <p className="error-message red-color">{errorMessage.lastName}</p>}
       </div>
       <div className="form-group">
         <label>Nombre de usuario:</label>
@@ -137,6 +234,7 @@ const Registro = () => {
           value={userName}
           onChange={(e) => setUserName(e.target.value)}
         />
+        {errorMessage.userName && <p className="error-message red-color">{errorMessage.userName}</p>}
       </div>
       <div className="form-group">
         <label>Contraseña:</label>
@@ -147,6 +245,7 @@ const Registro = () => {
           value={password}
           onChange={(e) => setPassword(e.target.value)}
         />
+        {errorMessage.password && <p className="error-message red-color">{errorMessage.password}</p>}
       </div>
       <div className="form-group">
         <label>Email:</label>
@@ -157,6 +256,7 @@ const Registro = () => {
           value={email}
           onChange={(e) => setEmail(e.target.value)}
         />
+        {errorMessage.email && <p className="error-message red-color">{errorMessage.email}</p>}
       </div>
       <div className="form-group">
         <label>Teléfono:</label>
@@ -165,8 +265,12 @@ const Registro = () => {
           className="form-control"
           placeholder='Teléfono'
           value={phoneNumber}
-          onChange={(e) => setPhoneNumber(e.target.value)}
+          onChange={(e) => {
+            const newValue = e.target.value.replace(/\D/g, "");
+            setPhoneNumber(newValue);
+          }}
         />
+        {errorMessage.phoneNumber && <p className="error-message red-color">{errorMessage.phoneNumber}</p>}
       </div>
       <div className="form-group">
         <label>Rol:</label>
@@ -180,6 +284,7 @@ const Registro = () => {
             <option key={role} value={role}>{role}</option>
           ))}
         </select>
+        {errorMessage.role && <p className="error-message red-color">{errorMessage.role}</p>}
       </div>
       <button onClick={validar} className="btn btn-primary btnfos-5">Registrar</button>
     </div>
