@@ -2,6 +2,8 @@ import React, { useState } from "react";
 import axios from "axios";
 import { v4 as uuid } from 'uuid'; // Importa la función uuid para generar identificadores únicos
 import SearchComponent from './SearchComponent'; // Asumiendo que tienes un componente de búsqueda para buscar productos
+import { show_alerta } from '../../functions';
+import Swal from 'sweetalert2';
 
 const CrearFacturaComponent = ({ idFactura }) => {
     const [productos, setProductos] = useState([]);
@@ -44,9 +46,37 @@ const CrearFacturaComponent = ({ idFactura }) => {
         });
     };
 
+    const actualizarCantidadProducto = async (idProducto, cantidad) => {
+        try {
+            // Obtener el producto de la base de datos
+            const response = await axios.get(`https://localhost:7284/api/productos/${idProducto}`);
+            const producto = response.data;
+    
+            // Calcular la nueva cantidad restando la cantidad de la factura de la cantidad actual del producto
+            const nuevaCantidad = producto.cantidad - cantidad;
+    
+            // Actualizar la cantidad del producto en la base de datos
+            await axios.put(`https://localhost:7284/api/productos/${idProducto}`, {
+                cantidad: nuevaCantidad,
+                nombreProducto: producto.nombreProducto,
+                precioProducto: producto.precioProducto,
+                marcaProducto: producto.marcaProducto,
+                clasificacionProducto: producto.clasificacionProducto,
+                estado: producto.estado
+            });
+    
+            // Devolver la nueva cantidad
+            return nuevaCantidad;
+        } catch (error) {
+            console.error("Error al actualizar la cantidad del producto:", error);
+            throw new Error("Ocurrió un error al actualizar la cantidad del producto. Por favor, inténtalo de nuevo.");
+        }
+    };
+    
+    
     const handleImprimirFactura = async () => {
         try {
-            // Itera sobre cada producto y envía un detalle de factura por cada uno
+            // Iterar sobre cada producto y enviar un detalle de factura por cada uno
             await Promise.all(productos.map(async (producto) => {
                 const detalleFactura = {
                     valorUnitario: producto.precioProducto,
@@ -55,19 +85,40 @@ const CrearFacturaComponent = ({ idFactura }) => {
                     idProducto: producto.idProducto
                 };
                 await axios.post("https://localhost:7284/api/DetalleFactura", detalleFactura);
+    
+                // Actualizar la cantidad del producto en la base de datos
+                await actualizarCantidadProducto(producto.idProducto, producto.cantidad);
             }));
-
-            // Mostrar un mensaje de éxito después de imprimir todas las facturas
-            alert("Factura impresa con éxito");
-
+    
             // Limpiar la lista de productos después de imprimir la factura
             setProductos([]);
+            setDetalleProductos([]);
+    
+            // Mostrar un mensaje de éxito después de imprimir todas las facturas
+            Swal.fire({
+                icon: 'success',
+                title: 'Factura creada con éxito',
+                text: 'La factura se ha creado correctamente.',
+                confirmButtonText: 'Aceptar'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    // Recargar la página después de que el usuario haga clic en "Aceptar" en el SweetAlert
+                    recargarPagina();
+                }
+            });
         } catch (error) {
             console.error("Error al imprimir la factura:", error);
             // Manejar cualquier error que pueda ocurrir durante la impresión de la factura
             alert("Ocurrió un error al imprimir la factura. Por favor, inténtalo de nuevo.");
         }
     };
+
+    const recargarPagina = () => {
+        // Recargar la página
+        window.location.reload();
+    };
+    
+    
 
     return (
         <div className="container mt-3 mb-3" style={{ backgroundColor: "white", width: "80%", margin: "0 auto"}}>

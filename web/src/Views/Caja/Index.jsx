@@ -21,13 +21,21 @@ function EnterpriseInfo() {
   const [idFacturaCreada, setIdFacturaCreada] = useState("");
   const [mostrarBotones, setMostrarBotones] = useState(true); 
   const MySwal = withReactContent(Swal);
- 
+  const [documentoClienteEncontrado, setDocumentoClienteEncontrado] = useState("");
+  const [facturaCreada, setFacturaCreada] = useState(false);
 
+  useEffect(() => {
+    localStorage.setItem("empleadoSeleccionado", empleadoSeleccionado);
+  }, [empleadoSeleccionado]);
 
   useEffect(() => {
     const fetchClientes = async () => {
       try {
-        const response = await axios.get("https://localhost:7284/api/clientes");
+        const response = await axios.get("https://localhost:7284/api/clientes", {
+          headers: {
+            "Cache-Control": "no-cache"
+          }
+        });
         setClientes(response.data);
         console.log("Clientes cargados:", response.data);
       } catch (error) {
@@ -38,14 +46,23 @@ function EnterpriseInfo() {
 
     const fetchEmpleados = async () => {
       try {
-        const response = await axios.get("https://localhost:7284/api/empleados");
-        setEmpleados(response.data);
-        console.log("Empleados cargados:", response.data);
+        const response = await axios.get("https://localhost:7284/api/empleados", {
+          headers: {
+            "Cache-Control": "no-cache"
+          }
+        });
+    
+        // Filtrar empleados activos
+        const empleadosActivos = response.data.filter(empleado => empleado.estado === 'Activo');
+    
+        setEmpleados(empleadosActivos);
+        console.log("Empleados activos cargados:", empleadosActivos);
       } catch (error) {
         console.error("Error al obtener empleados:", error);
         setError("Error al obtener empleados");
       }
     };
+    
 
     fetchClientes();
     fetchEmpleados();
@@ -85,8 +102,10 @@ function EnterpriseInfo() {
         subtotal: 1, // Valor temporal
         total: 1, // Valor temporal
         clienteId: clienteRegistrado.clienteId,
-        empleadoId: empleadoSeleccionado
+        empleadoId: empleadoSeleccionado,
+        Estado: 'Activo' // Corrección aquí
       };
+      
   
       // Enviar la factura temporal al servidor para su creación
       const response = await axios.post("https://localhost:7284/api/factura", facturaTemporal);
@@ -102,6 +121,7 @@ function EnterpriseInfo() {
       setIdFacturaCreada(response.data.idFactura);
       setMostrarDetalleFactura(true);
       setMostrarBotones(false);
+      setFacturaCreada(true);
       
     } catch (error) {
       console.error("Error al crear la factura:", error);
@@ -114,21 +134,35 @@ function EnterpriseInfo() {
   };
   
   
-
   const handleBuscarCliente = () => {
     const clienteEncontrado = clientes.find(
       (cliente) => cliente.numDocumento === parseInt(numeroDocumento.trim())
     );
+  
     console.log("Cliente encontrado:", clienteEncontrado);
+  
     if (clienteEncontrado) {
-      setClienteExistente(true);
-      setClienteRegistrado(clienteEncontrado); // Almacenar los datos del cliente encontrado
+      if (clienteEncontrado.estado === 'Desactivado') {
+        console.log('Cliente desactivado'); // Mensaje de cliente desactivado
+        setClienteExistente(false); // Aquí deberías establecer clienteExistente como falso ya que el cliente está inactivo
+        setDocumentoClienteEncontrado(clienteEncontrado.numDocumento); // Almacenar el número de documento del cliente encontrado
+      } else {
+        console.log('Cliente activo'); // Mensaje de cliente activo
+        setClienteExistente(true);
+        setClienteRegistrado(clienteEncontrado); // Almacenar los datos del cliente encontrado
+      }
     } else {
+      console.log('Cliente no encontrado. Mostrando formulario de registro.'); // Mensaje de cliente no encontrado
       setClienteExistente(false);
       setMostrarFormularioRegistro(true);
     }
+    
     setBuscarCliente(true);
   };
+  
+  
+  
+  
 
   const handleCancelarRegistro = () => {
     setBuscarCliente(false);
@@ -148,13 +182,11 @@ function EnterpriseInfo() {
 
   const handleCancelarCliente = () => {
     setClienteRegistrado(null);
-    setBuscarCliente(false); // Esto vuelve a mostrar la sección de buscar cliente
+    setBuscarCliente(false);
+    setClienteExistente(false);
+    setMostrarBotones(true);
+    setDocumentoClienteEncontrado(""); // Reset documentoClienteEncontrado
   };
-
-  
-
-  
-  
 
   return (
     <>
@@ -190,7 +222,13 @@ function EnterpriseInfo() {
             </div>
             <div className="col-md-6">
               <p>Empleado:</p>
-              <select id="empleado" value={empleadoSeleccionado} onChange={handleEmpleadoChange} style={{ backgroundColor: "white", borderRadius: "10px", padding: "10px" }}>
+              <select
+                id="empleado"
+                value={empleadoSeleccionado}
+                onChange={handleEmpleadoChange}
+                disabled={facturaCreada} // Aquí deshabilitamos el campo si la factura ha sido creada
+                style={{ backgroundColor: "white", borderRadius: "10px", padding: "10px" }}
+              >
                 <option value="">Seleccionar empleado</option>
                 {empleados.map((empleado) => (
                   <option key={empleado.empleadoId} value={empleado.empleadoId}>{empleado.nombre}</option>
@@ -217,6 +255,24 @@ function EnterpriseInfo() {
                 
               </div>
             )}
+          {!clienteExistente && (
+          <div style={{ marginTop: '10px' }}>
+            {documentoClienteEncontrado && (
+              <div>
+                <p className="text-danger">
+                  El cliente con número de documento {documentoClienteEncontrado} está desactivado.
+                </p>
+                {mostrarBotones && ( // Ocultar el botón "Quitar Cliente" cuando mostrarBotones sea falso
+                  <button type="button" className="btn btn-primary mt-2" onClick={handleCancelarCliente}>
+                    Quitar Cliente
+                  </button>
+                )}
+              </div>
+            )}
+          </div>
+        )}
+
+
             {mostrarFormularioRegistro && (
               <RegistroCliente
                 numeroDocumento={numeroDocumento}
