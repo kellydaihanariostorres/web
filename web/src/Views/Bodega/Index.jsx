@@ -8,7 +8,6 @@ const ManageBodegas = () => {
   const apiUrl = 'https://localhost:7284/api/bodegas';
   const [bodegas, setBodegas] = useState([]);
   const [nombre, setNombre] = useState('');
-  const [estado, setEstado] = useState('');
   const [direccion, setDireccion] = useState('');
   const [ciudad, setCiudad] = useState('');
   const [title, setTitle] = useState('');
@@ -19,14 +18,13 @@ const ManageBodegas = () => {
   const [totalPages, setTotalPages] = useState(1);
   const [cacheKey, setCacheKey] = useState('');
   const [errors, setErrors] = useState({});
+  const [bodegaId, setBodegaId] = useState({});
 
   const handleInputChange = (event) => {
     const { name, value } = event.target;
 
     if (name === 'nombre') {
       setNombre(value);
-    } else if (name === 'estado') {
-      setEstado(value);
     } else if (name === 'direccion') {
       setDireccion(value);
     } else if (name === 'ciudad') {
@@ -41,8 +39,11 @@ const ManageBodegas = () => {
   const getBodegas = async () => {
     try {
       const response = await axios.get(`${apiUrl}?cacheKey=${cacheKey}&forceRefresh=${Date.now()}`);
-      setBodegas(response.data);
-      setTotalPages(Math.ceil(response.data.length / pageSize));
+      const filteredBodegas = response.data.filter(
+        (bodega) => bodega.estado !== 'Desactivado' && !localStorage.getItem(`eliminado_${bodega.bodegaId}`)
+      );
+      setBodegas(filteredBodegas);
+      setTotalPages(Math.ceil(filteredBodegas.length / pageSize));
     } catch (error) {
       console.error(error);
     }
@@ -56,21 +57,20 @@ const ManageBodegas = () => {
     setPageNumber((prevPageNumber) => Math.max(prevPageNumber - 1, 1));
   };
 
-  const openModal = (op, bodegaId, nombre, estado, direccion, ciudad) => {
+  const openModal = (op, bodegaId, nombre, direccion, ciudad) => {
     setOperation(op);
 
     if (op === 1) {
       setTitle('Registrar bodega');
       setNombre('');
-      setEstado('');
       setDireccion('');
       setCiudad('');
     } else if (op === 2) {
       setTitle('Editar bodega');
       setNombre(nombre);
-      setEstado(estado);
       setDireccion(direccion);
       setCiudad(ciudad);
+      setBodegaId(bodegaId);
     }
   };
 
@@ -80,10 +80,6 @@ const ManageBodegas = () => {
 
     if (!nombre) {
       errorsCopy.nombre = 'El campo Nombre es obligatorio';
-      isValid = false;
-    }
-    if (!estado) {
-      errorsCopy.estado = 'El campo Estado es obligatorio';
       isValid = false;
     }
     if (!direccion) {
@@ -102,9 +98,9 @@ const ManageBodegas = () => {
 
     const parametros = {
       nombre,
-      estado,
       direccion,
       ciudad,
+      estado: 'Activo',
     };
 
     const metodo = operation === 1 ? 'POST' : 'PUT';
@@ -112,27 +108,37 @@ const ManageBodegas = () => {
   };
 
   const enviarSolicitud = async (metodo, parametros) => {
+    const bodegaIdParam = bodegaId || '';
     try {
-      const response = await axios[metodo.toLowerCase()](apiUrl, parametros);
-
+      const bodegaActual = bodegas.find((bodega) => bodega.bodegaId === bodegaIdParam);
+      if (bodegaActual && metodo === 'PUT') {
+        parametros = { ...parametros, estado: bodegaActual.estado };
+      }
+  
+      const response = await axios[metodo.toLowerCase()](
+        bodegaIdParam ? `${apiUrl}/${bodegaIdParam}` : apiUrl,
+        parametros
+      );
+  
       const tipo = response.data[0];
       const msj = response.data[1];
       show_alerta(msj, tipo);
-
+  
       show_alerta(`Bodega ${nombre} se ha ${msj} exitosamente`, 'success');
-
+  
       getBodegas();
       setCacheKey(Date.now().toString());
       setNombre('');
-      setEstado('');
       setDireccion('');
       setCiudad('');
+      setBodegaId('');
     } catch (error) {
       show_alerta('Error de solicitud', 'error');
       console.error(error);
     }
   };
-
+  
+  
   const handleSearch = (e) => {
     const text = e.target.value;
     setSearchText(text);
@@ -144,6 +150,26 @@ const ManageBodegas = () => {
         bodega.nombre.toLowerCase().includes(text.toLowerCase())
       );
       setBodegas(filteredBodegas);
+    }
+  };
+
+  const desactivarBodega = async (bodegaId, nombre) => {
+    try {
+      const response = await axios.get(`${apiUrl}/${bodegaId}`);
+      const bodega = response.data;
+
+      const parametros = {
+        ...bodega,
+        estado: 'Desactivado',
+      };
+
+      await axios.put(`${apiUrl}/${bodegaId}`, parametros);
+      show_alerta(`Bodega ${nombre} desactivada exitosamente`, 'success');
+      getBodegas();
+      setCacheKey(Date.now().toString());
+    } catch (error) {
+      show_alerta('Error al desactivar la bodega', 'error');
+      console.error(error);
     }
   };
 
@@ -203,9 +229,6 @@ const ManageBodegas = () => {
                     Nombre
                   </th>
                   <th className='table-header' style={{ background: '#440000', color: 'white' }}>
-                    Estado
-                  </th>
-                  <th className='table-header' style={{ background: '#440000', color: 'white' }}>
                     Dirección
                   </th>
                   <th className='table-header' style={{ background: '#440000', color: 'white' }}>
@@ -221,7 +244,6 @@ const ManageBodegas = () => {
                     <tr key={bodega.bodegaId}>
                       <td style={{ background: '#dadada' }}>{i + 1}</td>
                       <td style={{ background: '#dadada' }}>{bodega.nombre}</td>
-                      <td style={{ background: '#dadada' }}>{bodega.estado}</td>
                       <td style={{ background: '#dadada' }}>{bodega.direccion}</td>
                       <td style={{ background: '#dadada' }}>{bodega.ciudad}</td>
                       <td style={{ background: '#dadada' }}>
@@ -231,7 +253,6 @@ const ManageBodegas = () => {
                               2,
                               bodega.bodegaId,
                               bodega.nombre,
-                              bodega.estado,
                               bodega.direccion,
                               bodega.ciudad
                             )
@@ -242,6 +263,14 @@ const ManageBodegas = () => {
                           style={{ background: '#440000', color: 'white' }}
                         >
                           <i className='fa-solid fa-edit'></i>
+                        </button>
+                        &nbsp;
+                        <button
+                          onClick={() => desactivarBodega(bodega.bodegaId, bodega.nombre)}
+                          className='btn btn-danger'
+                          style={{ background: '#440000', color: 'white' }}
+                        >
+                          <i className='fa-solid fa-trash'></i>
                         </button>
                       </td>
                     </tr>
@@ -276,7 +305,7 @@ const ManageBodegas = () => {
             <div className='modal-body'>
               <div className='input-group mb-3'>
                 <span className='input-group-text'>
-                  <i className='fa-solid fa-store'></i>
+                  <i className='fa-solid fa-user'></i>
                 </span>
                 <input
                   type='text'
@@ -289,25 +318,6 @@ const ManageBodegas = () => {
                 />
                 <div style={{ position: 'absolute', bottom: '-31px' }}>
                   {errors.nombre && <p className='error-message red-color'>{errors.nombre}</p>}
-                </div>
-              </div>
-              <div className='input-group mb-3'>
-                <span className='input-group-text'>
-                  <i className='fa-solid fa-toggle-on'></i>
-                </span>
-                <select
-                  id='estado'
-                  className='form-select'
-                  value={estado}
-                  onChange={(event) => setEstado(event.target.value)}
-                  required
-                >
-                  <option value=''>Seleccionar Estado</option>
-                  <option value='Activo'>Activo</option>
-                  <option value='Inactivo'>Inactivo</option>
-                </select>
-                <div style={{ position: 'absolute', bottom: '-31px' }}>
-                  {errors.estado && <p className='error-message red-color'>{errors.estado}</p>}
                 </div>
               </div>
               <div className='input-group mb-3'>
@@ -329,7 +339,7 @@ const ManageBodegas = () => {
               </div>
               <div className='input-group mb-3'>
                 <span className='input-group-text'>
-                  <i className='fa-solid fa-building'></i>
+                  <i className='fa-solid fa-city'></i>
                 </span>
                 <input
                   type='text'

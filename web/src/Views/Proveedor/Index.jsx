@@ -23,6 +23,7 @@ const ManageProveedores = () => {
   const [totalPages, setTotalPages] = useState(1);
   const [cacheKey, setCacheKey] = useState('');
   const [errors, setErrors] = useState({});
+  const [idProveedor, setIdProveedor] = useState({});
 
   const handleInputChange = (event) => {
     const { name, value } = event.target;
@@ -71,7 +72,7 @@ const ManageProveedores = () => {
     setPageNumber((prevPageNumber) => Math.max(prevPageNumber - 1, 1));
   };
 
-  const openModal = (op, id, nombre, numDoc, edad, direccion, telefono, correo, nombreEntidad, numCuenta) => {
+  const openModal = (op, idProveedor, nombre, numDoc, edad, direccion, telefono, correo, nombreEntidad, numCuenta) => {
     setOperation(op);
 
     if (op === 1) {
@@ -94,6 +95,7 @@ const ManageProveedores = () => {
       setCorreo(correo);
       setNombreEntidadBancaria(nombreEntidad);
       setNumeroCuentaBancaria(numCuenta);
+      setIdProveedor(idProveedor);
     }
   };
 
@@ -109,7 +111,30 @@ const ManageProveedores = () => {
       errorsCopy.numDocumento = 'El campo Número de Documento es obligatorio';
       isValid = false;
     }
-    // Validar otros campos...
+    if (!edad) {
+      errorsCopy.edad = 'El campo edad es obligatorio';
+      isValid = false;
+    }
+    if (!direccion) {
+      errorsCopy.direccion = 'El campo direccion es obligatorio';
+      isValid = false;
+    }
+    if (!telefono) {
+      errorsCopy.telefono = 'El campo telefono es obligatorio';
+      isValid = false;
+    }
+    if (!correo) {
+      errorsCopy.correo = 'El campo correo es obligatorio';
+      isValid = false;
+    }
+    if (!nombreEntidadBancaria) {
+      errorsCopy.nombreEntidadBancaria = 'El campo entidad bancario es obligatorio';
+      isValid = false;
+    }
+    if (!numeroCuentaBancaria) {
+      errorsCopy.numeroCuentaBancaria = 'El campo numero bancario es obligatorio';
+      isValid = false;
+    }
 
     if (!isValid) {
       setErrors(errorsCopy);
@@ -133,15 +158,25 @@ const ManageProveedores = () => {
   };
 
   const enviarSolicitud = async (metodo, parametros) => {
+    const idProveedorParam = idProveedor || '';
     try {
-      const response = await axios[metodo.toLowerCase()](apiUrl, parametros);
-
+      const idProveedor = parametros.idProveedor; // Corrected line
+      const proveedorActual = proveedores.find((proveedor) => proveedor.idProveedor === idProveedorParam);
+      if (proveedorActual && metodo === 'PUT') {
+        parametros = { ...parametros, estado: proveedorActual.estado };
+      }
+  
+      const response = await axios[metodo.toLowerCase()](
+        idProveedorParam ? `${apiUrl}/${idProveedorParam}` : apiUrl,
+        parametros
+      );
+  
       const tipo = response.data[0];
       const msj = response.data[1];
       show_alerta(msj, tipo);
-
+  
       show_alerta(`Proveedor ${nombreProveedor} se ha ${msj} exitosamente`, 'success');
-
+  
       getProveedores();
       setCacheKey(Date.now().toString());
       setNombreProveedor('');
@@ -152,12 +187,13 @@ const ManageProveedores = () => {
       setCorreo('');
       setNombreEntidadBancaria('');
       setNumeroCuentaBancaria('');
+      setIdProveedor('');
     } catch (error) {
       show_alerta('Error de solicitud', 'error');
       console.error(error);
     }
   };
-
+  
   const handleSearch = (e) => {
     const text = e.target.value;
     setSearchText(text);

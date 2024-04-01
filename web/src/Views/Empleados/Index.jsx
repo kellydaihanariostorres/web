@@ -39,20 +39,21 @@ const ManageEmpleados = () => {
   const handleInputChange = (event) => {
     const { name, value } = event.target;
     let newValue = value;
-
+  
     if (name === 'nombre' || name === 'apellido') {
       newValue = value.replace(/[^a-zA-Z\s]/g, '');
     } else if (name === 'documento' || name === 'sueldo') {
       newValue = value.replace(/\D/g, '');
     }
-
+  
     // Actualizar el estado del empleado actual con el nuevo valor
     setNombre((prevNombre) => (name === 'nombre' ? newValue : prevNombre));
     setApellido((prevApellido) => (name === 'apellido' ? newValue : prevApellido));
     setDocumento((prevDocumento) => (name === 'documento' ? newValue : prevDocumento));
-    setCargo((prevCargo) => (name === 'cargo' ? newValue : prevCargo));
+    setCargo((prevCargo) => (name === 'cargo' ? value : prevCargo)); // Modificación aquí
     setSueldo((prevSueldo) => (name === 'sueldo' ? newValue : prevSueldo));
   };
+  
 
   useEffect(() => {
     getEmpleados();
@@ -499,11 +500,12 @@ const ManageEmpleados = () => {
                 <span className='input-group-text'>
                   <i className='fa-solid fa-gift'></i>
                 </span>
+
                 <select
                   id='cargo'
                   className='form-select'
                   value={cargo}
-                  onChange={handleInputChange}
+                  onChange={(event) => setCargo(event.target.value)}
                   required
                 >
                   <option value=''>Seleccionar Cargo</option>

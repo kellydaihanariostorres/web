@@ -20,6 +20,7 @@ const ManageProductos = () => {
   const [cantidad, setCantidad] = useState(1);
   const [cacheKey, setCacheKey] = useState('');
   const [errors, setErrors] = useState({});
+  const [idProducto, setIdProducto] = useState('');
 
   const handleInputChange = (event) => {
     const { name, value } = event.target;
@@ -62,7 +63,7 @@ const ManageProductos = () => {
     setPageNumber((prevPageNumber) => Math.max(prevPageNumber - 1, 1));
   };
 
-  const openModal = (op, id, nombre, precio, marca, clasificacion, cantidad) => {
+  const openModal = (op, idProducto, nombre, precio, marca, clasificacion, cantidad) => {
     setOperation(op);
 
     if (op === 1) {
@@ -72,13 +73,15 @@ const ManageProductos = () => {
       setCantidad(1);
       setMarcaProducto('');
       setClasificacionProducto('');
+      setIdProducto('');
     } else if (op === 2) {
       setTitle('Editar producto');
-      setNombreProducto(nombre);
+      setNombreProducto(nombre); // Aquí estableces el nombre del producto existente
       setPrecioProducto(precio);
       setCantidad(cantidad);
       setMarcaProducto(marca);
       setClasificacionProducto(clasificacion);
+      setIdProducto(idProducto);
     }
   };
 
@@ -127,14 +130,24 @@ const ManageProductos = () => {
   
 
   const enviarSolicitud = async (metodo, parametros) => {
+    const idProductoParam = idProducto || '';
     try {
-      const response = await axios[metodo.toLowerCase()](apiUrl, parametros);
+      const idProducto = parametros.idProducto;
+      const productoActual = productos.find((productos) => productos.idProducto === idProductoParam );
+      if (productoActual && metodo === 'PUT') {
+        parametros = { ...parametros, estado: productoActual.estado };
+      }
+  
+      const response = await axios[metodo.toLowerCase()](
+        idProductoParam ? `${apiUrl}/${idProductoParam }` : apiUrl,
+        parametros
+      );
 
       const tipo = response.data[0];
       const msj = response.data[1];
       show_alerta(msj, tipo);
 
-      show_alerta(`Producto ${nombreProducto} se ha ${msj} exitosamente`, 'success');
+      show_alerta(`Producto ${nombreProducto} se ha  exitosamente`, 'success');
 
       getProductos();
       setCacheKey(Date.now().toString());
@@ -142,6 +155,7 @@ const ManageProductos = () => {
       setPrecioProducto('');
       setMarcaProducto('');
       setClasificacionProducto('');
+      setIdProducto('')
       setCantidad(1);
     } catch (error) {
       show_alerta('Error de solicitud', 'error');
