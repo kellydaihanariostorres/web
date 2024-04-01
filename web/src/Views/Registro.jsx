@@ -218,7 +218,10 @@ const Registro = () => {
         className="form-control"
         placeholder='Apellido'
         value={lastName}
-        onChange={(e) => setLastName(e.target.value)}
+        onChange={(e) => {
+          const newValue = e.target.value.replace(/[^a-zA-Z\s]/g, "");
+          setLastName(newValue);
+        }}
       />
       {errorMessage.lastName && <p className="error-message red-color">{errorMessage.lastName}</p>}
     </div>

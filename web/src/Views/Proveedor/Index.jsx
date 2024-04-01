@@ -3,16 +3,14 @@ import DivAdd from '../../Components/DivAdd';
 import DivTable from '../../Components/DivTable';
 import { show_alerta } from '../../functions';
 import axios from 'axios';
-import Swal from 'sweetalert2';
-import withReactContent from 'sweetalert2-react-content';
 
 const ManageProveedores = () => {
   const apiUrl = 'https://localhost:7284/api/proveedor';
   const [proveedores, setProveedores] = useState([]);
-  const [idProveedor, setIdProveedor] = useState('');
-  const [nombre, setNombre] = useState('');
+  const [nombreProveedor, setNombreProveedor] = useState('');
   const [numDocumento, setNumDocumento] = useState('');
   const [edad, setEdad] = useState('');
+  const [direccion, setDireccion] = useState('');
   const [telefono, setTelefono] = useState('');
   const [correo, setCorreo] = useState('');
   const [nombreEntidadBancaria, setNombreEntidadBancaria] = useState('');
@@ -21,20 +19,45 @@ const ManageProveedores = () => {
   const [operation, setOperation] = useState(1);
   const [searchText, setSearchText] = useState('');
   const [pageNumber, setPageNumber] = useState(1);
-  const [pageSize, setPageSize] = useState(5);
-  const [totalPages, setTotalPages] = useState(1); 
-  const [direccion, setDireccion] = useState('');
+  const [pageSize, setPageSize] = useState(7);
+  const [totalPages, setTotalPages] = useState(1);
+  const [cacheKey, setCacheKey] = useState('');
+  const [errors, setErrors] = useState({});
 
+  const handleInputChange = (event) => {
+    const { name, value } = event.target;
+
+    if (name === 'nombreProveedor') {
+      setNombreProveedor(value);
+    } else if (name === 'numDocumento') {
+      setNumDocumento(value.replace(/\D/g, ''));
+    } else if (name === 'edad') {
+      setEdad(value.replace(/\D/g, ''));
+    } else if (name === 'direccion') {
+      setDireccion(value);
+    } else if (name === 'telefono') {
+      setTelefono(value.replace(/\D/g, ''));
+    } else if (name === 'correo') {
+      setCorreo(value);
+    } else if (name === 'nombreEntidadBancaria') {
+      setNombreEntidadBancaria(value);
+    } else if (name === 'numeroCuentaBancaria') {
+      setNumeroCuentaBancaria(value.replace(/\D/g, ''));
+    }
+  };
 
   useEffect(() => {
     getProveedores();
-  }, [pageNumber, pageSize]);
+  }, [pageNumber, pageSize, cacheKey]);
 
   const getProveedores = async () => {
     try {
-      const response = await axios.get(apiUrl);
-      setProveedores(response.data);
-      setTotalPages(Math.ceil(response.data.length / pageSize));
+      const response = await axios.get(`${apiUrl}?cacheKey=${cacheKey}&forceRefresh=${Date.now()}`);
+      const filteredProveedores = response.data.filter(
+        (proveedor) => proveedor.estado !== 'Desactivado' && !localStorage.getItem(`eliminado_${proveedor.idProveedor}`)
+      );
+      setProveedores(filteredProveedores);
+      setTotalPages(Math.ceil(filteredProveedores.length / pageSize));
     } catch (error) {
       console.error(error);
     }
@@ -48,76 +71,85 @@ const ManageProveedores = () => {
     setPageNumber((prevPageNumber) => Math.max(prevPageNumber - 1, 1));
   };
 
-  const openModal = (op, id, nombre, numDocumento, edad, telefono, correo,direccion, nombreEntidadBancaria, numeroCuentaBancaria) => {
+  const openModal = (op, id, nombre, numDoc, edad, direccion, telefono, correo, nombreEntidad, numCuenta) => {
     setOperation(op);
-    setIdProveedor(id);
 
     if (op === 1) {
       setTitle('Registrar proveedor');
-      setNombre('');
+      setNombreProveedor('');
       setNumDocumento('');
       setEdad('');
+      setDireccion('');
       setTelefono('');
       setCorreo('');
-      setDireccion('')
       setNombreEntidadBancaria('');
       setNumeroCuentaBancaria('');
     } else if (op === 2) {
       setTitle('Editar proveedor');
-      setNombre(nombre);
-      setNumDocumento(numDocumento);
+      setNombreProveedor(nombre);
+      setNumDocumento(numDoc);
       setEdad(edad);
+      setDireccion(direccion);
       setTelefono(telefono);
       setCorreo(correo);
-      setDireccion(direccion)
-      setNombreEntidadBancaria(nombreEntidadBancaria);
-      setNumeroCuentaBancaria(numeroCuentaBancaria);
+      setNombreEntidadBancaria(nombreEntidad);
+      setNumeroCuentaBancaria(numCuenta);
     }
-
-    document.getElementById('modalProveedores').addEventListener('shown.bs.modal', function () {
-      document.getElementById('nombre').focus();
-    });
   };
 
   const validar = () => {
-    if (
-      nombre.trim() === '' ||
-      String(numDocumento).trim() === '' ||
-      String(edad).trim() === '' ||
-      telefono.trim() === '' ||
-      correo.trim() === '' ||
-      direccion.trim() === '' ||
-      String(nombreEntidadBancaria).trim() === '' ||
-      String(numeroCuentaBancaria).trim() === ''
-    ) {
-      show_alerta('Completa todos los campos', 'warning');
-    } else {
-      const parametros = { nombre, numDocumento, edad, telefono, correo, direccion,nombreEntidadBancaria, numeroCuentaBancaria };
-      const metodo = operation === 1 ? 'POST' : 'PUT';
-      enviarSolicitud(metodo, parametros);
+    const errorsCopy = {};
+    let isValid = true;
+
+    if (!nombreProveedor) {
+      errorsCopy.nombreProveedor = 'El campo Nombre es obligatorio';
+      isValid = false;
     }
+    if (!numDocumento) {
+      errorsCopy.numDocumento = 'El campo Número de Documento es obligatorio';
+      isValid = false;
+    }
+    // Validar otros campos...
+
+    if (!isValid) {
+      setErrors(errorsCopy);
+      return;
+    }
+
+    const parametros = {
+      nombre: nombreProveedor,
+      numDocumento,
+      edad,
+      direccion,
+      telefono,
+      correo,
+      nombreEntidadBancaria,
+      numeroCuentaBancaria,
+      estado: 'Activo',
+    };
+
+    const metodo = operation === 1 ? 'POST' : 'PUT';
+    enviarSolicitud(metodo, parametros);
   };
 
   const enviarSolicitud = async (metodo, parametros) => {
-    const idProveedorParam = idProveedor || '';
     try {
-      const response = await axios[metodo.toLowerCase()](
-        idProveedorParam ? `${apiUrl}/${idProveedorParam}` : apiUrl,
-        parametros
-      );
+      const response = await axios[metodo.toLowerCase()](apiUrl, parametros);
+
       const tipo = response.data[0];
       const msj = response.data[1];
       show_alerta(msj, tipo);
 
-      getProveedores();
+      show_alerta(`Proveedor ${nombreProveedor} se ha ${msj} exitosamente`, 'success');
 
-      setIdProveedor('');
-      setNombre('');
+      getProveedores();
+      setCacheKey(Date.now().toString());
+      setNombreProveedor('');
       setNumDocumento('');
       setEdad('');
+      setDireccion('');
       setTelefono('');
       setCorreo('');
-      setDireccion('')
       setNombreEntidadBancaria('');
       setNumeroCuentaBancaria('');
     } catch (error) {
@@ -140,40 +172,28 @@ const ManageProveedores = () => {
     }
   };
 
-  const deleteProveedor = (idProveedor, nombre) => {
-    const MySwal = withReactContent(Swal);
-    MySwal.fire({
-      title: `¿Seguro quieres eliminar al proveedor ${nombre}?`,
-      icon: 'question',
-      text: 'No se podrá dar marcha atrás',
-      showCancelButton: true,
-      confirmButtonText: 'Sí, eliminar',
-      cancelButtonText: 'Cancelar',
-    }).then(async (result) => {
-      if (result.isConfirmed) {
-        try {
-          await axios.delete(`${apiUrl}/${idProveedor}`);
-          show_alerta('Proveedor eliminado exitosamente', 'success');
-          getProveedores();
-        } catch (error) {
-          show_alerta('Error al eliminar al proveedor', 'error');
-          console.error(error);
-        } finally {
-          setIdProveedor('');
-          setNombre('');
-          setNumDocumento('');
-          setEdad('');
-          setTelefono('');
-          setCorreo('');
-          setDireccion('')
-          setNombreEntidadBancaria('');
-          setNumeroCuentaBancaria('');
-        }
-      } else {
-        show_alerta('El proveedor no fue eliminado', 'info');
-      }
-    });
+  const desactivarProveedor = async (idProveedor, nombreProveedor) => {
+    try {
+      const response = await axios.get(`${apiUrl}/${idProveedor}`);
+      const proveedor = response.data;
+
+      const parametros = {
+        ...proveedor,
+        estado: 'Desactivado',
+      };
+
+      await axios.put(`${apiUrl}/${idProveedor}`, parametros);
+      show_alerta(`Proveedor ${nombreProveedor} desactivado exitosamente`, 'success');
+      getProveedores();
+      setCacheKey(Date.now().toString());
+    } catch (error) {
+      show_alerta('Error al desactivar al proveedor', 'error');
+      console.error(error);
+    }
   };
+
+  const showPreviousButton = pageNumber > 1;
+  const showNextButton = pageNumber < totalPages;
 
   return (
     <div className='container-fluid'>
@@ -202,7 +222,7 @@ const ManageProveedores = () => {
             </div>
             <DivAdd>
               <button
-                type="button" class="btn btn-danger"
+                type='button'
                 onClick={() => openModal(1)}
                 data-bs-toggle='modal'
                 data-bs-target='#modalProveedores'
@@ -228,10 +248,13 @@ const ManageProveedores = () => {
                     Nombre
                   </th>
                   <th className='table-header' style={{ background: '#440000', color: 'white' }}>
-                    Num. Documento
+                    Número de Documento
                   </th>
                   <th className='table-header' style={{ background: '#440000', color: 'white' }}>
                     Edad
+                  </th>
+                  <th className='table-header' style={{ background: '#440000', color: 'white' }}>
+                    Dirección
                   </th>
                   <th className='table-header' style={{ background: '#440000', color: 'white' }}>
                     Teléfono
@@ -240,13 +263,10 @@ const ManageProveedores = () => {
                     Correo
                   </th>
                   <th className='table-header' style={{ background: '#440000', color: 'white' }}>
-                    Direccion
-                  </th>
-                  <th className='table-header' style={{ background: '#440000', color: 'white' }}>
                     Entidad Bancaria
                   </th>
                   <th className='table-header' style={{ background: '#440000', color: 'white' }}>
-                    Número Cuenta
+                    Número de Cuenta Bancaria
                   </th>
                   <th className='table-header' style={{ background: '#440000', color: 'white' }}></th>
                 </tr>
@@ -260,9 +280,9 @@ const ManageProveedores = () => {
                       <td style={{ background: '#dadada' }}>{proveedor.nombre}</td>
                       <td style={{ background: '#dadada' }}>{proveedor.numDocumento}</td>
                       <td style={{ background: '#dadada' }}>{proveedor.edad}</td>
+                      <td style={{ background: '#dadada' }}>{proveedor.direccion}</td>
                       <td style={{ background: '#dadada' }}>{proveedor.telefono}</td>
                       <td style={{ background: '#dadada' }}>{proveedor.correo}</td>
-                      <td style={{ background: '#dadada' }}>{proveedor.direccion}</td>
                       <td style={{ background: '#dadada' }}>{proveedor.nombreEntidadBancaria}</td>
                       <td style={{ background: '#dadada' }}>{proveedor.numeroCuentaBancaria}</td>
                       <td style={{ background: '#dadada' }}>
@@ -274,9 +294,9 @@ const ManageProveedores = () => {
                               proveedor.nombre,
                               proveedor.numDocumento,
                               proveedor.edad,
+                              proveedor.direccion,
                               proveedor.telefono,
                               proveedor.correo,
-                              proveedor.direccion,
                               proveedor.nombreEntidadBancaria,
                               proveedor.numeroCuentaBancaria
                             )
@@ -290,7 +310,7 @@ const ManageProveedores = () => {
                         </button>
                         &nbsp;
                         <button
-                          onClick={() => deleteProveedor(proveedor.idProveedor, proveedor.nombre)}
+                          onClick={() => desactivarProveedor(proveedor.idProveedor, proveedor.nombre)}
                           className='btn btn-danger'
                           style={{ background: '#440000', color: 'white' }}
                         >
@@ -302,7 +322,7 @@ const ManageProveedores = () => {
               </tbody>
             </table>
             <div className='d-flex justify-content-between'>
-              {pageNumber > 1 && (
+              {showPreviousButton && (
                 <button onClick={handlePreviousPage} style={{ background: '#440000', borderColor: '#440000', color: 'white' }}>
                   Anterior
                 </button>
@@ -310,7 +330,7 @@ const ManageProveedores = () => {
               <span>
                 Página {pageNumber} de {totalPages}
               </span>
-              {proveedores.length > pageSize && pageNumber < totalPages && (
+              {showNextButton && (
                 <button onClick={handleNextPage} style={{ background: '#440000', borderColor: '#440000', color: 'white' }}>
                   Siguiente
                 </button>
@@ -327,114 +347,126 @@ const ManageProveedores = () => {
               <button type='button' className='btn-close' data-bs-dismiss='modal' aria-label='Close'></button>
             </div>
             <div className='modal-body'>
-              <input type='hidden' id='id' />
               <div className='input-group mb-3'>
                 <span className='input-group-text'>
-                  <i className='fa-solid fa-gift'></i>
+                  <i className='fa-solid fa-user'></i>
                 </span>
                 <input
                   type='text'
-                  id='nombre'
+                  id='nombreProveedor'
+                  name='nombreProveedor'
                   className='form-control'
                   placeholder='Nombre'
-                  value={nombre}
-                  onChange={(e) => setNombre(e.target.value)}
+                  value={nombreProveedor}
+                  onChange={handleInputChange}
                 />
+                <div style={{ position: 'absolute', bottom: '-31px' }}>
+                  {errors.nombreProveedor && <p className='error-message red-color'>{errors.nombreProveedor}</p>}
+                </div>
               </div>
               <div className='input-group mb-3'>
                 <span className='input-group-text'>
-                  <i className='fa-solid fa-gift'></i>
+                  <i className='fa-solid fa-id-card'></i>
                 </span>
                 <input
                   type='text'
                   id='numDocumento'
+                  name='numDocumento'
                   className='form-control'
-                  placeholder='Número Documento'
+                  placeholder='Número de Documento'
                   value={numDocumento}
-                  onChange={(e) => setNumDocumento(e.target.value)}
+                  onChange={handleInputChange}
                 />
+                <div style={{ position: 'absolute', bottom: '-31px' }}>
+                  {errors.numDocumento && <p className='error-message red-color'>{errors.numDocumento}</p>}
+                </div>
               </div>
               <div className='input-group mb-3'>
                 <span className='input-group-text'>
-                  <i className='fa-solid fa-gift'></i>
+                  <i className='fa-solid fa-user'></i>
                 </span>
                 <input
                   type='text'
                   id='edad'
+                  name='edad'
                   className='form-control'
                   placeholder='Edad'
                   value={edad}
-                  onChange={(e) => setEdad(e.target.value)}
+                  onChange={handleInputChange}
                 />
               </div>
               <div className='input-group mb-3'>
                 <span className='input-group-text'>
-                  <i className='fa-solid fa-gift'></i>
-                </span>
-                <input
-                  type='text'
-                  id='telefono'
-                  className='form-control'
-                  placeholder='Teléfono'
-                  value={telefono}
-                  onChange={(e) => setTelefono(e.target.value)}
-                />
-              </div>
-              <div className='input-group mb-3'>
-                <span className='input-group-text'>
-                  <i className='fa-solid fa-gift'></i>
-                </span>
-                <input
-                  type='text'
-                  id='correo'
-                  className='form-control'
-                  placeholder='Correo'
-                  value={correo}
-                  onChange={(e) => setCorreo(e.target.value)}
-                />
-              </div>
-
-              <div className='input-group mb-3'>
-                <span className='input-group-text'>
-                  <i className='fa-solid fa-gift'></i>
+                  <i className='fa-solid fa-home'></i>
                 </span>
                 <input
                   type='text'
                   id='direccion'
+                  name='direccion'
                   className='form-control'
                   placeholder='Dirección'
                   value={direccion}
-                  onChange={(e) => setDireccion(e.target.value)}
+                  onChange={handleInputChange}
                 />
               </div>
               <div className='input-group mb-3'>
                 <span className='input-group-text'>
-                  <i className='fa-solid fa-gift'></i>
+                  <i className='fa-solid fa-phone'></i>
+                </span>
+                <input
+                  type='text'
+                  id='telefono'
+                  name='telefono'
+                  className='form-control'
+                  placeholder='Teléfono'
+                  value={telefono}
+                  onChange={handleInputChange}
+                />
+              </div>
+              <div className='input-group mb-3'>
+                <span className='input-group-text'>
+                  <i className='fa-solid fa-envelope'></i>
+                </span>
+                <input
+                  type='text'
+                  id='correo'
+                  name='correo'
+                  className='form-control'
+                  placeholder='Correo'
+                  value={correo}
+                  onChange={handleInputChange}
+                />
+              </div>
+              <div className='input-group mb-3'>
+                <span className='input-group-text'>
+                  <i className='fa-solid fa-building'></i>
                 </span>
                 <input
                   type='text'
                   id='nombreEntidadBancaria'
+                  name='nombreEntidadBancaria'
                   className='form-control'
-                  placeholder='Entidad Bancaria'
+                  placeholder='Nombre Entidad Bancaria'
                   value={nombreEntidadBancaria}
-                  onChange={(e) => setNombreEntidadBancaria(e.target.value)}
+                  onChange={handleInputChange}
                 />
               </div>
               <div className='input-group mb-3'>
                 <span className='input-group-text'>
-                  <i className='fa-solid fa-gift'></i>
+                  <i className='fa-solid fa-credit-card'></i>
                 </span>
                 <input
                   type='text'
                   id='numeroCuentaBancaria'
+                  name='numeroCuentaBancaria'
                   className='form-control'
-                  placeholder='Número Cuenta Bancaria'
+                  placeholder='Número de Cuenta Bancaria'
                   value={numeroCuentaBancaria}
-                  onChange={(e) => setNumeroCuentaBancaria(e.target.value)}
+                  onChange={handleInputChange}
                 />
               </div>
               <div className='d-grid col-6 mx-auto'>
-                <button onClick={() => validar(idProveedor)} className='btn btn-success'>
+                <button onClick={validar} className='btn btn-success'>
                   <i className='fa-solid fa-floppy-disk'></i> Guardar
                 </button>
               </div>

@@ -3,13 +3,10 @@ import DivAdd from '../../Components/DivAdd';
 import DivTable from '../../Components/DivTable';
 import { show_alerta } from '../../functions';
 import axios from 'axios';
-import Swal from 'sweetalert2';
-import withReactContent from 'sweetalert2-react-content';
 
 const ManageBodegas = () => {
   const apiUrl = 'https://localhost:7284/api/bodegas';
   const [bodegas, setBodegas] = useState([]);
-  const [bodegaId, setBodegaId] = useState('');
   const [nombre, setNombre] = useState('');
   const [estado, setEstado] = useState('');
   const [direccion, setDireccion] = useState('');
@@ -18,16 +15,32 @@ const ManageBodegas = () => {
   const [operation, setOperation] = useState(1);
   const [searchText, setSearchText] = useState('');
   const [pageNumber, setPageNumber] = useState(1);
-  const [pageSize, setPageSize] = useState(8);
-  const [totalPages, setTotalPages] = useState(1); 
+  const [pageSize, setPageSize] = useState(7);
+  const [totalPages, setTotalPages] = useState(1);
+  const [cacheKey, setCacheKey] = useState('');
+  const [errors, setErrors] = useState({});
+
+  const handleInputChange = (event) => {
+    const { name, value } = event.target;
+
+    if (name === 'nombre') {
+      setNombre(value);
+    } else if (name === 'estado') {
+      setEstado(value);
+    } else if (name === 'direccion') {
+      setDireccion(value);
+    } else if (name === 'ciudad') {
+      setCiudad(value);
+    }
+  };
 
   useEffect(() => {
     getBodegas();
-  }, [pageNumber, pageSize]);
+  }, [pageNumber, pageSize, cacheKey]);
 
   const getBodegas = async () => {
     try {
-      const response = await axios.get(apiUrl);
+      const response = await axios.get(`${apiUrl}?cacheKey=${cacheKey}&forceRefresh=${Date.now()}`);
       setBodegas(response.data);
       setTotalPages(Math.ceil(response.data.length / pageSize));
     } catch (error) {
@@ -43,9 +56,8 @@ const ManageBodegas = () => {
     setPageNumber((prevPageNumber) => Math.max(prevPageNumber - 1, 1));
   };
 
-  const openModal = (op, id, nombre, estado, direccion, ciudad) => {
+  const openModal = (op, bodegaId, nombre, estado, direccion, ciudad) => {
     setOperation(op);
-    setBodegaId(id);
 
     if (op === 1) {
       setTitle('Registrar bodega');
@@ -60,39 +72,57 @@ const ManageBodegas = () => {
       setDireccion(direccion);
       setCiudad(ciudad);
     }
-
-    document.getElementById('modalBodegas').addEventListener('shown.bs.modal', function () {
-      document.getElementById('nombre').focus();
-    });
   };
 
   const validar = () => {
-    if (
-      nombre.trim() === '' ||
-      estado.trim() === '' ||
-      direccion.trim() === '' ||
-      ciudad.trim() === ''
-    ) {
-      show_alerta('Completa todos los campos', 'warning');
-    } else {
-      const parametros = { nombre, estado, direccion, ciudad };
-      const metodo = operation === 1 ? 'POST' : 'PUT';
-      enviarSolicitud(metodo, parametros);
+    const errorsCopy = {};
+    let isValid = true;
+
+    if (!nombre) {
+      errorsCopy.nombre = 'El campo Nombre es obligatorio';
+      isValid = false;
     }
+    if (!estado) {
+      errorsCopy.estado = 'El campo Estado es obligatorio';
+      isValid = false;
+    }
+    if (!direccion) {
+      errorsCopy.direccion = 'El campo Dirección es obligatorio';
+      isValid = false;
+    }
+    if (!ciudad) {
+      errorsCopy.ciudad = 'El campo Ciudad es obligatorio';
+      isValid = false;
+    }
+
+    if (!isValid) {
+      setErrors(errorsCopy);
+      return;
+    }
+
+    const parametros = {
+      nombre,
+      estado,
+      direccion,
+      ciudad,
+    };
+
+    const metodo = operation === 1 ? 'POST' : 'PUT';
+    enviarSolicitud(metodo, parametros);
   };
 
   const enviarSolicitud = async (metodo, parametros) => {
-    const bodegaIdParam = bodegaId || '';
     try {
-      const response = await axios[metodo.toLowerCase()](
-        bodegaIdParam ? `${apiUrl}/${bodegaIdParam}` : apiUrl,
-        parametros
-      );
+      const response = await axios[metodo.toLowerCase()](apiUrl, parametros);
+
       const tipo = response.data[0];
       const msj = response.data[1];
       show_alerta(msj, tipo);
+
+      show_alerta(`Bodega ${nombre} se ha ${msj} exitosamente`, 'success');
+
       getBodegas();
-      setBodegaId('');
+      setCacheKey(Date.now().toString());
       setNombre('');
       setEstado('');
       setDireccion('');
@@ -117,37 +147,6 @@ const ManageBodegas = () => {
     }
   };
 
-  const deleteBodega = (bodegaId, nombre) => {
-    const MySwal = withReactContent(Swal);
-    MySwal.fire({
-      title: `¿Seguro quieres eliminar la bodega ${nombre}?`,
-      icon: 'question',
-      text: 'No se podrá dar marcha atrás',
-      showCancelButton: true,
-      confirmButtonText: 'Sí, eliminar',
-      cancelButtonText: 'Cancelar',
-    }).then(async (result) => {
-      if (result.isConfirmed) {
-        try {
-          await axios.delete(`${apiUrl}/${bodegaId}`);
-          show_alerta('Bodega eliminada exitosamente', 'success');
-        } catch (error) {
-          show_alerta('Error al eliminar la bodega', 'error');
-          console.error(error);
-        } finally {
-          getBodegas();
-          setBodegaId('');
-          setNombre('');
-          setEstado('');
-          setDireccion('');
-          setCiudad('');
-        }
-      } else {
-        show_alerta('La bodega no fue eliminada', 'info');
-      }
-    });
-  };
-
   const showPreviousButton = pageNumber > 1;
   const showNextButton = pageNumber < totalPages;
 
@@ -156,41 +155,39 @@ const ManageBodegas = () => {
       <div className='row justify-content-center'>
         <div className='col-md-4 offset-md-4'>
           <div style={{ display: 'flex', alignItems: 'center' }}>
-            <div style={{ display: 'flex', alignItems: 'center' }}>
-              <div className='input-group mb-3'>
-                <input
-                  type='text'
-                  className='form-control'
-                  placeholder='Buscar bodega'
-                  aria-label='Buscar bodega'
-                  aria-describedby='button-addon2'
-                  onChange={handleSearch}
-                  value={searchText}
-                  style={{
-                    height: '40px',
-                    borderRadius: '45px',
-                    marginRight: '100px',
-                    width: '500px',
-                    marginLeft: 'auto',
-                    position: 'absolute',
-                    right: 0,
-                  }}
-                />
-              </div>
-              <DivAdd>
-                <button
-                  type="button" class="btn btn-danger"
-                  onClick={() => openModal(1)}
-                  data-bs-toggle='modal'
-                  data-bs-target='#modalBodegas'
-                  className='btn btn-dark'
-                  style={{ background: '#440000', borderColor: '#440000', color: 'white', width: '100%', marginLeft: '100px' }}
-                >
-                  <i className='fa-solid fa-circle-plus'></i> Añadir
-                </button>
-              </DivAdd>
-            </div>        
-          </div> 
+            <div className='input-group mb-3'>
+              <input
+                type='text'
+                className='form-control'
+                placeholder='Buscar bodega'
+                aria-label='Buscar bodega'
+                aria-describedby='button-addon2'
+                onChange={handleSearch}
+                value={searchText}
+                style={{
+                  height: '40px',
+                  borderRadius: '45px',
+                  marginRight: '100px',
+                  width: '500px',
+                  marginLeft: 'auto',
+                  position: 'absolute',
+                  right: 0,
+                }}
+              />
+            </div>
+            <DivAdd>
+              <button
+                type='button'
+                onClick={() => openModal(1)}
+                data-bs-toggle='modal'
+                data-bs-target='#modalBodegas'
+                className='btn btn-dark'
+                style={{ background: '#440000', borderColor: '#440000', color: 'white', width: '100%', marginLeft: '100px' }}
+              >
+                <i className='fa-solid fa-circle-plus'></i> Añadir
+              </button>
+            </DivAdd>
+          </div>
         </div>
       </div>
       <div className='row mt-3'>
@@ -246,14 +243,6 @@ const ManageBodegas = () => {
                         >
                           <i className='fa-solid fa-edit'></i>
                         </button>
-                        &nbsp;
-                        <button
-                          onClick={() => deleteBodega(bodega.bodegaId, bodega.nombre)}
-                          className='btn btn-danger'
-                          style={{ background: '#440000', color: 'white' }}
-                        >
-                          <i className='fa-solid fa-trash'></i>
-                        </button>
                       </td>
                     </tr>
                   ))}
@@ -285,66 +274,85 @@ const ManageBodegas = () => {
               <button type='button' className='btn-close' data-bs-dismiss='modal' aria-label='Close'></button>
             </div>
             <div className='modal-body'>
-              <input type='hidden' id='id' />
               <div className='input-group mb-3'>
                 <span className='input-group-text'>
-                  <i className='fa-solid fa-gift'></i>
+                  <i className='fa-solid fa-store'></i>
                 </span>
                 <input
                   type='text'
                   id='nombre'
+                  name='nombre'
                   className='form-control'
                   placeholder='Nombre'
                   value={nombre}
-                  onChange={(e) => setNombre(e.target.value)}
+                  onChange={handleInputChange}
                 />
+                <div style={{ position: 'absolute', bottom: '-31px' }}>
+                  {errors.nombre && <p className='error-message red-color'>{errors.nombre}</p>}
+                </div>
               </div>
               <div className='input-group mb-3'>
                 <span className='input-group-text'>
-                  <i className='fa-solid fa-gift'></i>
+                  <i className='fa-solid fa-toggle-on'></i>
                 </span>
-                <input
-                  type='text'
+                <select
                   id='estado'
-                  className='form-control'
-                  placeholder='Estado'
+                  className='form-select'
                   value={estado}
-                  onChange={(e) => setEstado(e.target.value)}
-                />
+                  onChange={(event) => setEstado(event.target.value)}
+                  required
+                >
+                  <option value=''>Seleccionar Estado</option>
+                  <option value='Activo'>Activo</option>
+                  <option value='Inactivo'>Inactivo</option>
+                </select>
+                <div style={{ position: 'absolute', bottom: '-31px' }}>
+                  {errors.estado && <p className='error-message red-color'>{errors.estado}</p>}
+                </div>
               </div>
               <div className='input-group mb-3'>
                 <span className='input-group-text'>
-                  <i className='fa-solid fa-gift'></i>
+                  <i className='fa-solid fa-home'></i>
                 </span>
                 <input
                   type='text'
                   id='direccion'
+                  name='direccion'
                   className='form-control'
                   placeholder='Dirección'
                   value={direccion}
-                  onChange={(e) => setDireccion(e.target.value)}
+                  onChange={handleInputChange}
                 />
+                <div style={{ position: 'absolute', bottom: '-31px' }}>
+                  {errors.direccion && <p className='error-message red-color'>{errors.direccion}</p>}
+                </div>
               </div>
               <div className='input-group mb-3'>
                 <span className='input-group-text'>
-                  <i className='fa-solid fa-gift'></i>
+                  <i className='fa-solid fa-building'></i>
                 </span>
                 <input
                   type='text'
                   id='ciudad'
+                  name='ciudad'
                   className='form-control'
                   placeholder='Ciudad'
                   value={ciudad}
-                  onChange={(e) => setCiudad(e.target.value)}
+                  onChange={handleInputChange}
                 />
+                <div style={{ position: 'absolute', bottom: '-31px' }}>
+                  {errors.ciudad && <p className='error-message red-color'>{errors.ciudad}</p>}
+                </div>
+              </div>
+              <div className='d-grid col-6 mx-auto'>
+                <button onClick={validar} className='btn btn-success'>
+                  <i className='fa-solid fa-floppy-disk'></i> Guardar
+                </button>
               </div>
             </div>
             <div className='modal-footer'>
-              <button type='button' className='btn btn-secondary' data-bs-dismiss='modal'>
+              <button type='button' id='btnCerrar' className='btn btn-secondary' data-bs-dismiss='modal'>
                 Cerrar
-              </button>
-              <button type='button' className='btn btn-primary' onClick={validar}>
-                Guardar cambios
               </button>
             </div>
           </div>

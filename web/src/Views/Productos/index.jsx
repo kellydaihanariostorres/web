@@ -3,13 +3,10 @@ import DivAdd from '../../Components/DivAdd';
 import DivTable from '../../Components/DivTable';
 import { show_alerta } from '../../functions';
 import axios from 'axios';
-import Swal from 'sweetalert2';
-import withReactContent from 'sweetalert2-react-content';
 
 const ManageProductos = () => {
   const apiUrl = 'https://localhost:7284/api/productos';
   const [productos, setProductos] = useState([]);
-  const [idProducto, setIdProducto] = useState('');
   const [nombreProducto, setNombreProducto] = useState('');
   const [precioProducto, setPrecioProducto] = useState('');
   const [marcaProducto, setMarcaProducto] = useState('');
@@ -18,19 +15,40 @@ const ManageProductos = () => {
   const [operation, setOperation] = useState(1);
   const [searchText, setSearchText] = useState('');
   const [pageNumber, setPageNumber] = useState(1);
-  const [pageSize, setPageSize] = useState(5);
-  const [totalPages, setTotalPages] = useState(1); 
+  const [pageSize, setPageSize] = useState(7);
+  const [totalPages, setTotalPages] = useState(1);
   const [cantidad, setCantidad] = useState(1);
+  const [cacheKey, setCacheKey] = useState('');
+  const [errors, setErrors] = useState({});
+
+  const handleInputChange = (event) => {
+    const { name, value } = event.target;
+
+    if (name === 'nombreProducto') {
+      setNombreProducto(value);
+    } else if (name === 'precioProducto') {
+      setPrecioProducto(value.replace(/\D/g, ''));
+    } else if (name === 'marcaProducto') {
+      setMarcaProducto(value.replace(/[^a-zA-Z\s]/g, ''));
+    } else if (name === 'clasificacionProducto') {
+      setClasificacionProducto(value);
+    } else if (name === 'cantidad') {
+      setCantidad(value.replace(/\D/g, ''));
+    }
+  };
 
   useEffect(() => {
     getProductos();
-  }, [pageNumber, pageSize]);
+  }, [pageNumber, pageSize, cacheKey]);
 
   const getProductos = async () => {
     try {
-      const response = await axios.get(apiUrl);
-      setProductos(response.data);
-      setTotalPages(Math.ceil(response.data.length / pageSize));
+      const response = await axios.get(`${apiUrl}?cacheKey=${cacheKey}&forceRefresh=${Date.now()}`);
+      const filteredProductos = response.data.filter(
+        (producto) => !producto.eliminado && !localStorage.getItem(`eliminado_${producto.idProducto}`)
+      );
+      setProductos(filteredProductos);
+      setTotalPages(Math.ceil(filteredProductos.length / pageSize));
     } catch (error) {
       console.error(error);
     }
@@ -46,7 +64,6 @@ const ManageProductos = () => {
 
   const openModal = (op, id, nombre, precio, marca, clasificacion, cantidad) => {
     setOperation(op);
-    setIdProducto(id);
 
     if (op === 1) {
       setTitle('Registrar producto');
@@ -63,50 +80,64 @@ const ManageProductos = () => {
       setMarcaProducto(marca);
       setClasificacionProducto(clasificacion);
     }
-
-    document.getElementById('modalProductos').addEventListener('shown.bs.modal', function () {
-      document.getElementById('nombreProducto').focus();
-    });
   };
 
-  const validar = (idProducto) => {
-    if (
-      nombreProducto.trim() === '' ||
-      precioProducto.trim() === '' ||
-      cantidad === '' ||
-      marcaProducto.trim() === '' ||
-      clasificacionProducto.trim() === ''
-    ) {
-      show_alerta('Completa todos los campos', 'warning');
-    } else {
-      const parametros = { nombreProducto, precioProducto, marcaProducto, clasificacionProducto, cantidad };
-      const metodo = operation === 1 ? 'POST' : 'PUT';
-      enviarSolicitud(metodo, parametros, idProducto);
+  const validar = () => {
+    const errorsCopy = {};
+    let isValid = true;
+  
+    if (!nombreProducto) {
+      errorsCopy.nombreProducto = 'El campo Nombre es obligatorio';
+      isValid = false;
     }
-  };
-
-  const actualizarProductos = async () => {
-    try {
-      const response = await axios.get(apiUrl);
-      setProductos(response.data);
-      setTotalPages(Math.ceil(response.data.length / pageSize));
-    } catch (error) {
-      console.error(error);
+    if (!precioProducto) {
+      errorsCopy.precioProducto = 'El campo Precio es obligatorio';
+      isValid = false;
     }
+    if (!cantidad) {
+      errorsCopy.cantidad = 'El campo Cantidad es obligatorio';
+      isValid = false;
+    }
+    if (!marcaProducto) {
+      errorsCopy.marcaProducto = 'El campo Marca es obligatorio';
+      isValid = false;
+    }
+    if (!clasificacionProducto) {
+      errorsCopy.clasificacionProducto = 'El campo Clasificación es obligatorio';
+      isValid = false;
+    }
+  
+    if (!isValid) {
+      setErrors(errorsCopy);
+      return;
+    }
+  
+    const parametros = {
+      nombreProducto,
+      precioProducto,
+      marcaProducto,
+      clasificacionProducto, // Incluir la clasificación del producto
+      cantidad,
+      estado: 'Activo',
+    };
+  
+    const metodo = operation === 1 ? 'POST' : 'PUT';
+    enviarSolicitud(metodo, parametros);
   };
+  
 
-  const enviarSolicitud = async (metodo, parametros, idProductoParam) => {
+  const enviarSolicitud = async (metodo, parametros) => {
     try {
-      await axios[metodo.toLowerCase()](
-        idProductoParam ? `${apiUrl}/${idProductoParam}` : apiUrl,
-        parametros
-      );
-      show_alerta('Operación exitosa', 'success');
+      const response = await axios[metodo.toLowerCase()](apiUrl, parametros);
 
-      // Actualizar la lista de productos después de agregar o editar
-      await actualizarProductos();
-      // Restablecer los campos de entrada después de la operación
-      setIdProducto('');
+      const tipo = response.data[0];
+      const msj = response.data[1];
+      show_alerta(msj, tipo);
+
+      show_alerta(`Producto ${nombreProducto} se ha ${msj} exitosamente`, 'success');
+
+      getProductos();
+      setCacheKey(Date.now().toString());
       setNombreProducto('');
       setPrecioProducto('');
       setMarcaProducto('');
@@ -132,31 +163,26 @@ const ManageProductos = () => {
     }
   };
 
-  const deleteProducto = async (idProducto, nombreProducto) => {
-    const MySwal = withReactContent(Swal);
-    MySwal.fire({
-      title: `¿Seguro quieres eliminar el producto ${nombreProducto}?`,
-      icon: 'question',
-      text: 'No se podrá dar marcha atrás',
-      showCancelButton: true,
-      confirmButtonText: 'Sí, eliminar',
-      cancelButtonText: 'Cancelar',
-    }).then(async (result) => {
-      if (result.isConfirmed) {
-        try {
-          await axios.delete(`${apiUrl}/${idProducto}`);
-          show_alerta('Producto eliminado exitosamente', 'success');
-          
-          // Actualizar la lista de productos después de eliminar
-          await actualizarProductos();
-        } catch (error) {
-          show_alerta('Error al eliminar el producto', 'error');
-          console.error(error);
-        }
-      } else {
-        show_alerta('El producto no fue eliminado', 'info');
-      }
-    });
+  const desactivarProvedor = async (idProducto, nombreProducto) => {
+    try {
+      // Obtener los datos del producto
+      const response = await axios.get(`${apiUrl}/${idProducto}`);
+      const producto = response.data;
+  
+      // Actualizar solo el campo 'estado' sin modificar los otros campos
+      const parametros = {
+        ...producto,
+        estado: 'Desactivado',
+      };
+  
+      await axios.put(`${apiUrl}/${idProducto}`, parametros);
+      show_alerta(`Producto ${nombreProducto} desactivado exitosamente`, 'success');
+      getProductos();
+      setCacheKey(Date.now().toString());
+    } catch (error) {
+      show_alerta('Error al desactivar al producto', 'error');
+      console.error(error);
+    }
   };
 
   const showPreviousButton = pageNumber > 1;
@@ -228,6 +254,7 @@ const ManageProductos = () => {
               </thead>
               <tbody className='table-group-divider'>
                 {productos
+                  .filter((producto) => producto.estado !== 'Desactivado')
                   .slice((pageNumber - 1) * pageSize, pageNumber * pageSize)
                   .map((producto, i) => (
                     <tr key={producto.idProducto}>
@@ -258,12 +285,13 @@ const ManageProductos = () => {
                         </button>
                         &nbsp;
                         <button
-                          onClick={() => deleteProducto(producto.idProducto, producto.nombreProducto)}
+                          onClick={() => desactivarProvedor(producto.idProducto, producto.nombreProducto)}
                           className='btn btn-danger'
                           style={{ background: '#440000', color: 'white' }}
                         >
                           <i className='fa-solid fa-trash'></i>
                         </button>
+
                       </td>
                     </tr>
                   ))}
@@ -295,7 +323,6 @@ const ManageProductos = () => {
               <button type='button' className='btn-close' data-bs-dismiss='modal' aria-label='Close'></button>
             </div>
             <div className='modal-body'>
-              <input type='hidden' id='id' />
               <div className='input-group mb-3'>
                 <span className='input-group-text'>
                   <i className='fa-solid fa-gift'></i>
@@ -303,11 +330,15 @@ const ManageProductos = () => {
                 <input
                   type='text'
                   id='nombreProducto'
+                  name='nombreProducto'
                   className='form-control'
                   placeholder='Nombre'
                   value={nombreProducto}
-                  onChange={(e) => setNombreProducto(e.target.value)}
+                  onChange={handleInputChange}
                 />
+                <div style={{ position: 'absolute', bottom: '-31px' }}>
+                  {errors.nombreProducto && <p className='error-message red-color'>{errors.nombreProducto}</p>}
+                </div>
               </div>
               <div className='input-group mb-3'>
                 <span className='input-group-text'>
@@ -316,11 +347,15 @@ const ManageProductos = () => {
                 <input
                   type='text'
                   id='precioProducto'
+                  name='precioProducto'
                   className='form-control'
                   placeholder='Precio'
                   value={precioProducto}
-                  onChange={(e) => setPrecioProducto(e.target.value)}
+                  onChange={handleInputChange}
                 />
+                <div style={{ position: 'absolute', bottom: '-31px' }}>
+                  {errors.precioProducto && <p className='error-message red-color'>{errors.precioProducto}</p>}
+                </div>
               </div>
               <div className='input-group mb-3'>
                 <span className='input-group-text'>
@@ -329,11 +364,15 @@ const ManageProductos = () => {
                 <input
                   type='text'
                   id='marcaProducto'
+                  name='marcaProducto'
                   className='form-control'
                   placeholder='Marca'
                   value={marcaProducto}
-                  onChange={(e) => setMarcaProducto(e.target.value)}
+                  onChange={handleInputChange}
                 />
+                <div style={{ position: 'absolute', bottom: '-31px' }}>
+                  {errors.marcaProducto && <p className='error-message red-color'>{errors.marcaProducto}</p>}
+                </div>
               </div>
               <div className='input-group mb-3'>
                 <span className='input-group-text'>
@@ -342,27 +381,43 @@ const ManageProductos = () => {
                 <input
                   type='number'
                   id='cantidadProducto'
+                  name='cantidad'
                   className='form-control'
                   placeholder='Cantidad'
                   value={cantidad}
-                  onChange={(e) => setCantidad(e.target.value)}
+                  onChange={handleInputChange}
                 />
+                <div style={{ position: 'absolute', bottom: '-31px' }}>
+                  {errors.cantidad && <p className='error-message red-color'>{errors.cantidad}</p>}
+                </div>
               </div>
               <div className='input-group mb-3'>
                 <span className='input-group-text'>
                   <i className='fa-solid fa-gift'></i>
                 </span>
-                <input
-                  type='text'
+                <select
                   id='clasificacionProducto'
-                  className='form-control'
-                  placeholder='Clasificación'
+                  className='form-select'
                   value={clasificacionProducto}
-                  onChange={(e) => setClasificacionProducto(e.target.value)}
-                />
+                  onChange={(event) => setClasificacionProducto(event.target.value)}
+                  required
+                >
+                  <option value=''>Seleccionar Clasificación</option>
+                  <option value='Whisky'>Whisky</option>
+                  <option value='Ron'>Ron</option>
+                  <option value='Vodka'>Vodka</option>
+                  <option value='Ginebra'>Ginebra</option>
+                  <option value='Tequila'>Tequila</option>
+                  <option value='Coñac'>Coñac</option>
+                  <option value='Brandy'>Brandy</option>
+                  <option value='Licor de Frutas'>Licor de Frutas</option>
+                </select>
+                <div style={{ position: 'absolute', bottom: '-31px' }}>
+                  {errors.clasificacionProducto && <p className='error-message red-color'>{errors.clasificacionProducto}</p>}
+                </div>
               </div>
               <div className='d-grid col-6 mx-auto'>
-                <button onClick={() => validar(idProducto)} className='btn btn-success'>
+                <button onClick={validar} className='btn btn-success'>
                   <i className='fa-solid fa-floppy-disk'></i> Guardar
                 </button>
               </div>
