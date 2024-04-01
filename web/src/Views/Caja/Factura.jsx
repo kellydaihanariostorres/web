@@ -209,9 +209,6 @@ const ManageFacturas = () => {
                     Fecha de Compra
                   </th>
                   <th className='table-header' style={{ background: '#440000', color: 'white' }}>
-                    Cantidad
-                  </th>
-                  <th className='table-header' style={{ background: '#440000', color: 'white' }}>
                     IVA Compra
                   </th>
                   <th className='table-header' style={{ background: '#440000', color: 'white' }}>
@@ -219,9 +216,6 @@ const ManageFacturas = () => {
                   </th>
                   <th className='table-header' style={{ background: '#440000', color: 'white' }}>
                     Total
-                  </th>
-                  <th className='table-header' style={{ background: '#440000', color: 'white' }}>
-                    ID Producto
                   </th>
                   <th className='table-header' style={{ background: '#440000', color: 'white' }}>
                     Cliente ID
@@ -240,14 +234,19 @@ const ManageFacturas = () => {
                     <td style={{ background: '#dadada' }}>{i + 1}</td>
                     <td style={{ background: '#dadada' }}>{factura.idFactura}</td>
                     <td style={{ background: '#dadada' }}>{factura.fechaCompra}</td>
-                    <td style={{ background: '#dadada' }}>{factura.cantidad}</td>
                     <td style={{ background: '#dadada' }}>{factura.ivaCompra}</td>
                     <td style={{ background: '#dadada' }}>{factura.subtotal}</td>
                     <td style={{ background: '#dadada' }}>{factura.total}</td>
-                    <td style={{ background: '#dadada' }}>{factura.idProducto}</td>
                     <td style={{ background: '#dadada' }}>{factura.clienteId}</td>
                     <td style={{ background: '#dadada' }}>{factura.empleadoId}</td>
                     <td style={{ background: '#dadada' }}>
+                    <button
+                        onClick={() => deleteFactura(factura.idFactura)}
+                        className='btn btn-danger'
+                        style={{ background: '#440000', color: 'white' }}
+                      >
+                        <i className='fa-solid fa-trash'></i>
+                      </button>
                       &nbsp;
                       <button
                         onClick={() => deleteFactura(factura.idFactura)}

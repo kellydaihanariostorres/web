@@ -1,383 +1,355 @@
-import React, { useState, useEffect } from 'react';
-import 'bootstrap/dist/css/bootstrap.min.css';
-import SearchComponent from '../Caja/SearchComponent';
-import Logo_sistema from '../Caja/logo_sistema.jpg';
-import ListProveedor from './listproveedore';
-import ListBodega from './ListBodega';
+import React, { useState, useEffect } from "react";
+import axios from "axios";
+import Swal from 'sweetalert2';
+import withReactContent from 'sweetalert2-react-content';
+import Detallefactura from './Detallefactura';
 import DatePicker from 'react-datepicker';
 import 'react-datepicker/dist/react-datepicker.css';
-import Venta from './Pedidoventa';
 
-const Caja = () => {
-  const [fechaCompra, setFechaCompra] = useState(new Date());
-  const [totalBruto, setTotalBruto] = useState(0);
-  const [totalRetefuente, setTotalRetefuente] = useState(0);
-  const [totalPago, setTotalPago] = useState(0);
-  const [productList, setProductList] = useState([]);
-  const [ventaConfirmada, setVentaConfirmada] = useState(null);
-  const [modalOpen, setModalOpen] = useState(false);
-  const [registroClienteModalOpen, setRegistroClienteModalOpen] = useState(false);
-  const [searchText, setSearchText] = useState('');
-  const [idProveedor, setIdProveedor] = useState(null);
-  const [updateComponent, setUpdateComponent] = useState(false);
-  const [buscarClienteModalOpen, setBuscarClienteModalOpen] = useState(false);
-  const [clienteSeleccionado, setClienteSeleccionado] = useState(null);
-  const [buscarBodegaModalOpen, setBuscarBodegaModalOpen] = useState(false);
-  const [bodegaId, setBodegaId] = useState(null);
-  const [fechaExpedicion, setFechaExpedicion] = useState(new Date());
-  const [fechaVencimiento, setFechaVencimiento] = useState(new Date());
+function EnterpriseInfo() {
+  const [buscarProveedor, setBuscarProveedor] = useState(false);
+  const [proveedorExistente, setProveedorExistente] = useState(false);
+  const [numeroDocumento, setNumeroDocumento] = useState("");
+  const [proveedores, setProveedores] = useState([]);
+  const [error, setError] = useState(null);
+  const [mostrarFormularioRegistro, setMostrarFormularioRegistro] = useState(false);
+  const [proveedorRegistrado, setProveedorRegistrado] = useState(null);
+  const [fechaActual, setFechaActual] = useState("");
   const [bodegas, setBodegas] = useState([]);
+  const [bodegaSeleccionada, setBodegaSeleccionada] = useState(""); 
+  const [mostrarDetalleFactura, setMostrarDetalleFactura] = useState(false);  
+  const [idFacturaCreada, setIdFacturaCreada] = useState("");
+  const [mostrarBotones, setMostrarBotones] = useState(true); 
+  const MySwal = withReactContent(Swal);
+  const [documentoProveedorEncontrado, setDocumentoProveedorEncontrado] = useState("");
+  const [facturaCreada, setFacturaCreada] = useState(false);
+  const [fechaexpedicion, setFechaexpedicion] = useState(new Date());
+  const [fechavencimiento, setFechavencimiento] = useState(new Date());
+  const [idProveedor, setIdProveedor] = useState("");
 
   useEffect(() => {
-    if (productList.length > 0) {
-      calcularTotalBruto(productList);
-    }
-  }, [productList]);
-
-  useEffect(() => {
-    calcularTotalPago();
-    calcularTotalRetefuente();
-  }, [totalBruto]);
-
-  useEffect(() => {
-    if (ventaConfirmada) {
-      enviarVenta(ventaConfirmada);
-    }
-  }, [ventaConfirmada]);
-
-  const getCurrentDate = () => {
-    const date = new Date();
-    return date.toLocaleDateString();
-  };
-
-  const handleOpenRegistroClienteModal = () => {
-    setRegistroClienteModalOpen(true);
-  };
-
-  const handleSuggestionClick = (suggestion) => {
-    if (idProveedor && bodegaId) {
-      const updatedProductList = [...productList, { ...suggestion, cantidad: 1 }];
-      setProductList(updatedProductList);
-    } else {
-      alert('Debe seleccionar un proveedor y una bodega antes de agregar un producto');
-    }
-  };
-
-  const handleDeleteProduct = (index) => {
-    const updatedProductList = [...productList];
-    updatedProductList.splice(index, 1);
-    setProductList(updatedProductList);
-  };
-
-  const handleConfirm = () => {
-    if (productList.length > 0 && idProveedor && bodegaId) {
-      const ventaConfirmada = {
-        fechaCompra: getCurrentDate(), // Cambia esto al formato requerido por tu API
-        fechaExpedicion: fechaExpedicion, // No es necesario cambiarla aquí si ya estás obteniendo la fecha en el formato correcto
-        fechaVencimiento: fechaVencimiento, // No es necesario cambiarla aquí si ya estás obteniendo la fecha en el formato correcto
-        productList: productList,
-        idProveedor: idProveedor,
-        bodegaId: bodegaId,
-        totalBruto: totalBruto,
-        totalRetefuente: totalRetefuente,
-        totalPago: totalPago,
-      };
-      setVentaConfirmada(ventaConfirmada);
-    } else {
-      alert('Debe seleccionar al menos un producto, un proveedor y una bodega antes de confirmar la venta');
-    }
-  };
-  
-  
-  const enviarVenta = async (ventaConfirmada) => {
-    try {
-      let ventaExitosa = true;
-      for (const producto of ventaConfirmada.productList) {
-        const ventaData = {
-          fechaCompra: fechaCompra.toISOString(), // Cambia esto al formato requerido por tu API
-          fechaExpedicion: fechaExpedicion.toISOString(), // Cambia esto al formato requerido por tu API
-          fechaVencimiento: fechaVencimiento.toISOString(), // Cambia esto al formato requerido por tu API
-          cantidad: producto.cantidad,
-          totalBruto: totalBruto,
-          totalRetefuente: totalRetefuente,
-          totalPago: totalPago,
-          idProveedor: idProveedor,
-          bodegaId: bodegaId,
-          idProducto: producto.idProducto,
-        };
-
-        const response = await fetch('https://localhost:7284/api/facturaproveedor', {
-          method: 'POST',
-          body: JSON.stringify(ventaData),
+    const fetchProveedores = async () => {
+      try {
+        const response = await axios.get("https://localhost:7284/api/proveedor", {
           headers: {
-            'Content-Type': 'application/json'
-          },
-          timeout: 10000
+            "Cache-Control": "no-cache"
+          }
         });
-
-        if (!response.ok) {
-          ventaExitosa = false;
-          const errorData = await response.json();
-          console.log(errorData);
-          console.error('Hubo un error al registrar la venta:', errorData.message);
-          break;
-        }
+        setProveedores(response.data);
+        console.log("Proveedores cargados:", response.data);
+      } catch (error) {
+        console.error("Error al obtener proveedores:", error);
+        setError("Error al obtener proveedores");
       }
+    };
 
-      if (ventaExitosa) {
-        console.log('La venta se ha registrado correctamente.');
-        setModalOpen(true);
-      } else {
-        alert('Hubo un error al registrar la venta. Por favor, inténtelo de nuevo.');
+    const fetchBodegas = async () => {
+      try {
+        const response = await axios.get("https://localhost:7284/api/bodegas", {
+          headers: {
+            "Cache-Control": "no-cache"
+          }
+        });
+    
+        // Filtrar bodegas activas
+        const bodegasActivas = response.data.filter(bodega => bodega.estado === 'Activo');
+    
+        setBodegas(bodegasActivas);
+        console.log("Bodegas activas cargadas:", bodegasActivas);
+      } catch (error) {
+        console.error("Error al obtener bodegas:", error);
+        setError("Error al obtener bodegas");
       }
-    } catch (error) {
-      console.error('Error al enviar la venta:', error);
-      alert('Hubo un error al enviar la venta. Por favor, inténtelo de nuevo.');
+    };
+    
+
+    fetchProveedores();
+    fetchBodegas();
+
+    // Obtener la fecha actual al cargar el componente
+    const fecha = new Date();
+    const fechaFormateada = `${fecha.getDate()}/${fecha.getMonth() + 1}/${fecha.getFullYear()}`;
+    setFechaActual(fechaFormateada);
+  }, [buscarProveedor]);
+
+  const handleInputChange = (event) => {
+    const input = event.target.value;
+    // Expresión regular para permitir solo números
+    const onlyNumbers = /^[0-9\b]+$/;
+    if (input === "" || onlyNumbers.test(input)) {
+      setNumeroDocumento(input);
     }
   };
+  
 
-  const calcularTotalBruto = (updatedProductList) => {
-    let total = 0;
-    updatedProductList.forEach((producto) => {
-      total += parseFloat(producto.precioProducto);
-    });
-    setTotalBruto(total);
-  };
-
-  const calcularTotalRetefuente = () => {
-    const retefuente = totalBruto * 0.05; // Suponiendo que el iva es el 5% del totalBruto
-    setTotalRetefuente(retefuente);
-  };
-
-  const calcularTotalPago = () => {
-    const totalPago = totalBruto + totalRetefuente;
-    setTotalPago(totalPago);
-  };
-
-  const getDate = () => {
-    const date = new Date();
-    const formattedDate = `${date.getDate()}/${date.getMonth() + 1}/${date.getFullYear()}`;
-    return formattedDate;
-  };
-
-  const handleCloseRegistroClienteModal = () => {
-    setRegistroClienteModalOpen(false);
-  };
-
-  const handleClienteGuardado = (idProveedor) => {
-    console.log('ID del cliente guardado:', idProveedor);
-    setIdProveedor(idProveedor);
-    handleCloseModal();
-  };
-
-  const handleCloseModal = () => {
-    setRegistroClienteModalOpen(false);
-  };
-
-  const handleOpenBuscarClienteModal = () => {
-    setBuscarClienteModalOpen(true);
-  };
-
-  const handleClienteClick = (idProveedor) => {
-    setClienteSeleccionado(idProveedor);
-    setIdProveedor(idProveedor);
-  };
-
-  const handleOpenBuscarBodegaModal = () => {
-    setBuscarBodegaModalOpen(true);
-  };
-
-  const handleProveedorClick = (idProveedor) => {
-    setIdProveedor(idProveedor);
-    handleCloseModal();
-  };
-
-  const handleProveedorSeleccionado = (idProveedor) => {
-    setIdProveedor(idProveedor);
-  };
-
-  const handleBodegaSeleccionada = (idBodega) => {
-    setBodegaId(idBodega);
+  const crearFactura = async () => {
+    try {
+      if (!proveedorRegistrado || !bodegaSeleccionada) {
+        MySwal.fire({
+          icon: 'warning',
+          title: '¡Atención!',
+          text: 'Por favor, selecciona un proveedor y una bodega antes de crear la factura.',
+        });
+        return;
+      }
+  
+      // Obtener la fecha actual para la fecha de generación
+      const fechaGeneracion = new Date().toISOString();
+  
+      // Generar una factura temporal con valores temporales
+      const facturaTemporal = {
+        idFacturaProveedor: "85ab7ca7-664d-4b20-b5de-024705497d4a",
+        fechageneracion: fechaGeneracion,
+        fechaexpedicion: fechaexpedicion.toISOString(),
+        fechavencimiento: fechavencimiento.toISOString(),
+        cantidad: 1,
+        totalBruto: 200000,
+        totalretefuente: 10000,
+        totalpago: 210000,
+        estado: "Activo",
+        idProveedor: proveedorRegistrado.idProveedor, // Incluir el ID del proveedor correctamente
+        bodegaId: bodegaSeleccionada,
+      };
+  
+      // Enviar la factura temporal al servidor para su creación
+      const response = await axios.post("https://localhost:7284/api/facturaproveedor", facturaTemporal);
+  
+      // Si la creación de la factura fue exitosa, puedes hacer algo con la respuesta si es necesario
+      console.log("Factura creada:", response.data);
+      MySwal.fire({
+        icon: 'success',
+        title: 'Creado exitosamente',
+        text: 'Puede comenzar su factura.',
+      });
+  
+      setIdFacturaCreada(response.data.idFacturaProveedor);
+      setMostrarDetalleFactura(true);
+      setMostrarBotones(false);
+      setFacturaCreada(true);
+  
+    } catch (error) {
+      console.error("Error al crear la factura:", error);
+      MySwal.fire({
+        icon: 'error',
+        title: 'Error al crear la factura',
+        text: 'Hubo un error al crear la factura. Por favor, inténtalo de nuevo.',
+      });
+    }
   };
   
-  const handleCancel = () => {
-    // Implementa el manejo de la cancelación si es necesario
+  
+  
+  const handleBuscarProveedor = () => {
+    const proveedorEncontrado = proveedores.find(
+      (proveedor) => proveedor.numDocumento === parseInt(numeroDocumento.trim())
+    );
+  
+    console.log("Proveedor encontrado:", proveedorEncontrado);
+  
+    if (proveedorEncontrado) {
+      if (proveedorEncontrado.estado === 'Desactivado') {
+        console.log('Proveedor desactivado');
+        setProveedorExistente(false);
+        setDocumentoProveedorEncontrado(proveedorEncontrado.numDocumento);
+      } else {
+        console.log('Proveedor activo');
+        setProveedorExistente(true);
+        setProveedorRegistrado(proveedorEncontrado);
+        setIdProveedor(proveedorEncontrado.idProveedor); // <-- Aquí establece el ID del proveedor
+      }
+    } else {
+      console.log('Proveedor no encontrado. Mostrando formulario de registro.');
+      setProveedorExistente(false);
+      setMostrarFormularioRegistro(true);
+    }
+    
+    setBuscarProveedor(true);
   };
   
+  const handleCancelarRegistro = () => {
+    setBuscarProveedor(false);
+    setNumeroDocumento("");
+    setMostrarFormularioRegistro(false);
+  };
+
+ 
+  
+  const handleBodegaChange = (event) => {
+    setBodegaSeleccionada(event.target.value);
+  };
+
+  const handleCancelarProveedor = () => {
+    setProveedorRegistrado(null);
+    setBuscarProveedor(false);
+    setProveedorExistente(false);
+    setMostrarBotones(true);
+    setDocumentoProveedorEncontrado(""); // Reset documentoProveedorEncontrado
+  };
+
   return (
-    <div className="container-fluid">
-      <div style={{ marginLeft: '30px' }}>
-        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-start' }}>
-          <div style={{ marginRight: '20px' }}>
-            <button className="btn btn-primary" onClick={handleOpenRegistroClienteModal} style={{ borderRadius: '45px', borderColor: '#440000', background: '#440000', marginTop: '16px' }}>Buscar Proveedor</button>
+    <>
+      <form
+        onSubmit={(e) => e.preventDefault()}
+        style={{
+          width: "100%",
+          minHeight: "80vh",
+          height: "auto",
+          justifyContent: "center",
+          padding: "-135px",
+          alignItems: "center",
+         
+        }}
+      >
+        <div className="row" style={{border: "1px solid white", boxShadow: "0 0 10px rgba(0, 0, 0, 0.5)", backgroundColor: "white" }} >
+        <div className="col-md-6 mb-3">
+          <h1>Informacion de factura</h1>
+          <div className="row">
+            <div className="col-md-6">
+              <p>Fecha actual:</p>
+              <p style={{ backgroundColor: "white", borderRadius: "10px", padding: "10px", border: "1px solid black"}}>{fechaActual}</p>
+            </div>
+            <div className="col-md-6">
+              <p>Direccion:</p>
+              <p style={{ backgroundColor: "white", borderRadius: "10px", padding: "10px", border: "1px solid black"}}>Calle 57</p>
+            </div>
           </div>
-          <div>
-            <button className="btn btn-primary" onClick={handleOpenBuscarClienteModal} style={{ borderRadius: '45px', borderColor: '#440000', background: '#440000', marginTop: '16px' }}>Buscar Bodega</button>
-          </div>
-        </div>
-      </div>
-      <div style={{
-        height: '40px',
-        borderRadius: '45px',
-        marginRight: '100px',
-        width: '500px',
-        marginLeft: 'auto',
-        position: 'absolute',
-        right: 0,
-        top: '-20px',
-      }}>
-        <SearchComponent
-          productList={productList}
-          handleSuggestionClick={handleSuggestionClick}
-          setResults={setProductList}
-          searchText={searchText}
-          setSearchText={setSearchText}
-          style={{ zIndex: 9999 }}
-        />
-      </div>
-      <div className="container-fluid" style={{ paddingLeft: '0', paddingRight: '0' }}>
-        <div className="col-12" style={{ backgroundColor: 'white', marginLeft: 'auto', marginRight: 'auto', marginTop: '16px', paddingLeft: '0', paddingRight: '0', position: 'relative' }}>
-          {registroClienteModalOpen && (
-            <div className="modal" tabIndex="-1" role="dialog" style={{ display: 'block', backgroundColor: 'rgba(0, 0, 0, 0.5)' }}>
-              <div className="modal-dialog" role="document">
-                <div className="modal-content">
-                  <div className="modal-header">
-                    <h5 className="modal-title">Registrar Cliente</h5>
-                    <button type="button" className="close" aria-label="Close" onClick={handleCloseModal}>
-                      <span aria-hidden="true">&times;</span>
-                    </button>
-                  </div>
-                  <div className="modal-body">
-                      <ListProveedor handleProveedorClick={handleProveedorSeleccionado} />
-                  </div>
-                  <div className="modal-footer">
-                    <button type="button" className="btn btn-secondary" onClick={handleCloseModal}>Cerrar</button>
-                  </div>
-                </div>
+          <div className="row">
+            <div className="col-md-6">
+              <p>Fecha de vencimiento</p>
+              <div>
+                  <DatePicker
+                    className='form-control'
+                    selected={fechavencimiento}
+                    onChange={(date) => setFechavencimiento(date)}
+                    dateFormat='yyyy-MM-dd'
+                    minDate={new Date()}// Establece la fecha mínima como la fecha actual
+                  />
               </div>
             </div>
-          )}
-          {buscarClienteModalOpen && (
-            <div className="modal" tabIndex="-1" role="dialog" style={{ display: 'block', backgroundColor: 'rgba(0, 0, 0, 0.5)' }}>
-              <div className="modal-dialog" role="document">
-                <div className="modal-content">
-                  <div className="modal-header">
-                    <h5 className="modal-title">Buscar Bodega</h5>
-                    <button type="button" className="close" aria-label="Close" onClick={() => setBuscarClienteModalOpen(false)}>
-                      <span aria-hidden="true">&times;</span>
-                    </button>
-                  </div>
-                  <div className="modal-body">
-                    <ListBodega bodegas={bodegas} onBodegaSeleccionada={handleBodegaSeleccionada} />
-                  </div>
-                  <div className="modal-footer">
-                    <button type="button" className="btn btn-secondary" onClick={() => setBuscarClienteModalOpen(false)}>Cerrar</button>
-                  </div>
-                </div>
+            <div className="col-md-6">
+              <p>Fecha de expedicion:</p>
+              <div>
+                  <DatePicker
+                    className='form-control'
+                    selected={fechaexpedicion}
+                    onChange={(date) => setFechaexpedicion(date)}
+                    dateFormat='yyyy-MM-dd'
+                    minDate={new Date()}// Establece la fecha mínima como la fecha actual
+                  />
               </div>
             </div>
-          )}
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '10px', marginLeft: '10px', marginRight: '10px', }}>
-            <div style={{ color: 'black' }}>
-              <div style={{ marginBottom: '10px' }}>Empresa: Diablo Rojo</div>
+            
+          </div>
+          <div className="row">
+            <div className="col-md-6">
+              <p>Telefono:</p>
+              <p style={{ backgroundColor: "white", borderRadius: "10px", padding: "10px",border: "1px solid black" }}>3142678354</p>
             </div>
-            <div style={{ marginLeft: '20px', marginTop: '20px', justifyContent: 'space-between', marginRight: '10px' }}>
-              <img src={Logo_sistema} alt="logo_sistema" style={{ width: '80px' }} />
-            </div>
-          </div>
-          <hr style={{ margin: '10px 0' }} />
-          <div style={{ top: '10px', right: '10px', color: 'black', marginLeft: '10px' }}>
-            Fecha de Generacion: {getDate()}
-          </div>
-          <div>
-            <div style={{ top: '10px', right: '10px', color: 'black', marginLeft: '10px' }}>
-              Fecha de Expedicion:
-              <DatePicker selected={fechaExpedicion} onChange={date => setFechaExpedicion(date)} />
-            </div>
-            <div style={{ top: '10px', right: '10px', color: 'black', marginLeft: '10px' }}>
-              Fecha de Vencimiento:
-              <DatePicker selected={fechaVencimiento} onChange={date => setFechaVencimiento(date)} />
-            </div>
-          </div>
-          <div style={{ top: '10px', right: '10px', color: 'black', marginLeft: '10px' }}>
-            ID Proveedor: {idProveedor}
-          </div>
-          <div style={{ top: '10px', right: '10px', color: 'black', marginLeft: '10px' }}>
-            ID Bodega: {bodegaId}
-          </div>
-          <hr style={{ margin: '10px 0' }} />
-          <div id="productList" className="mt-5" style={{ overflow: 'auto', maxHeight: '300px' }}>
-            <div>
-              <table className="table">
-                <thead style={{ background: 'var(--color-text)' }}>
-                  <tr>
-                    <th style={{ background: 'var(--color-text)', color: 'black' }}>ID</th>
-                    <th style={{ background: 'var(--color-text)', color: 'black' }}>Nombre</th>
-                    <th style={{ background: 'var(--color-text)', color: 'black' }}>Precio Unitario</th>
-                    <th style={{ background: 'var(--color-text)', color: 'black' }}>Cantidad</th>
-                  </tr>
-                </thead>
-                <tbody id="productTableBody" style={{ background: 'var(--color-text)' }}>
-                  {productList && productList.map((product, index) => (
-                    <tr key={index}>
-                      <td>{product.idProducto}</td>
-                      <td>{product.nombreProducto}</td>
-                      <td>{product.precioProducto}</td>
-                      <td>
-                        <input type="number" value={product.cantidad} onChange={(e) => {
-                          const updatedProductList = [...productList];
-                          updatedProductList[index].cantidad = parseInt(e.target.value);
-                          setProductList(updatedProductList);
-                        }} />
-                      </td>
-                      <td>
-                        <button className="btn btn-danger" onClick={() => handleDeleteProduct(index)}>Eliminar</button>
-                      </td>
-                    </tr>
+            <div className="col-md-6">
+              <p>Bodega:</p>
+              <select
+                  id="bodega"
+                  value={bodegaSeleccionada}
+                  onChange={handleBodegaChange}
+                  disabled={facturaCreada} // Aquí deshabilitamos el campo si la factura ha sido creada
+                  style={{ backgroundColor: "white", borderRadius: "10px", padding: "10px" }}
+                >
+                  <option value="">Seleccionar bodega</option>
+                  {bodegas.map((bodega) => (
+                    <option key={bodega.bodegaId} value={bodega.bodegaId}>{bodega.nombre}</option>
                   ))}
-                </tbody>
-              </table>
+                </select>
             </div>
           </div>
         </div>
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '10px', marginLeft: '10px', marginRight: '10px' }}>
-          <div style={{ display: 'flex', alignItems: 'center' }}>
-            <a className="btn btn-secondary" role="button" id="cancelBtn" href="#!" onClick={handleCancel} style={{ borderRadius: '45px', borderColor: '#440000', background: '#440000', marginTop: '16px', marginRight: '10px' }}>Cancelar</a>
-            <button className="btn btn-primary" id="confirmBtn" type="button" onClick={handleConfirm} style={{ borderRadius: '45px', borderColor: '#440000', background: '#440000', marginTop: '16px' }}>Confirmar</button>
-          </div>
-          <div style={{ display: 'flex', alignItems: 'center' }}>
-            <div style={{ display: 'inline-block', background: 'white', padding: '10px', marginRight: '10px' }}>
-              <h5 style={{ marginBottom: '0' }}>Total Bruto: {totalBruto}</h5>
-            </div>
-            <div style={{ display: 'inline-block', background: 'white', padding: '10px', marginRight: '10px' }}>
-              <h5 style={{ marginBottom: '0' }}>Retefuente: {totalRetefuente}</h5>
-            </div>
-            <div style={{ display: 'inline-block', background: 'white', padding: '10px' }}>
-              <h5 style={{ marginBottom: '0' }}>Total: {totalPago}</h5>
-            </div>
-          </div>
-        </div>
-        {modalOpen && ventaConfirmada && (  // Agrega esta verificación
-          <div className="modal" tabIndex="-1" role="dialog" style={{ display: 'block', backgroundColor: 'rgba(0, 0, 0, 0.5)' }}>
-            <div className="modal-dialog" role="document">
-              <div className="modal-content">
-                <div className="modal-header">
-                  <h5 className="modal-title">Venta Confirmada</h5>
-                  <button type="button" className="close" data-dismiss="modal" aria-label="Close" onClick={() => setModalOpen(false)}>
-                    <span aria-hidden="true">&times;</span>
+
+
+          <div className="col-md-6 mb-3">
+            <h1>Informacion del proveedor</h1>
+            {proveedorRegistrado && (
+              <div>
+                <p className="text-success">Proveedor existente.</p>
+                <p>Número de documento: </p>
+                <p style={{ backgroundColor: "white", borderRadius: "10px", padding: "10px",border: "1px solid black" }}>{proveedorRegistrado.numDocumento}</p>
+                {mostrarBotones && ( // Ocultar el botón "Quitar Proveedor" cuando mostrarBotones sea falso
+                  <button type="button" className="btn btn-primary mt-2" onClick={handleCancelarProveedor}>
+                    Quitar Proveedor
                   </button>
-                </div>
-                <div className="modal-body">
-                  <Venta venta={ventaConfirmada} />
-                </div>
+                )}
+
+                
               </div>
-            </div>
+            )}
+          {!proveedorExistente && (
+              <div style={{ marginTop: '10px' }}>
+                {documentoProveedorEncontrado && (
+                  <div>
+                    <p className="text-danger">
+                      El proveedor con número de documento {documentoProveedorEncontrado} está desactivado.
+                    </p>
+                    {mostrarBotones && ( // Ocultar el botón "Quitar Proveedor" cuando mostrarBotones sea falso
+                      <button type="button" className="btn btn-primary mt-2" onClick={handleCancelarProveedor}>
+                        Quitar 
+                      </button>
+                    )}
+                  </div>
+                )}
+              </div>
+            )}
+
+            {!buscarProveedor && (
+              <div className="d-grid">
+                <p>Buscar proveedor</p>
+                <input
+                  type="text"
+                  className="form-control"
+                  value={numeroDocumento}
+                  onChange={handleInputChange}
+                  placeholder="Ingrese el número de documento"
+                  aria-label="Número de documento"
+                  name="numeroDocumento"
+                  id="numeroDocumento"
+                  style={{  border: "1px solid black"}}
+                />
+                <button type="button" className="btn btn-primary mt-2" onClick={handleBuscarProveedor}>
+                  Buscar proveedor
+                </button>
+                {error && <p className="text-danger">{error}</p>}
+              </div>
+            )}  
+
+            {!proveedorExistente && mostrarFormularioRegistro && ( // Mostrar mensaje solo si no se encontró el proveedor y se debe registrar
+              <div className="d-grid">
+                <p className="text-danger mt-2">Proveedor no encontrado. Por favor, registre al proveedor.</p>
+                <button type="button" className="btn btn-primary mt-2" onClick={handleCancelarRegistro}>
+                  Cancelar
+                </button>
+              </div>
+            )}
           </div>
-        )}
+        </div>
 
-      </div>
-    </div>
+        
+        <div style={{ padding: '10px', width: '104%', marginLeft: '-2%', margin: "0 auto"  }}>
+            {mostrarDetalleFactura && idFacturaCreada && ( // Verificar que idFacturaCreada no esté vacío
+        // Pasar el idFacturaCreada como prop al componente Detallefactura
+                <div style={{ border: "1px solid white", backgroundColor: "white", boxShadow: "0 0 10px rgba(0, 0, 0, 0.5)", padding: '-5vh', }}>
+                    <Detallefactura idFacturaProveedor={idFacturaCreada} /> {/* Asegurarse de que el nombre del prop sea idFacturaProveedor */}
+                </div>
+            )}
+
+        </div>
+ 
+        {mostrarBotones && ( // Mostrar los botones solo si mostrarBotones es verdadero
+          <div>
+            <button type="button" className="btn btn-primary mt-2" onClick={crearFactura}>
+              Comenzar Factura
+            </button>
+          </div>
+        )}     
+      </form>
+    </>
   );
-};
+}
 
-export default Caja;
+export default EnterpriseInfo;
