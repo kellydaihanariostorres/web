@@ -18,7 +18,11 @@ const ManageBodegas = () => {
   const [totalPages, setTotalPages] = useState(1);
   const [cacheKey, setCacheKey] = useState('');
   const [errors, setErrors] = useState({});
-  const [bodegaId, setBodegaId] = useState({});
+  const [bodegaId, setBodegaId] = useState(null);
+
+
+
+
 
   const handleInputChange = (event) => {
     const { name, value } = event.target;
@@ -124,7 +128,7 @@ const ManageBodegas = () => {
       const msj = response.data[1];
       show_alerta(msj, tipo);
   
-      show_alerta(`Bodega ${nombre} se ha ${msj} exitosamente`, 'success');
+      show_alerta(`Bodega ${nombre} se ha exitosamente`, 'success');
   
       getBodegas();
       setCacheKey(Date.now().toString());

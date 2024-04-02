@@ -31,11 +31,14 @@ const ManageEmpleados = () => {
   const [bodegas, setBodegas] = useState([]);
   const [errors, setErrors] = useState({});
   const [cacheKey, setCacheKey] = useState('');
+  
 
   const currentYear = new Date().getFullYear();
   const minDate = new Date(currentYear, 0, 1); // Primer día del año actual
   const maxDate = new Date(); // Fecha actual
+  
 
+  
   const handleInputChange = (event) => {
     const { name, value } = event.target;
     let newValue = value;

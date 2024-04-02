@@ -23,7 +23,7 @@ const ManageProveedores = () => {
   const [totalPages, setTotalPages] = useState(1);
   const [cacheKey, setCacheKey] = useState('');
   const [errors, setErrors] = useState({});
-  const [idProveedor, setIdProveedor] = useState({});
+  const [idProveedor, setIdProveedor] = useState('');
 
   const handleInputChange = (event) => {
     const { name, value } = event.target;
@@ -158,42 +158,42 @@ const ManageProveedores = () => {
   };
 
   const enviarSolicitud = async (metodo, parametros) => {
-  const idProveedorParam = idProveedor || '';
-  try {
-    const idProveedor = parametros.idProveedor; // Corrected line
-    const proveedorActual = proveedores.find((proveedor) => proveedor.idProveedor === idProveedorParam);
-    if (proveedorActual && metodo === 'PUT') {
-      parametros = { ...parametros, estado: proveedorActual.estado };
+    const idProveedorParam = idProveedor || '';
+    try {
+      const idProveedor = parametros.idProveedor; // Corrected line
+      const proveedorActual = proveedores.find((proveedor) => proveedor.idProveedor === idProveedorParam);
+      if (proveedorActual && metodo === 'PUT') {
+        parametros = { ...parametros, estado: proveedorActual.estado };
+      }
+  
+      const response = await axios[metodo.toLowerCase()](
+        idProveedorParam ? `${apiUrl}/${idProveedorParam}` : apiUrl,
+        parametros
+      );
+  
+      const tipo = response.data[0];
+      const msj = response.data[1];
+      show_alerta(msj, tipo);
+  
+      show_alerta(`Proveedor ${nombreProveedor} se ha ${msj} exitosamente`, 'success');
+  
+      getProveedores();
+      setCacheKey(Date.now().toString());
+      setNombreProveedor('');
+      setNumDocumento('');
+      setEdad('');
+      setDireccion('');
+      setTelefono('');
+      setCorreo('');
+      setNombreEntidadBancaria('');
+      setNumeroCuentaBancaria('');
+      setIdProveedor('');
+    } catch (error) {
+      show_alerta('Error de solicitud', 'error');
+      console.error(error);
     }
-
-    const response = await axios[metodo.toLowerCase()](
-      idProveedorParam ? `${apiUrl}/${idProveedorParam}` : apiUrl,
-      parametros
-    );
-
-    const tipo = response.data[0];
-    const msj = response.data[1];
-    show_alerta(msj, tipo);
-
-    show_alerta(`Proveedor ${nombreProveedor} se ha ${msj} exitosamente`, 'success');
-
-    getProveedores();
-    setCacheKey(Date.now().toString());
-    setNombreProveedor('');
-    setNumDocumento('');
-    setEdad('');
-    setDireccion('');
-    setTelefono('');
-    setCorreo('');
-    setNombreEntidadBancaria('');
-    setNumeroCuentaBancaria('');
-    setIdProveedor('');
-  } catch (error) {
-    show_alerta('Error de solicitud', 'error');
-    console.error(error);
-  }
-};
-
+  };
+  
   const handleSearch = (e) => {
     const text = e.target.value;
     setSearchText(text);

@@ -22,6 +22,15 @@ const ManageInventarios = () => {
   const [pageNumber, setPageNumber] = useState(1);
   const [pageSize, setPageSize] = useState(8);
   const [totalPages, setTotalPages] = useState(1);
+  const [cacheKey, setCacheKey] = useState('');
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      getInventarios();
+    }, 60000); // 60000 ms = 1 minuto
+
+    return () => clearInterval(interval);
+  }, []); // Se ejecuta solo una vez al montar el componente
 
   useEffect(() => {
     getInventarios();
@@ -29,14 +38,14 @@ const ManageInventarios = () => {
 
   const getInventarios = async () => {
     try {
-      const response = await axios.get(apiUrl);
+      const response = await axios.get(`${apiUrl}?cacheKey=${cacheKey}`); // Pasar la clave de la caché en la solicitud
       setInventarios(response.data);
       setTotalPages(Math.ceil(response.data.length / pageSize));
     } catch (error) {
       console.error(error);
     }
   };
-
+  
   const handleNextPage = () => {
     setPageNumber((prevPageNumber) => Math.min(prevPageNumber + 1, totalPages));
   };
