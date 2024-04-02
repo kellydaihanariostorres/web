@@ -123,13 +123,14 @@ const CrearFacturaComponent = ({ idFacturaProveedor }) => {
 
     return (
         <div className="container mt-3 mb-3" style={{ backgroundColor: "white", width: "80%", margin: "-20 auto",padding:'-20px'}}>
-            <div style={{ height: "auto", marginLeft: '50%'}}>
+            <div style={{ height: "auto", marginLeft: '50%', marginBottom: '80px'}}>
                 <SearchComponent
-                    productList={productos} // Asegúrate de pasar la lista de productos al componente de búsqueda
-                    handleSuggestionClick={handleAgregarProducto} // Maneja la función de agregar producto al hacer clic en una sugerencia de búsqueda
-                    setResults={setProductos} // Actualiza la lista de productos al hacer una búsqueda
+                    productList={productos}
+                    handleSuggestionClick={handleAgregarProducto}
+                    setResults={setProductos}
                 />
             </div>
+
             
             <div className="card card-body table-responsive mt-3" style={{ backgroundColor: "white", height: "auto", padding:'20px', marginTop:'20px'}}>
                 {/* Aquí se muestra la tabla de productos */}
