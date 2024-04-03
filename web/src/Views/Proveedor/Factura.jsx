@@ -1,419 +1,289 @@
 import React, { useEffect, useState } from 'react';
-import DivAdd from '../../Components/DivAdd';
-import DivTable from '../../Components/DivTable';
-import { show_alerta } from '../../functions';
+import { Modal, Button } from 'react-bootstrap';
 import axios from 'axios';
 import Swal from 'sweetalert2';
 import withReactContent from 'sweetalert2-react-content';
+import 'bootstrap-icons/font/bootstrap-icons.css';
 
-const ManageFacturaProveedores = () => {
-  const apiUrl = 'https://localhost:7284/api/facturaproveedor';
+
+const ManageFacturas = () => {
   const [facturas, setFacturas] = useState([]);
-  const [idFactura, setIdFactura] = useState('');
-  const [fechageneracion, setFechageneracion] = useState('');
-  const [fechaexpedicion, setFechaexpedicion] = useState('');
-  const [fechavencimiento, setFechavencimiento] = useState('');
-  const [totalBruto, setTotalBruto] = useState('');
-  const [totalretefuente, setTotalretefuente] = useState('');
-  const [totalpago, setTotalpago] = useState('');
-  const [idProveedor, setIdProveedor] = useState('');
-  const [bodegaId, setBodegaId] = useState('');
-  const [cantidad, setCantidad] = useState('');
-  const [title, setTitle] = useState('');
-  const [operation, setOperation] = useState(1);
-  const [searchText, setSearchText] = useState('');
-  const [pageNumber, setPageNumber] = useState(1);
-  const [pageSize, setPageSize] = useState(5);
-  const [totalPages, setTotalPages] = useState(1); 
+  const [detalleFactura, setDetalleFactura] = useState(null);
   const [cacheKey, setCacheKey] = useState('');
-  const [errors, setErrors] = useState({});
+  const [currentPage, setCurrentPage] = useState(1);
+  const [itemsPerPage] = useState(5);
+  const [searchTerm, setSearchTerm] = useState('');
+  const [productos, setProductos] = useState([]);
+  
 
 
   useEffect(() => {
     getFacturas();
-  }, [pageNumber, pageSize]);
+    getProductos();
+  }, [cacheKey]); // Se ejecuta cada vez que cacheKey cambia
+
+
+  useEffect(() => {
+    const delayDebounceFn = setTimeout(() => {
+      getFacturas();
+    }, 500); // Retraso de 500 milisegundos
+    return () => clearTimeout(delayDebounceFn);
+  }, [searchTerm, cacheKey]); // Agregar searchTerm como dependencia adicional
+  
+
+  const getProductos = async () => {
+    try {
+      const response = await axios.get('https://localhost:7284/api/productos');
+      setProductos(response.data);
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
+  
 
   const getFacturas = async () => {
     try {
-      const response = await axios.get(apiUrl);
-      setFacturas(response.data);
-      setTotalPages(Math.ceil(response.data.length / pageSize));
-    } catch (error) {
-      console.error(error);
-    }
-  };
-
-  const handleNextPage = () => {
-    setPageNumber((prevPageNumber) => Math.min(prevPageNumber + 1, totalPages));
-  };
-
-  const handlePreviousPage = () => {
-    setPageNumber((prevPageNumber) => Math.max(prevPageNumber - 1, 1));
-  };
-
-  const openModal = (op, id, fechageneracion, fechaexpedicion, fechavencimiento, totalBruto, totalretefuente, totalpago, idProveedor, bodegaId) => {
-    setOperation(op);
-    setIdFactura(id);
-
-    if (op === 1) {
-      setTitle('Registrar factura de proveedor');
-      setFechageneracion('');
-      setFechaexpedicion('');
-      setFechavencimiento('');
-      setTotalBruto('');
-      setTotalretefuente('');
-      setTotalpago('');
-      setIdProveedor('');
-      setBodegaId('');
-    } else if (op === 2) {
-      setTitle('Editar factura de proveedor');
-      setFechageneracion(fechageneracion);
-      setFechaexpedicion(fechaexpedicion);
-      setFechavencimiento(fechavencimiento);
-      setTotalBruto(totalBruto);
-      setTotalretefuente(totalretefuente);
-      setTotalpago(totalpago);
-      setIdProveedor(idProveedor);
-      setBodegaId(bodegaId);
-    }
-
-    document.getElementById('modalFacturas').addEventListener('shown.bs.modal', function () {
-      document.getElementById('fechageneracion').focus();
-    });
-  };
-
-  const validar = () => {
-    if (
-      fechageneracion.trim() === '' ||
-      fechaexpedicion.trim() === '' ||
-      fechavencimiento.trim() === '' ||
-      totalBruto.trim() === '' ||
-      totalretefuente.trim() === '' ||
-      totalpago.trim() === '' ||
-      idProveedor.trim() === '' ||
-      bodegaId.trim() === '' ||
-      cantidad.trim() === ''
-    ) {
-      show_alerta('Completa todos los campos', 'warning');
-    } else {
-      const parametros = { fechageneracion, fechaexpedicion, fechavencimiento, totalBruto, totalretefuente, totalpago, idProveedor, bodegaId, cantidad };
-      const metodo = operation === 1 ? 'POST' : 'PUT';
-      enviarSolicitud(metodo, parametros);
-    }
-  };
-
-  const enviarSolicitud = async (metodo, parametros) => {
-    const idFacturaParam = idFactura || '';
-    try {
-      const response = await axios[metodo.toLowerCase()](
-        idFacturaParam ? `${apiUrl}/${idFacturaParam}` : apiUrl,
-        parametros
+      // Añadir parámetros para manejar la caché
+      const response = await axios.get(`https://localhost:7284/api/facturaproveedor?cacheKey=${cacheKey}&forceRefresh=${Date.now()}`);
+      const filterFactura = response.data.filter(
+        (factura) => factura.estado !== 'Desactivado' && !localStorage.getItem(`eliminado_${factura.idFacturaProveedor}`)
       );
-      const tipo = response.data[0];
-      const msj = response.data[1];
-      show_alerta(msj, tipo);
-      getFacturas();
-      setIdFactura('');
-      setFechageneracion('');
-      setFechaexpedicion('');
-      setFechavencimiento('');
-      setTotalBruto('');
-      setTotalretefuente('');
-      setTotalpago('');
-      setIdProveedor('');
-      setBodegaId('');
-      setCantidad('');
-    } catch (error) {
-      show_alerta('Error de solicitud', 'error');
-      console.error(error);
-    }
-  };
-
-  const handleSearch = (e) => {
-    const text = e.target.value;
-    setSearchText(text);
-    if (text.trim() === '') {
-      setPageNumber(1);
-      getFacturas();
-    } else {
-      const filteredFacturas = facturas.filter((factura) =>
-        factura.idFacturaProveedor.toLowerCase().includes(text.toLowerCase())
-      );
+  
+      // Obtener nombres de proveedor y bodega
+      for (const factura of filterFactura) {
+        const proveedor = await axios.get(`https://localhost:7284/api/proveedor/${factura.idProveedor}`);
+        factura.nombreProveedor = proveedor.data.nombre;
+      
+        const bodega = await axios.get(`https://localhost:7284/api/bodegas/${factura.bodegaId}`);
+        factura.nombreBodega = bodega.data.nombre;
+      }
+  
+      // Aplicar filtro por nombre del proveedor si searchTerm está presente
+      const filteredFacturas = searchTerm ? filterFactura.filter(factura => factura.nombreProveedor.toLowerCase().includes(searchTerm.toLowerCase())) : filterFactura;
+  
       setFacturas(filteredFacturas);
-    }
-  };
-
-   const desactivarProveedor = async (idProveedor, nombreProveedor) => {
-    try {
-      const response = await axios.get(`${apiUrl}/${idProveedor}`);
-      const bodega = response.data;
-
-      const parametros = {
-        ...proveedores,
-        estado: 'Desactivado',
-      };
-
-      await axios.put(`${apiUrl}/${idProveedor}`, parametros);
-      show_alerta(`Bodega ${nombreProveedor} desactivada exitosamente`, 'success');
-      getProveedores();
-      setCacheKey(Date.now().toString());
     } catch (error) {
-      show_alerta('Error al desactivar la bodega', 'error');
       console.error(error);
     }
   };
+  
+  
+
+// Dentro de la función showDetalleFactura
+// Dentro de la función showDetalleFactura
+const showDetalleFactura = async (facturaId) => {
+  try {
+    const detallesResponse = await axios.get(`https://localhost:7284/api/DetalleFacturaproveedor?idFacturaProveedor=${facturaId}`);
+    const detalles = detallesResponse.data;
+    const detallesConNombres = await Promise.all(detalles.map(async (detalle) => {
+      // Asegurarse de que productos esté cargado antes de buscar
+      if (productos.length > 0) {
+        const producto = productos.find(producto => producto.idProducto === detalle.idProducto);
+        const nombreProducto = producto ? producto.nombreProducto : 'Nombre no encontrado';
+        return { ...detalle, nombreProducto };
+      } else {
+        return { ...detalle, nombreProducto: 'Nombre no encontrado' };
+      }
+    }));
+    // Obtener solo los detalles que corresponden al ID de factura proporcionado
+    const detallesFacturaSeleccionada = detallesConNombres.filter(detalle => detalle.idFacturaProveedor === facturaId);
+    // Crear un objeto que contenga tanto la información de la factura como los detalles
+    const factura = facturas.find(factura => factura.idFacturaProveedor === facturaId);
+    const facturaConDetalles = { ...factura, detalles: detallesFacturaSeleccionada };
+    // Configurar el estado de detalleFactura con el objeto creado
+    setDetalleFactura(facturaConDetalles);
+  } catch (error) {
+    console.error(error);
+  }
+};
 
 
-  const showPreviousButton = pageNumber > 1;
-  const showNextButton = pageNumber < totalPages;
+
+
+
+  const desactivarFactura = async (idFactura, nombre) => {
+    try {
+      const factura = await axios.get(`https://localhost:7284/api/facturaproveedor/${idFactura}`);
+      const parametros = {
+        idFacturaProveedor: factura.data.idFacturaProveedor,
+        fechageneracion: factura.data.fechageneracion,
+        fechaexpedicion: factura.data.fechaexpedicion,
+        fechavencimiento: factura.data.fechavencimiento,
+        cantidad: factura.data.cantidad,
+        totalBruto: factura.data.totalBruto,
+        totalretefuente: factura.data.totalretefuente,
+        totalpago: factura.data.totalpago,
+        estado: 'Desactivado',
+        idProveedor: factura.data.idProveedor,
+        bodegaId: factura.data.bodegaId
+      };
+      await axios.put(`https://localhost:7284/api/facturaproveedor/${idFactura}`, parametros);
+      Swal.fire(`Factura ${nombre} desactivada exitosamente`, '', 'success');
+      getFacturas(); // Actualizar la lista de facturas después de desactivar una
+      setCacheKey(Date.now().toString()); // Actualizar la clave de la caché
+    } catch (error) {
+      console.error(error);
+      Swal.fire('Error', 'Ha ocurrido un error al desactivar la factura', 'error');
+    }
+  };
+
+  // Obtener índices del primer y último elemento de la página actual
+  const indexOfLastItem = currentPage * itemsPerPage;
+  const indexOfFirstItem = indexOfLastItem - itemsPerPage;
+  const currentItems = facturas.slice(indexOfFirstItem, indexOfLastItem);
+
+  // Cambiar de página
+  const paginate = (pageNumber) => setCurrentPage(pageNumber);
+
+  // Filtrar facturas por el nombre del proveedor
+ 
+
+  // Estilos de la tabla
+  const tableStyles = {
+    fontSize: '0.8rem', // Tamaño de la fuente reducido
+    padding: '0.25rem' // Espaciado reducido entre celdas
+  };
+
+  // Estilos para los botones de paginación
+  const paginationButtonStyles = {
+    marginRight: '100px',
+    background: '#440000',
+    color: 'white',
+
+  };
+
+  const filteredFacturas = currentItems.filter(factura =>
+    factura.nombreProveedor.toLowerCase().includes(searchTerm.toLowerCase())
+  );
+  
+  
 
   return (
-    <div className='container-fluid'>
-      <div className='row justify-content-center'>
-        <div className='col-md-4 offset-md-4'>
-          <div style={{ display: 'flex', alignItems: 'center' }}>
-            <div className='input-group mb-3' style={{ marginLeft: 'auto', marginRight: '20px', }}>
-              <input
-                type='text'
-                className='form-control'
-                placeholder='Buscar factura'
-                aria-label='Buscar factura'
-                aria-describedby='button-addon2'
-                onChange={handleSearch}
-                value={searchText}
-                style={{ height: '40px', borderRadius: '45px', marginRight: '100px', width: '500px', marginLeft: 'auto', position: 'absolute', right: 0 }}
-              />
-            </div>
-          </div>
-        </div>
-      </div>
-      <div className='row mt-3'>
-        <div className='col-12 col-lg-8 offset-0 offset-lg-2 mx-auto text-center' style={{ width: '100%' }}>
-          <DivTable col='6' off='3'>
-            <table className='table table-bordered'>
-              <thead>
-                <tr>
-                  <th className='table-header' style={{ background: '#440000', color: 'white' }}>
-                    #
-                  </th>
-                  <th className='table-header' style={{ background: '#440000', color: 'white' }}>
-                    Fecha Generación
-                  </th>
-                  <th className='table-header' style={{ background: '#440000', color: 'white' }}>
-                    Fecha Expedición
-                  </th>
-                  <th className='table-header' style={{ background: '#440000', color: 'white' }}>
-                    Fecha Vencimiento
-                  </th>
-                  <th className='table-header' style={{ background: '#440000', color: 'white' }}>
-                    Total Bruto
-                  </th>
-                  <th className='table-header' style={{ background: '#440000', color: 'white' }}>
-                    Total Retefuente
-                  </th>
-                  <th className='table-header' style={{ background: '#440000', color: 'white' }}>
-                    Total Pago
-                  </th>
-                  <th className='table-header' style={{ background: '#440000', color: 'white' }}>
-                    Cantidad
-                  </th>
-                  <th className='table-header' style={{ background: '#440000', color: 'white' }}>
-                    ID Proveedor
-                  </th>
-                  <th className='table-header' style={{ background: '#440000', color: 'white' }}>
-                    Bodega ID
-                  </th>
-                  <th className='table-header' style={{ background: '#440000', color: 'white' }}></th>
-                </tr>
-              </thead>
-              <tbody className='table-group-divider'>
-                {facturas
-                  .slice((pageNumber - 1) * pageSize, pageNumber * pageSize)
-                  .map((factura, i) => (
-                    <tr key={factura.idFacturaProveedor}>
-                      <td style={{ background: '#dadada' }}>{i + 1}</td>
-                      <td style={{ background: '#dadada' }}>{factura.fechageneracion}</td>
-                      <td style={{ background: '#dadada' }}>{factura.fechaexpedicion}</td>
-                      <td style={{ background: '#dadada' }}>{factura.fechavencimiento}</td>
-                      <td style={{ background: '#dadada' }}>{factura.totalBruto}</td>
-                      <td style={{ background: '#dadada' }}>{factura.totalretefuente}</td>
-                      <td style={{ background: '#dadada' }}>{factura.totalpago}</td>
-                      <td style={{ background: '#dadada' }}>{factura.cantidad}</td>
-                      <td style={{ background: '#dadada' }}>{factura.idProveedor}</td>
-                      <td style={{ background: '#dadada' }}>{factura.bodegaId}</td>
-                      <td style={{ background: '#dadada' }}>
-                        
-                        &nbsp;
+    <div>
+
+      <table className='table table-bordered' style={tableStyles}>
+        <thead className='thead-dark'>
+          <tr>
+            <th style={{ background: '#440000', color: 'white' }}>#</th>
+            <th style={{ background: '#440000', color: 'white' }}>ID Factura</th>
+            <th style={{ background: '#440000', color: 'white' }}>Fecha de Generación</th>
+            <th style={{ background: '#440000', color: 'white' }}>Fecha de Expedición</th>
+            <th style={{ background: '#440000', color: 'white' }}>Fecha de Vencimiento</th>
+            <th style={{ background: '#440000', color: 'white' }}>Total Bruto</th>
+            <th style={{ background: '#440000', color: 'white' }}>Total Retefuente</th>
+            <th style={{ background: '#440000', color: 'white' }}>Total Pago</th>
+            <th style={{ background: '#440000', color: 'white' }}>Proveedor</th>
+            <th style={{ background: '#440000', color: 'white' }}>Bodega</th>
+            <th style={{ background: '#440000', color: 'white' }}></th>
+          </tr>
+        </thead>
+        <tbody>
+        {filteredFacturas.map((factura, index) => (
+          <tr key={factura.idFacturaProveedor}>
+            <td style={{ background: '#dadada' }}>{indexOfFirstItem + index + 1}</td>
+            <td style={{ background: '#dadada' }}>{factura.idFacturaProveedor}</td>
+            <td style={{ background: '#dadada' }}>{factura.fechageneracion}</td>
+            <td style={{ background: '#dadada' }}>{factura.fechaexpedicion}</td>
+            <td style={{ background: '#dadada' }}>{factura.fechavencimiento}</td>
+            <td style={{ background: '#dadada' }}>{factura.totalBruto}</td>
+            <td style={{ background: '#dadada' }}>{factura.totalretefuente}</td>
+            <td style={{ background: '#dadada' }}>{factura.totalpago}</td>
+            <td style={{ background: '#dadada' }}>{factura.nombreProveedor}</td> 
+            <td style={{ background: '#dadada' }}>{factura.nombreBodega}</td> 
+            <td style={{ background: '#dadada' }}>
+            <button
+                onClick={() => showDetalleFactura(factura.idFacturaProveedor)}
+                className='btn btn-danger'
+                style={{ background: '#440000', color: 'white' }}
+            >
+                <i className='fa-solid fa-eye'></i>
+
+            </button>
                         <button
-                          onClick={() => desactivarProveedor(factura.idFacturaProveedor, factura.fechageneracion)}
+                          onClick={() => desactivarFactura(factura.idFacturaProveedor, factura.idFacturaProveedor)}
                           className='btn btn-danger'
                           style={{ background: '#440000', color: 'white' }}
                         >
                           <i className='fa-solid fa-trash'></i>
                         </button>
-                      </td>
-                    </tr>
-                  ))}
+
+              
+            </td>
+          </tr>
+        ))}
+        </tbody>
+      </table>
+
+      {/* Botones de paginación */}
+      <ul className="pagination">
+        <li className="page-item">
+          <Button
+            className="page-link"
+            onClick={() => paginate(currentPage === 1 ? 1 : currentPage - 1)}
+            style={paginationButtonStyles}
+            disabled={currentPage === 1}
+          >
+            Anterior
+          </Button>
+        </li>
+        <li className="page-item">
+          <Button
+            className="page-link"
+            onClick={() => paginate(currentPage + 1)}
+            style={paginationButtonStyles}
+            disabled={currentPage === Math.ceil(facturas.length / itemsPerPage)}
+          >
+            Siguiente
+          </Button>
+        </li>
+      </ul>
+
+      <Modal show={detalleFactura !== null} onHide={() => setDetalleFactura(null)}>
+        <Modal.Header closeButton>
+          <Modal.Title>Detalles de la Factura</Modal.Title>
+        </Modal.Header>
+        <Modal.Body>
+          {detalleFactura && (
+            <div>
+              <p>ID de Factura: {detalleFactura.idFacturaProveedor}</p>
+              <p>Fecha de Generación: {detalleFactura.fechageneracion}</p>
+              <p>Fecha de Expedición: {detalleFactura.fechaexpedicion}</p>
+              <p>Fecha de Vencimiento: {detalleFactura.fechavencimiento}</p>
+              <p>Proveedor: {detalleFactura.nombreProveedor}</p>
+              <p>Bodega: {detalleFactura.nombreBodega}</p>
+              <p>Total Bruto: {detalleFactura.totalBruto}</p>
+              <p>Total retefuente: {detalleFactura.totalretefuente}</p>
+              <p>Total: {detalleFactura.totalpago}</p>
+              <p>Detalles:</p>
+              <table className="table">
+              <thead>
+                <tr>
+                  <th>Nombre Producto</th>
+                  <th>Cantidad</th>
+                </tr>
+              </thead>
+              <tbody>
+                {detalleFactura.detalles && detalleFactura.detalles.map((detalle, index) => (
+                  <tr key={index}>
+                    <td>{detalle.nombreProducto}</td>
+                    <td>{detalle.cantidad}</td>
+                  </tr>
+                ))}
               </tbody>
             </table>
-            <div className='d-flex justify-content-between'>
-              {showPreviousButton && (
-                <button onClick={handlePreviousPage} style={{ background: '#440000', borderColor: '#440000', color: 'white' }}>
-                  Anterior
-                </button>
-              )}
-              <span>
-                Página {pageNumber} de {totalPages}
-              </span>
-              {showNextButton && (
-                <button onClick={handleNextPage} style={{ background: '#440000', borderColor: '#440000', color: 'white' }}>
-                  Siguiente
-                </button>
-              )}
+
             </div>
-          </DivTable>
-        </div>
-      </div>
-      <div id='modalFacturas' className='modal fade' aria-hidden='true'>
-        <div className='modal-dialog'>
-          <div className='modal-content'>
-            <div className='modal-header'>
-              <label className='h5'>{title}</label>
-              <button type='button' className='btn-close' data-bs-dismiss='modal' aria-label='Close'></button>
-            </div>
-            <div className='modal-body'>
-              <input type='hidden' id='id' />
-              <div className='input-group mb-3'>
-                <span className='input-group-text'>
-                  <i className='fa-solid fa-calendar-day'></i>
-                </span>
-                <input
-                  type='date'
-                  id='fechageneracion'
-                  className='form-control'
-                  placeholder='Fecha Generación'
-                  value={fechageneracion}
-                  onChange={(e) => setFechageneracion(e.target.value)}
-                />
-              </div>
-              <div className='input-group mb-3'>
-                <span className='input-group-text'>
-                  <i className='fa-solid fa-calendar-day'></i>
-                </span>
-                <input
-                  type='date'
-                  id='fechaexpedicion'
-                  className='form-control'
-                  placeholder='Fecha Expedición'
-                  value={fechaexpedicion}
-                  onChange={(e) => setFechaexpedicion(e.target.value)}
-                />
-              </div>
-              <div className='input-group mb-3'>
-                <span className='input-group-text'>
-                  <i className='fa-solid fa-calendar-day'></i>
-                </span>
-                <input
-                  type='date'
-                  id='fechavencimiento'
-                  className='form-control'
-                  placeholder='Fecha Vencimiento'
-                  value={fechavencimiento}
-                  onChange={(e) => setFechavencimiento(e.target.value)}
-                />
-              </div>
-              <div className='input-group mb-3'>
-                <span className='input-group-text'>
-                  <i className='fa-solid fa-coins'></i>
-                </span>
-                <input
-                  type='text'
-                  id='totalBruto'
-                  className='form-control'
-                  placeholder='Total Bruto'
-                  value={totalBruto}
-                  onChange={(e) => setTotalBruto(e.target.value)}
-                />
-              </div>
-              <div className='input-group mb-3'>
-                <span className='input-group-text'>
-                  <i className='fa-solid fa-coins'></i>
-                </span>
-                <input
-                  type='text'
-                  id='totalretefuente'
-                  className='form-control'
-                  placeholder='Total Retefuente'
-                  value={totalretefuente}
-                  onChange={(e) => setTotalretefuente(e.target.value)}
-                />
-              </div>
-              <div className='input-group mb-3'>
-                <span className='input-group-text'>
-                  <i className='fa-solid fa-coins'></i>
-                </span>
-                <input
-                  type='text'
-                  id='totalpago'
-                  className='form-control'
-                  placeholder='Total Pago'
-                  value={totalpago}
-                  onChange={(e) => setTotalpago(e.target.value)}
-                />
-              </div>
-              <div className='input-group mb-3'>
-                <span className='input-group-text'>
-                  <i className='fa-solid fa-id-card'></i>
-                </span>
-                <input
-                  type='text'
-                  id='idProveedor'
-                  className='form-control'
-                  placeholder='ID Proveedor'
-                  value={idProveedor}
-                  onChange={(e) => setIdProveedor(e.target.value)}
-                />
-              </div>
-              <div className='input-group mb-3'>
-                <span className='input-group-text'>
-                  <i className='fa-solid fa-id-card'></i>
-                </span>
-                <input
-                  type='text'
-                  id='bodegaId'
-                  className='form-control'
-                  placeholder='Bodega ID'
-                  value={bodegaId}
-                  onChange={(e) => setBodegaId(e.target.value)}
-                />
-              </div>
-              <div className='input-group mb-3'>
-                <span className='input-group-text'>
-                  <i className='fa-solid fa-cube'></i>
-                </span>
-                <input
-                  type='number'
-                  id='cantidad'
-                  className='form-control'
-                  placeholder='Cantidad'
-                  value={cantidad}
-                  onChange={(e) => setCantidad(e.target.value)}
-                />
-              </div>
-            </div>
-            <div className='modal-footer'>
-              <button type='button' className='btn btn-secondary' data-bs-dismiss='modal'>
-                Cerrar
-              </button>
-              <button type='button' className='btn btn-primary' onClick={validar}>
-                Guardar cambios
-              </button>
-            </div>
-          </div>
-        </div>
-      </div>
+          )}
+        </Modal.Body>
+        <Modal.Footer>
+          <Button variant='secondary' onClick={() => setDetalleFactura(null)}>
+            Cerrar
+          </Button>
+        </Modal.Footer>
+      </Modal>
     </div>
   );
 };
 
-export default ManageFacturaProveedores;
+export default ManageFacturas;

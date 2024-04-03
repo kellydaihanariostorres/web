@@ -184,11 +184,13 @@ const ManageInventarios = () => {
                   style={{
                     height: '40px',
                     borderRadius: '45px',
-                    marginRight: '100px',
+                    marginRight: '10px',
+                    marginLeft: '100px',
                     width: '500px',
                     marginLeft: 'auto',
                     position: 'absolute',
                     right: 0,
+
                   }}
                 />
               </div>
@@ -230,12 +232,12 @@ const ManageInventarios = () => {
                   .slice((pageNumber - 1) * pageSize, pageNumber * pageSize)
                   .map((inventario, i) => (
                     <tr key={inventario.id}>
-                       <td style={{ background: '#dadada' }}>{i + 1}</td>
-                      <td style={{ background: '#dadada' }}>{inventario.nombreProducto}</td>
-                      <td style={{ background: '#dadada' }}>{inventario.precioProducto}</td>
-                      <td style={{ background: '#dadada' }}>{inventario.cantidad}</td>
-                      <td style={{ background: '#dadada' }}>{inventario.marcaProducto}</td>
-                      <td style={{ background: '#dadada' }}>{inventario.clasificacionProducto}</td>
+                       <td style={{ background: '#dadada',color: inventario.cantidad < 100 ? 'red' : 'inherit'  }}>{i + 1}</td>
+                      <td style={{ background: '#dadada',color: inventario.cantidad < 100 ? 'red' : 'inherit'  }}>{inventario.nombreProducto}</td>
+                      <td style={{ background: '#dadada',color: inventario.cantidad < 100 ? 'red' : 'inherit'  }}>{inventario.precioProducto}</td>
+                      <td style={{ background: '#dadada', color: inventario.cantidad < 100 ? 'red' : 'inherit' }}>{inventario.cantidad}</td>
+                      <td style={{ background: '#dadada',color: inventario.cantidad < 100 ? 'red' : 'inherit'  }}>{inventario.marcaProducto}</td>
+                      <td style={{ background: '#dadada',color: inventario.cantidad < 100 ? 'red' : 'inherit'  }}>{inventario.clasificacionProducto}</td>
                       <td style={{ background: '#dadada' }}>
                         
                         

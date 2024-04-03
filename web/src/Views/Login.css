@@ -2,81 +2,76 @@
 body {
   margin: 0;
   padding: 0;
-  background-color: #9c0101; /* Establece el color de fondo para toda la página */
+  background-color: #4c0101; /* Changed background color to wine red (#990000) */
 }
+/*//////*/
 
 .container {
-  background-color: #9c0101;
-  color: #9c0101; /* Ajusta el color del texto si es necesario */
+  background-color: #4c0101; /* Main container remains black */
+  color: #4c0101; /* Text color white */
 }
 
-  .card {
-    border: 1px solid #1a1a1a;
-    background-color: #1a1a1a;
-    color: #1a1a1a;
-  }
-  
-  .card-header {
-    background-color: #1a1a1a;
-    border: 1px solid #1a1a1a;
-    color: #1a1a1a;
-    text-align: center;
-  }
-  
-  .card-body {
-    background-color: #1a1a1a;
-    border: 1px solid #1a1a1a;
-  }
-  
-  .btn-primary {
-    background-color: #4c0101;
-    color: #fff;
-    border: 1px solid #1a1a1a;
-    border-radius: 45px;
-    display: block; /* Esto asegura que el botón ocupe todo el ancho disponible */
-    margin: 0 auto; /* Esto centra horizontalmente el botón */
-    width: fit-content;
-  }
-  
-  .btn-primary:hover {
-    background-color: #4c0101;
-  }
-  
-  .btn-primary:focus,
-  .btn-primary.focus {
-    box-shadow: 0 0 0 0.2rem #4c0101(0, 123, 255, 0.5);
-  }
-  
-  .btn-primary.disabled,
-  .btn-primary:disabled {
-    background-color: #4c0101;
-    border-color: #4c0101;
-  }
-  
-  .btn-primary:not(:disabled):not(.disabled):active,
-  .btn-primary:not(:disabled):not(.disabled).active,
-  .show > .btn-primary.dropdown-toggle {
-    background-color: #4c0101;
-    border-color: #4c0101;
-  }
+.card {
+  border: 1px solid #4c0101;
+  background-color: #4c0101; /* Input fields remain black */
+  color: #4c0101; /* Text color white */
+}
 
-  .logo-img {
-    width: 130px; /* ajusta el tamaño de la imagen según lo necesario */
-    height: 100px;
-    border-radius: 80%; /* hace que la imagen sea circular */
-    margin: 0 auto; /* centra la imagen horizontalmente */
-    display: block; /* garantiza que la imagen se muestre como un bloque */
-    color:#1a1a1a ;
-  }
-  .text{
-    color: #fff;
-  }
-  
+.card-header {
+  background-color: #4c0101;
+  border: 1px solid #4c0101;
+  color: #4c0101; /* Text color white */
+  text-align: center;
+}
 
 
+.card-body {
+  background-color: #4c0101;
+  border: 1px solid #4c0101;
+}
 
-  
+/* Estilo para los botones */
+.btn-primary {
+  background-color: #4c0101;
+  color: #4c0101;
+  border: 1px solid #4c0101;
+  border-radius: 45px;
+  display: block;
+  margin: 0 auto;
+  width: fit-content;
+}
 
-  
-  
-  
+.btn-primary:hover {
+  background-color: #4c0101;
+}
+
+.btn-primary:focus,
+.btn-primary.focus {
+  box-shadow: 0 0 0 0.2rem rgba(76, 1, 1, 0.5);
+}
+
+.btn-primary.disabled,
+.btn-primary:disabled {
+  background-color: #4c0101;
+  border-color: #4c0101;
+}
+
+.btn-primary:not(:disabled):not(.disabled):active,
+.btn-primary:not(:disabled):not(.disabled).active,
+.show > .btn-primary.dropdown-toggle {
+  background-color: #4c0101;
+  border-color: #4c0101;
+}
+ 
+.logo-img {
+  width: 120px;
+  height: 100px;
+  border-radius: 100%;
+  margin: 0 auto;
+  display: block;
+  color: #4C0101;
+}
+
+.text {
+  color: #ffffff; /* Text color white */
+}

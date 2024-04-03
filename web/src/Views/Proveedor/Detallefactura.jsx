@@ -72,16 +72,21 @@ const CrearFacturaComponent = ({ idFacturaProveedor }) => {
             throw new Error("Ocurrió un error al actualizar la cantidad del producto. Por favor, inténtalo de nuevo.");
         }
     };
-    
-    
+
     const handleImprimirFactura = async () => {
         try {
-            // Iterar sobre cada producto y enviar un detalle de factura por cada uno
+            // Obtener los detalles completos de la factura de proveedor
+            const response = await axios.get(`https://localhost:7284/api/facturaproveedor/${idFacturaProveedor}`);
+            const factura = response.data;
+    
+            if (!factura) {
+                throw new Error("No se encontró la factura de proveedor.");
+            }
             await Promise.all(productos.map(async (producto) => {
                 const detalleFactura = {
                     valorUnitario: producto.precioProducto,
                     cantidad: producto.cantidad,
-                    idFacturaProveedor: idFacturaProveedor, // Aquí pasas el idFacturaProveedor como parte del detalle
+                    idFacturaProveedor: idFacturaProveedor,
                     idProducto: producto.idProducto
                 };
                 await axios.post("https://localhost:7284/api/DetalleFacturaproveedor", detalleFactura);
@@ -90,22 +95,44 @@ const CrearFacturaComponent = ({ idFacturaProveedor }) => {
                 await actualizarCantidadProducto(producto.idProducto, producto.cantidad);
             }));
     
-            // Limpiar la lista de productos después de imprimir la factura
-            setProductos([]);
-            setDetalleProductos([]);
     
-            // Mostrar un mensaje de éxito después de imprimir todas las facturas
-            Swal.fire({
-                icon: 'success',
-                title: 'Factura creada con éxito',
-                text: 'La factura se ha creado correctamente.',
-                confirmButtonText: 'Aceptar'
-            }).then((result) => {
-                if (result.isConfirmed) {
-                    // Recargar la página después de que el usuario haga clic en "Aceptar" en el SweetAlert
-                    recargarPagina();
-                }
+            // Calcular los totales
+            const subtotal = productos.reduce((total, prod) => total + (prod.cantidad * prod.precioProducto), 0);
+            const totalIVA = subtotal * iva;
+            const total = subtotal + totalIVA;
+    
+            // Actualizar la factura de proveedores con los nuevos valores
+            await axios.put(`https://localhost:7284/api/facturaproveedor/${idFacturaProveedor}`, {
+                totalretefuente: totalIVA,
+                totalBruto: subtotal,
+                totalpago: total,
+                estado: 'Activo',
+                fechageneracion: factura.fechageneracion,
+                fechaexpedicion: factura.fechaexpedicion,
+                fechavencimiento: factura.fechavencimiento,
+                cantidad: factura.cantidad,
+                idProveedor: factura.idProveedor,
+                bodegaId: factura.bodegaId
             });
+             // Limpiar la lista de productos después de imprimir la factura
+             setProductos([]);
+             setDetalleProductos([]);
+             
+     
+             // Mostrar un mensaje de éxito después de imprimir todas las facturas
+             Swal.fire({
+                 icon: 'success',
+                 title: 'Factura creada con éxito',
+                 text: 'La factura se ha creado correctamente.',
+                 confirmButtonText: 'Aceptar'
+             }).then((result) => {
+                 if (result.isConfirmed) {
+                     // Recargar la página después de que el usuario haga clic en "Aceptar" en el SweetAlert
+                     recargarPagina();
+                 }
+             });
+    
+            
         } catch (error) {
             console.error("Error al imprimir la factura:", error);
             // Manejar cualquier error que pueda ocurrir durante la impresión de la factura
@@ -113,7 +140,6 @@ const CrearFacturaComponent = ({ idFacturaProveedor }) => {
         }
     };
     
-
     const recargarPagina = () => {
         // Recargar la página
         window.location.reload();
@@ -169,10 +195,10 @@ const CrearFacturaComponent = ({ idFacturaProveedor }) => {
             <div style={{ textAlign: "right" }}>
                 {/* Aquí se muestra el resumen de la factura (subtotal, IVA, total) */}
                 <div style={{ color: "black", border: "1px solid black", padding: "3px 70px", marginBottom: "10px", display: "inline-block" }}>
-                    <p>Subt: {detalleProductos.subtotal}</p>
+                    <p>Total bruto: {detalleProductos.subtotal}</p>
                 </div>
                 <div style={{ color: "black", border: "1px solid black", padding: "3px 70px", marginBottom: "10px", display: "inline-block" }}>
-                    <p>IVA: {detalleProductos.iva}</p>
+                    <p>Total: {detalleProductos.iva}</p>
                 </div>
                 <div style={{ color: "black", border: "1px solid black", padding: "3px 70px", marginBottom: "10px", display: "inline-block" }}>
                     <p>Total: {detalleProductos.total}</p>

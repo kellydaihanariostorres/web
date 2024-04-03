@@ -330,7 +330,7 @@ function EnterpriseInfo() {
         </div>
 
         
-        <div style={{ padding: '10px', width: '104%', marginLeft: '-2%', margin: "0 auto"  }}>
+        <div style={{ padding: '10px', width: '104%', marginLeft: '-2.8%', margin: "0 auto"  }}>
             {mostrarDetalleFactura && idFacturaCreada && ( // Verificar que idFacturaCreada no esté vacío
         // Pasar el idFacturaCreada como prop al componente Detallefactura
                 <div style={{ border: "1px solid white", backgroundColor: "white", boxShadow: "0 0 10px rgba(0, 0, 0, 0.5)", padding: '-5vh', }}>

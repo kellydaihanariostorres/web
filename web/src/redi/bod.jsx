@@ -2,10 +2,10 @@ import React from 'react';
 import SideBar from '../VistasLogin/Gerente';// menu
 import { Routes, Route } from 'react-router-dom';
 import Home from '../Views/Home/Home';
-import Bodega from '../Views/Bodega/Index';
+import Bodega from '../Views/Bodega/Bodega_bodega';
 import Productos from '../Views/Productos/index';
 import Inventario from '../Views/Inventario/Index';
-import Proveedor from '../Views/Proveedor/Index';
+import Proveedor from '../Views/Proveedor/Proveedores_bodega';
 import Navb from '../Components/Nav';
 import Facturaproveedor from '../Views/Proveedor/Factura';
 import Pedidos from '../Views/Proveedor/Pedidos'
@@ -41,8 +41,8 @@ function Vistabodega({ cargo }) {
               <Route index element={<Home />} />
               <Route path="/productos/*" element={<Productos/>}/>
               <Route path="/inventario/*" element={<Inventario/>}/>
-              <Route path="/proveedor/*" element={<Proveedor/>}/>
-              <Route path="bodega/*" element={<Bodega />} />
+              <Route path="/proveedores/*" element={<Proveedor/>}/>
+              <Route path="bodegas/*" element={<Bodega />} />
               <Route path="pedido/*" element={<Pedidos/>} />
               <Route path="facturaproveedor/*" element={<Facturaproveedor />} />
         </Routes>

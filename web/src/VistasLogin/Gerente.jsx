@@ -53,12 +53,12 @@ const SideBar = () => {
                   </NavLink>
                 </li>
                 <li className='nav-item'>
-                  <NavLink to='/bodegav/proveedor' className='text-white rounded py-2 w-100 d-inline-block px-2'><FaIcons.FaRegHandLizard className='me-2'/>
+                  <NavLink to='/bodegav/proveedores' className='text-white rounded py-2 w-100 d-inline-block px-2'><FaIcons.FaRegHandLizard className='me-2'/>
                     PROVEEDOR
                   </NavLink>
                 </li>
                 <li className='nav-item'>
-                  <NavLink to='/bodegav/bodega' className='text-white rounded py-2 w-100 d-inline-block px-2'><FaIcons.FaArchway className='me-2'/>
+                  <NavLink to='/bodegav/bodegas' className='text-white rounded py-2 w-100 d-inline-block px-2'><FaIcons.FaArchway className='me-2'/>
                     BODEGAS
                   </NavLink>
                 </li>
