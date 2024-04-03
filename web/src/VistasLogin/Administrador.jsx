@@ -27,7 +27,7 @@ const SideBar = () => {
     <div className="sideBar">
       <nav className='navbar navbar-expand-lg navbar-dark bg-dark'style={styles.flex}>
         <div className='container-fluid'style={styles.flex}>
-          <button
+        <button
             className='navbar-toggler'
             type='button'
             data-toggle='collapse'
@@ -41,9 +41,9 @@ const SideBar = () => {
           </button>
 
           {storage.get('authToken') ? (
-            <div className='collapse navbar-collapse navbar-dark bg-dark' id='nav'>  
-               
-              <ul className='navbar-nav flex-column mb-2'>
+            <div className='collapse navbar-collapse navbar-dark bg-dark' id='nav'>
+            <ul className='navbar-nav flex-column mb-2'>
+              
                 <li className='nav-item'>
                   <NavLink to='/administradorv' className='text-white rounded py-2 w-100 d-inline-block px-2' activeclassname="activa"><FaIcons.FaHome className='me-3'/>
                     INICIO
