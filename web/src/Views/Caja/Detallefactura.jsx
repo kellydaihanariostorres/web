@@ -9,6 +9,7 @@ const CrearFacturaComponent = ({ idFactura }) => {
     const [productos, setProductos] = useState([]);
     const [detalleProductos, setDetalleProductos] = useState({ subtotal: 0, iva: 0, total: 0 });
     const iva = 0.19;
+    
 
     const handleAgregarProducto = (producto) => {
         const updatedProductos = [...productos, producto];
@@ -76,7 +77,12 @@ const CrearFacturaComponent = ({ idFactura }) => {
     
     const handleImprimirFactura = async () => {
         try {
-            // Iterar sobre cada producto y enviar un detalle de factura por cada uno
+            const response = await axios.get(`https://localhost:7284/api/factura/${idFactura}`);
+            const factura = response.data;
+
+            if (!factura) {
+                throw new Error("No se encontró la factura del cliente.");
+            }
             await Promise.all(productos.map(async (producto) => {
                 const detalleFactura = {
                     valorUnitario: producto.precioProducto,
@@ -85,16 +91,28 @@ const CrearFacturaComponent = ({ idFactura }) => {
                     idProducto: producto.idProducto
                 };
                 await axios.post("https://localhost:7284/api/DetalleFactura", detalleFactura);
-    
-                // Actualizar la cantidad del producto en la base de datos
+
                 await actualizarCantidadProducto(producto.idProducto, producto.cantidad);
             }));
-    
-            // Limpiar la lista de productos después de imprimir la factura
+
+            const subtotal = productos.reduce((total, prod) => total + (prod.cantidad * prod.precioProducto), 0);
+            const totalIVA = subtotal * iva;
+            const total = subtotal + totalIVA;
+
+            await axios.put(`https://localhost:7284/api/factura/${idFactura}`, {
+                idFactura: factura.idFactura,
+                fechaCompra: factura.fechaCompra,
+                ivaCompra: totalIVA,
+                subtotal: subtotal,
+                total: total,
+                estado: 'Activo',
+                clienteId: factura.clienteId,
+                empleadoId: factura.empleadoId
+            });
+
             setProductos([]);
             setDetalleProductos([]);
-    
-            // Mostrar un mensaje de éxito después de imprimir todas las facturas
+
             Swal.fire({
                 icon: 'success',
                 title: 'Factura creada con éxito',
@@ -102,13 +120,12 @@ const CrearFacturaComponent = ({ idFactura }) => {
                 confirmButtonText: 'Aceptar'
             }).then((result) => {
                 if (result.isConfirmed) {
-                    // Recargar la página después de que el usuario haga clic en "Aceptar" en el SweetAlert
+                    window.location.reload();
                     recargarPagina();
                 }
             });
         } catch (error) {
             console.error("Error al imprimir la factura:", error);
-            // Manejar cualquier error que pueda ocurrir durante la impresión de la factura
             alert("Ocurrió un error al imprimir la factura. Por favor, inténtalo de nuevo.");
         }
     };

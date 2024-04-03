@@ -1,4 +1,3 @@
-
 import React, { useEffect, useState } from 'react';
 import DivAdd from '../../Components/DivAdd';
 import DivTable from '../../Components/DivTable';
@@ -20,7 +19,7 @@ const ManageProveedores = () => {
   const [operation, setOperation] = useState(1);
   const [searchText, setSearchText] = useState('');
   const [pageNumber, setPageNumber] = useState(1);
-  const [pageSize, setPageSize] = useState(7);
+  const [pageSize, setPageSize] = useState(5);
   const [totalPages, setTotalPages] = useState(1);
   const [cacheKey, setCacheKey] = useState('');
   const [errors, setErrors] = useState({});
@@ -171,7 +170,7 @@ const ManageProveedores = () => {
         idProveedorParam ? `${apiUrl}/${idProveedorParam}` : apiUrl,
         parametros
       );
-  
+      setErrors({});
       const tipo = response.data[0];
       const msj = response.data[1];
       show_alerta(msj, tipo);
@@ -333,7 +332,6 @@ const ManageProveedores = () => {
                         >
                           <i className='fa-solid fa-edit'></i>
                         </button>
-                        
                       </td>
                     </tr>
                   ))}
@@ -412,6 +410,9 @@ const ManageProveedores = () => {
                   value={edad}
                   onChange={handleInputChange}
                 />
+                <div style={{ position: 'absolute', bottom: '-31px' }}>
+                  {errors.edad && <p className='error-message red-color'>{errors.edad}</p>}
+                </div>
               </div>
               <div className='input-group mb-3'>
                 <span className='input-group-text'>
@@ -426,6 +427,9 @@ const ManageProveedores = () => {
                   value={direccion}
                   onChange={handleInputChange}
                 />
+                <div style={{ position: 'absolute', bottom: '-31px' }}>
+                  {errors.direccion && <p className='error-message red-color'>{errors.direccion}</p>}
+                </div>
               </div>
               <div className='input-group mb-3'>
                 <span className='input-group-text'>
@@ -440,6 +444,9 @@ const ManageProveedores = () => {
                   value={telefono}
                   onChange={handleInputChange}
                 />
+                <div style={{ position: 'absolute', bottom: '-31px' }}>
+                  {errors.telefono && <p className='error-message red-color'>{errors.telefono}</p>}
+                </div>
               </div>
               <div className='input-group mb-3'>
                 <span className='input-group-text'>
@@ -454,6 +461,9 @@ const ManageProveedores = () => {
                   value={correo}
                   onChange={handleInputChange}
                 />
+                <div style={{ position: 'absolute', bottom: '-31px' }}>
+                  {errors.correo && <p className='error-message red-color'>{errors.correo}</p>}
+                </div>
               </div>
               <div className='input-group mb-3'>
                 <span className='input-group-text'>
@@ -468,6 +478,9 @@ const ManageProveedores = () => {
                   value={nombreEntidadBancaria}
                   onChange={handleInputChange}
                 />
+                <div style={{ position: 'absolute', bottom: '-31px' }}>
+                  {errors.nombreEntidadBancaria && <p className='error-message red-color'>{errors.nombreEntidadBancaria}</p>}
+                </div>
               </div>
               <div className='input-group mb-3'>
                 <span className='input-group-text'>
@@ -482,6 +495,9 @@ const ManageProveedores = () => {
                   value={numeroCuentaBancaria}
                   onChange={handleInputChange}
                 />
+                <div style={{ position: 'absolute', bottom: '-31px' }}>
+                  {errors.numeroCuentaBancaria && <p className='error-message red-color'>{errors.numeroCuentaBancaria}</p>}
+                </div>
               </div>
               <div className='d-grid col-6 mx-auto'>
                 <button onClick={validar} className='btn btn-success'>

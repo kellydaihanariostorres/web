@@ -2,32 +2,74 @@ import React, { useEffect, useState } from 'react';
 import { Modal, Button } from 'react-bootstrap';
 import axios from 'axios';
 import Swal from 'sweetalert2';
-import withReactContent from 'sweetalert2-react-content';
+import 'bootstrap-icons/font/bootstrap-icons.css';
 
 const ManageFacturas = () => {
   const [facturas, setFacturas] = useState([]);
   const [detalleFactura, setDetalleFactura] = useState(null);
   const [cacheKey, setCacheKey] = useState('');
+  const [currentPage, setCurrentPage] = useState(1);
+  const [itemsPerPage] = useState(5);
+  const [searchTerm, setSearchTerm] = useState('');
+  const [productos, setProductos] = useState([]);
 
   useEffect(() => {
     getFacturas();
-  }, [cacheKey]); // Se ejecuta cada vez que cacheKey cambia
+    getProductos();
+  }, [cacheKey]); 
 
-  const getFacturas = async () => {
+  useEffect(() => {
+    const delayDebounceFn = setTimeout(() => {
+      getFacturas();
+    }, 500);
+    return () => clearTimeout(delayDebounceFn);
+  }, [searchTerm, cacheKey]);
+
+  const getProductos = async () => {
     try {
-      // Añadir parámetros para manejar la caché
-      const response = await axios.get(`https://localhost:7284/api/factura?cacheKey=${cacheKey}&forceRefresh=${Date.now()}`);
-      const filterFactura = response.data.filter(
-        (factura) => factura.estado !== 'Desactivado' && !localStorage.getItem(`eliminado_${factura.idFactura}`)
-      );
-      setFacturas(filterFactura);
+      const response = await axios.get('https://localhost:7284/api/productos');
+      setProductos(response.data);
     } catch (error) {
       console.error(error);
     }
   };
 
-  const showDetalleFactura = (factura) => {
-    setDetalleFactura(factura);
+  const getFacturas = async () => {
+    try {
+      const response = await axios.get(`https://localhost:7284/api/factura?cacheKey=${cacheKey}&forceRefresh=${Date.now()}`);
+      const filterFactura = response.data.filter(
+        (factura) => factura.estado !== 'Desactivado' && !localStorage.getItem(`eliminado_${factura.idFactura}`)
+      );
+
+      const filteredFacturas = searchTerm ? filterFactura.filter(factura => factura.clienteId.toLowerCase().includes(searchTerm.toLowerCase())) : filterFactura;
+
+      setFacturas(filteredFacturas);
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
+  const showDetalleFactura = async (facturaId) => {
+    try {
+      const detallesResponse = await axios.get(`https://localhost:7284/api/DetalleFactura?idFactura=${facturaId}`);
+      const detalles = detallesResponse.data;
+      const detallesConNombres = await Promise.all(detalles.map(async (detalle) => {
+        if (productos.length > 0) {
+          const producto = productos.find(producto => producto.idProducto === detalle.idProducto);
+          const nombreProducto = producto ? producto.nombreProducto : 'Nombre no encontrado';
+          return { ...detalle, nombreProducto };
+        } else {
+          return { ...detalle, nombreProducto: 'Nombre no encontrado' };
+        }
+      }));
+
+      const detallesFacturaSeleccionada = detallesConNombres.filter(detalle => detalle.idFactura === facturaId);
+      const factura = facturas.find(factura => factura.idFactura === facturaId);
+      const facturaConDetalles = { ...factura, detalles: detallesFacturaSeleccionada };
+      setDetalleFactura(facturaConDetalles);
+    } catch (error) {
+      console.error(error);
+    }
   };
 
   const desactivarFactura = async (idFactura, nombre) => {
@@ -45,53 +87,109 @@ const ManageFacturas = () => {
       };
       await axios.put(`https://localhost:7284/api/factura/${idFactura}`, parametros);
       Swal.fire(`Factura ${nombre} desactivada exitosamente`, '', 'success');
-      getFacturas(); // Actualizar la lista de facturas después de desactivar una
-      setCacheKey(Date.now().toString()); // Actualizar la clave de la caché
+      getFacturas();
+      setCacheKey(Date.now().toString());
     } catch (error) {
       console.error(error);
       Swal.fire('Error', 'Ha ocurrido un error al desactivar la factura', 'error');
     }
   };
 
+
+  const indexOfLastItem = currentPage * itemsPerPage;
+  const indexOfFirstItem = indexOfLastItem - itemsPerPage;
+  const currentItems = facturas.slice(indexOfFirstItem, indexOfLastItem);
+
+  const paginate = (pageNumber) => setCurrentPage(pageNumber);
+
+  const tableStyles = {
+    fontSize: '0.8rem',
+    padding: '0.25rem'
+  };
+
+  const paginationButtonStyles = {
+    marginRight: '100px',
+    background: '#440000',
+    color: 'white',
+  };
+
+  const filteredFacturas = currentItems.filter(factura =>
+    factura.clienteId.toLowerCase().includes(searchTerm.toLowerCase())
+  );
+
   return (
     <div>
-      <table className='table table-bordered'>
+      <table className='table table-bordered' style={tableStyles}>
         <thead className='thead-dark'>
           <tr>
-            <th>#</th>
-            <th>ID Factura</th>
-            <th>Fecha de Compra</th>
-            <th>IVA Compra</th>
-            <th>Subtotal</th>
-            <th>Total</th>
-            <th>Cliente ID</th>
-            <th>Empleado ID</th>
-            <th>Acciones</th>
+            <th style={{ background: '#440000', color: 'white' }}>#</th>
+            <th style={{ background: '#440000', color: 'white' }}>ID Factura</th>
+            <th style={{ background: '#440000', color: 'white' }}>Fecha de Compra</th>
+            <th style={{ background: '#440000', color: 'white' }}>IVA Compra</th>
+            <th style={{ background: '#440000', color: 'white' }}>Subtotal</th>
+            <th style={{ background: '#440000', color: 'white' }}>Total</th>
+            <th style={{ background: '#440000', color: 'white' }}>Cliente ID</th>
+            <th style={{ background: '#440000', color: 'white' }}>Empleado ID</th>
+            <th style={{ background: '#440000', color: 'white' }}>Acciones</th>
           </tr>
         </thead>
         <tbody>
-          {facturas.map((factura, index) => (
+          {filteredFacturas.map((factura, index) => (
             <tr key={factura.idFactura}>
-              <td>{index + 1}</td>
-              <td>{factura.idFactura}</td>
-              <td>{factura.fechaCompra}</td>
-              <td>{factura.ivaCompra}</td>
-              <td>{factura.subtotal}</td>
-              <td>{factura.total}</td>
-              <td>{factura.clienteId}</td>
-              <td>{factura.empleadoId}</td>
-              <td>
-                <button className='btn btn-info' onClick={() => showDetalleFactura(factura)}>
-                  Ver Detalles
+              <td style={{ background: '#dadada' }}>{indexOfFirstItem + index + 1}</td>
+              <td style={{ background: '#dadada' }}>{factura.idFactura}</td>
+              <td style={{ background: '#dadada' }}>{factura.fechaCompra}</td>
+              <td style={{ background: '#dadada' }}>{factura.ivaCompra}</td>
+              <td style={{ background: '#dadada' }}>{factura.subtotal}</td>
+              <td style={{ background: '#dadada' }}>{factura.total}</td>
+              <td style={{ background: '#dadada' }}>{factura.clienteId}</td>
+              <td style={{ background: '#dadada' }}>{factura.empleadoId}</td>
+              <td style={{ background: '#dadada' }}>
+                <button
+                onClick={() => showDetalleFactura(factura.idFactura)}
+                className='btn btn-danger'
+                style={{ background: '#440000', color: 'white' }}
+                >
+                <i className='fa-solid fa-eye'></i>
+               </button>
+
+               <button
+                onClick={() => desactivarFactura(factura.idFactura, factura.idFactura)}
+                className='btn btn-danger'
+                style={{ background: '#440000', color: 'white' }}
+                >
+                    <i className='fa-solid fa-trash'></i>
+
                 </button>
-                <button className='btn btn-danger' onClick={() => desactivarFactura(factura.idFactura, factura.idFactura)}>
-                  Desactivar
-                </button>
+
               </td>
             </tr>
           ))}
         </tbody>
       </table>
+
+      <ul className="pagination">
+        <li className="page-item">
+          <Button
+            className="page-link"
+            onClick={() => paginate(currentPage === 1 ? 1 : currentPage - 1)}
+            style={paginationButtonStyles}
+            disabled={currentPage === 1}
+          >
+            Anterior
+          </Button>
+        </li>
+        <li className="page-item">
+          <Button
+            className="page-link"
+            onClick={() => paginate(currentPage + 1)}
+            style={paginationButtonStyles}
+            disabled={currentPage === Math.ceil(facturas.length / itemsPerPage)}
+          >
+            Siguiente
+          </Button>
+        </li>
+      </ul>
 
       <Modal show={detalleFactura !== null} onHide={() => setDetalleFactura(null)}>
         <Modal.Header closeButton>
@@ -107,6 +205,23 @@ const ManageFacturas = () => {
               <p>Total: {detalleFactura.total}</p>
               <p>Cliente ID: {detalleFactura.clienteId}</p>
               <p>Empleado ID: {detalleFactura.empleadoId}</p>
+              <p>Detalles:</p>
+              <table className="table">
+              <thead>
+                <tr>
+                  <th>Nombre Producto</th>
+                  <th>Cantidad</th>
+                </tr>
+              </thead>
+              <tbody>
+                {detalleFactura.detalles && detalleFactura.detalles.map((detalle, index) => (
+                  <tr key={index}>
+                    <td>{detalle.nombreProducto}</td>
+                    <td>{detalle.cantidad}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
             </div>
           )}
         </Modal.Body>

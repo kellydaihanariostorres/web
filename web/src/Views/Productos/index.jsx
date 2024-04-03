@@ -146,7 +146,7 @@ const ManageProductos = () => {
       const tipo = response.data[0];
       const msj = response.data[1];
       show_alerta(msj, tipo);
-
+      setErrors({});
       show_alerta(`Producto ${nombreProducto} se ha  exitosamente`, 'success');
 
       getProductos();

@@ -224,7 +224,9 @@ const ManageEmpleados = () => {
       const msj = response.data[1];
       show_alerta(msj, tipo);
       show_alerta(`Empleado ${nombre} se a ${msj} exitosamente`, 'success');
+      setErrors({});
       getEmpleados();
+
       setCacheKey(Date.now().toString());
       setEmpleadoId('');
       setNombre('');
