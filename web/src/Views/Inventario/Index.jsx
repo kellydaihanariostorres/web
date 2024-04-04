@@ -38,13 +38,14 @@ const ManageInventarios = () => {
 
   const getInventarios = async () => {
     try {
-      const response = await axios.get(`${apiUrl}?cacheKey=${cacheKey}`); // Pasar la clave de la caché en la solicitud
+      const response = await axios.get(`${apiUrl}?cacheKey=${Date.now()}`); // Usar Date.now() como clave de caché única
       setInventarios(response.data);
       setTotalPages(Math.ceil(response.data.length / pageSize));
     } catch (error) {
       console.error(error);
     }
   };
+  
   
   const handleNextPage = () => {
     setPageNumber((prevPageNumber) => Math.min(prevPageNumber + 1, totalPages));
@@ -108,7 +109,7 @@ const ManageInventarios = () => {
       );
       const msj = operation === 1 ? 'Inventario registrado exitosamente' : 'Inventario actualizado exitosamente';
       show_alerta(msj, 'success');
-      getInventarios();
+      getInventarios(); // Actualizar la tabla después de agregar o editar un inventario
       setId('');
       setNombreProducto('');
       setIdProducto('');
@@ -122,6 +123,7 @@ const ManageInventarios = () => {
       console.error(error);
     }
   };
+  
 
   const handleSearch = (e) => {
     const text = e.target.value;
@@ -133,9 +135,10 @@ const ManageInventarios = () => {
       const filteredInventarios = inventarios.filter((inventario) =>
         inventario.nombreProducto.toLowerCase().includes(text.toLowerCase())
       );
-      setInventarios(filteredInventarios);
+      setInventarios(filteredInventarios); // Evitar modificar directamente el estado de inventarios
     }
   };
+  
 
   const deleteInventario = (id, nombreProducto) => {
     const MySwal = withReactContent(Swal);
