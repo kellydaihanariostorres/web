@@ -12,11 +12,12 @@ const CrearFacturaComponent = ({ idFactura }) => {
     
 
     const handleAgregarProducto = (producto) => {
-        const updatedProductos = [...productos, producto];
+        const productoConCantidadCero = { ...producto, cantidad: 0 }; // Establecer la cantidad en 0 al agregar el producto
+        const updatedProductos = [...productos, productoConCantidadCero];
         setProductos(updatedProductos);
         recalcularDetalleProductos(updatedProductos);
     };
-
+    
     const handleEliminarProducto = (index) => {
         const updatedProductos = [...productos];
         updatedProductos.splice(index, 1);
